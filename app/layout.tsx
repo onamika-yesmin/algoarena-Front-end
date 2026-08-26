@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "AlgoArena | Build your coding edge",
   description: "Practice problems, compete in live contests, and grow with AlgoArena.",
   applicationName: "AlgoArena",
+  icons: { icon: "/icon.svg" },
   keywords: ["coding practice", "programming contests", "algorithm problems"],
   openGraph: {
     title: "AlgoArena | Build your coding edge",
