@@ -4,6 +4,13 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "AlgoArena | Build your coding edge",
   description: "Practice problems, compete in live contests, and grow with AlgoArena.",
+  applicationName: "AlgoArena",
+  keywords: ["coding practice", "programming contests", "algorithm problems"],
+  openGraph: {
+    title: "AlgoArena | Build your coding edge",
+    description: "Practice problems, compete in live contests, and grow with AlgoArena.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
