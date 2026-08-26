@@ -64,7 +64,7 @@ export default function SignInPage() {
     }, []);
 
     return <main className="auth-page"><section className="auth-card">
-        <Link className="brand" href="/">Algo<span>Arena</span><i> //</i></Link>
+        <Link className="brand" href="/">Algo<span>Arena</span><i>{" //"}</i></Link>
         <p className="eyebrow"><b />ACCOUNT ACCESS</p><h1>Welcome to the arena.</h1>
         <p className="auth-copy">{message}</p><div className="google-button" ref={googleButton} />
         {isLoading && <p className="auth-status">Preparing Google sign-in…</p>}
