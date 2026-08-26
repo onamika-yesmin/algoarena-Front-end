@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { SiteHeader } from "./_components/home/SiteHeader";
 import { SiteFooter } from "./_components/home/SiteFooter";
+import { HomeStats } from "./_components/home/HomeStats";
 
 const Arrow = () => <span aria-hidden="true">→</span>;
 
@@ -30,11 +31,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="feature-band"><div className="section-shell stat-grid">
-        <div><span>01</span><h2>Practice with purpose</h2><p>Curated paths that make every challenge count.</p></div>
-        <div><span>02</span><h2>Compete in real time</h2><p>Weekly contests and a leaderboard that stays alive.</p></div>
-        <div><span>03</span><h2>Learn from the code</h2><p>Clear feedback to help you improve with intent.</p></div>
-      </div></section>
+      <HomeStats />
 
       <section className="paths section-shell">
         <div className="section-intro"><p className="eyebrow">FIND YOUR FLOW</p><h2>One arena. Every way<br />you want to grow.</h2><Link className="text-link" href="/problems">Browse all tracks <Arrow /></Link></div>
