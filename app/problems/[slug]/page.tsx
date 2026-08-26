@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 
-const apiUrl = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/$/, "");
+const apiUrl = (process.env.NEXT_PUBLIC_API_URL ?? "https://algoarena-back-end.vercel.app").replace(/\/$/, "");
 const starter = { javascript: 'const input = require("fs").readFileSync(0, "utf8").trim();\nconsole.log(input);', typescript: 'const input = require("fs").readFileSync(0, "utf8").trim();\nconsole.log(input);', python: 'import sys\nprint(sys.stdin.read().strip())' };
 
 export default function ProblemDetailPage() {

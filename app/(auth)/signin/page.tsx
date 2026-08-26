@@ -12,7 +12,7 @@ declare global {
     }
 }
 
-const apiUrl = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/$/, "");
+const apiUrl = (process.env.NEXT_PUBLIC_API_URL ?? "https://algoarena-back-end.vercel.app").replace(/\/$/, "");
 
 export default function SignInPage() {
     const googleButton = useRef<HTMLDivElement>(null);
