@@ -5,6 +5,7 @@ import { SiteHeader } from "./_components/home/SiteHeader";
 import { SiteFooter } from "./_components/home/SiteFooter";
 import { HomeStats } from "./_components/home/HomeStats";
 import { LearningPaths } from "./_components/home/LearningPaths";
+import { CallToAction } from "./_components/home/CallToAction";
 
 const Arrow = () => <span aria-hidden="true">→</span>;
 
@@ -36,7 +37,7 @@ export default function HomePage() {
 
       <LearningPaths />
 
-      <section className="cta section-shell"><p className="eyebrow">THE ARENA IS OPEN</p><h2>Ready to make your<br /><em>next solution count?</em></h2><Link className="button" href="/problems">Enter AlgoArena <Arrow /></Link></section>
+      <CallToAction />
 
       <SiteFooter />
     </main>
