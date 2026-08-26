@@ -4,6 +4,7 @@ import Link from "next/link";
 import { SiteHeader } from "./_components/home/SiteHeader";
 import { SiteFooter } from "./_components/home/SiteFooter";
 import { HomeStats } from "./_components/home/HomeStats";
+import { LearningPaths } from "./_components/home/LearningPaths";
 
 const Arrow = () => <span aria-hidden="true">→</span>;
 
@@ -33,14 +34,7 @@ export default function HomePage() {
 
       <HomeStats />
 
-      <section className="paths section-shell">
-        <div className="section-intro"><p className="eyebrow">FIND YOUR FLOW</p><h2>One arena. Every way<br />you want to grow.</h2><Link className="text-link" href="/problems">Browse all tracks <Arrow /></Link></div>
-        <div className="path-grid">
-          <article className="path-card purple"><span>01 / PRACTISE</span><h3>Master the<br />fundamentals.</h3><p>Build confidence, one thoughtful problem at a time.</p><Link href="/problems">Start practising <Arrow /></Link><div className="card-icon">⌘</div></article>
-          <article className="path-card cyan"><span>02 / COMPETE</span><h3>Feel the<br />countdown.</h3><p>Test your instincts in contests built for momentum.</p><Link href="/contest">See contests <Arrow /></Link><div className="card-icon">◴</div></article>
-          <article className="path-card orange"><span>03 / CONNECT</span><h3>Grow with<br />your peers.</h3><p>Share solutions, gain perspective, and keep moving.</p><Link href="/leaderboard">Meet the community <Arrow /></Link><div className="card-icon">◎</div></article>
-        </div>
-      </section>
+      <LearningPaths />
 
       <section className="cta section-shell"><p className="eyebrow">THE ARENA IS OPEN</p><h2>Ready to make your<br /><em>next solution count?</em></h2><Link className="button" href="/problems">Enter AlgoArena <Arrow /></Link></section>
 
