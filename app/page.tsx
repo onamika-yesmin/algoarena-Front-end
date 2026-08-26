@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { SiteHeader } from "./_components/home/SiteHeader";
+import { SiteFooter } from "./_components/home/SiteFooter";
 
 const Arrow = () => <span aria-hidden="true">→</span>;
 
@@ -46,7 +47,7 @@ export default function HomePage() {
 
       <section className="cta section-shell"><p className="eyebrow">THE ARENA IS OPEN</p><h2>Ready to make your<br /><em>next solution count?</em></h2><Link className="button" href="/problems">Enter AlgoArena <Arrow /></Link></section>
 
-      <footer><div className="footer-main section-shell"><Link className="brand" href="/"><i>{"</>"}</i> Algo<span>Arena</span></Link><p>A home for developers who<br />enjoy the hard problems.</p><div><h4>Explore</h4><Link href="/problems">Problems</Link><Link href="/contest">Contests</Link><Link href="/leaderboard">Leaderboard</Link></div><div><h4>Account</h4><Link href="/signin">Sign in</Link><Link href="/profile">My profile</Link></div></div><div className="footer-bottom section-shell"><span>© 2026 AlgoArena</span><span>Built for curious minds.</span></div></footer>
+      <SiteFooter />
     </main>
   );
 }
