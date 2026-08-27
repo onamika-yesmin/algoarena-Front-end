@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { appConfig } from "@/lib/config";
 
 declare global {
     interface Window {
@@ -11,8 +12,6 @@ declare global {
         } } };
     }
 }
-
-const apiUrl = (process.env.NEXT_PUBLIC_API_URL ?? "https://algoarena-back-end.vercel.app").replace(/\/$/, "");
 
 export default function SignInPage() {
     const googleButton = useRef<HTMLDivElement>(null);
@@ -27,7 +26,7 @@ export default function SignInPage() {
         const form = new FormData(event.currentTarget);
         const payload = Object.fromEntries(form.entries());
         try {
-            const response = await fetch(`${apiUrl}/api/auth/${mode === "login" ? "login" : "register"}`, { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify(payload) });
+            const response = await fetch(`${appConfig.apiUrl}/api/auth/${mode === "login" ? "login" : "register"}`, { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify(payload) });
             const result = await response.json();
             if (!response.ok) throw new Error(result.message ?? "Authentication failed.");
             window.location.assign("/problems");
@@ -40,8 +39,8 @@ export default function SignInPage() {
     useEffect(() => {
         const setupGoogleSignIn = async () => {
             try {
-                if (!apiUrl) throw new Error("API URL is not configured.");
-                const configResponse = await fetch(`${apiUrl}/api/auth/google/client-config`);
+                if (!appConfig.apiUrl) throw new Error("API URL is not configured.");
+                const configResponse = await fetch(`${appConfig.apiUrl}/api/auth/google/client-config`);
                 const config = await configResponse.json();
                 if (!configResponse.ok || !config.data?.clientId) throw new Error(config.message ?? "Google sign-in is unavailable.");
 
@@ -56,7 +55,7 @@ export default function SignInPage() {
                             setIsLoading(true);
                             setMessage("Signing you in…");
                             try {
-                                const response = await fetch(`${apiUrl}/api/auth/google`, {
+                                const response = await fetch(`${appConfig.apiUrl}/api/auth/google`, {
                                     method: "POST", headers: { "Content-Type": "application/json" },
                                     credentials: "include", body: JSON.stringify({ idToken: credential }),
                                 });
