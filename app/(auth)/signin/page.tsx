@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { appConfig } from "@/lib/config";
+import { setTokens } from "@/lib/auth-storage";
 
 declare global {
     interface Window {
@@ -29,6 +30,12 @@ export default function SignInPage() {
             const response = await fetch(`${appConfig.apiUrl}/api/auth/${mode === "login" ? "login" : "register"}`, { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify(payload) });
             const result = await response.json();
             if (!response.ok) throw new Error(result.message ?? "Authentication failed.");
+            // Store the JWTs as a Bearer-token fallback — see lib/auth-storage.ts.
+            // The cookie may or may not have been accepted by the browser; this
+            // guarantees the session still works either way.
+            if (result.data?.accessToken && result.data?.refreshToken) {
+                setTokens(result.data.accessToken, result.data.refreshToken);
+            }
             window.location.assign("/problems");
         } catch (error) {
             setMessage(error instanceof Error ? error.message : "Authentication failed.");
@@ -62,6 +69,9 @@ export default function SignInPage() {
                                 });
                                 const result = await response.json();
                                 if (!response.ok) throw new Error(result.message ?? "Sign-in failed.");
+                                if (result.data?.accessToken && result.data?.refreshToken) {
+                                    setTokens(result.data.accessToken, result.data.refreshToken);
+                                }
                                 window.location.assign("/profile");
                             } catch (error) {
                                 setMessage(error instanceof Error ? error.message : "Sign-in failed. Please try again.");
