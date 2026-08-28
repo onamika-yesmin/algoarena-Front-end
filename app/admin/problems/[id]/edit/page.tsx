@@ -1,14 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
 import { getAdminProblem, updateAdminProblem, type AdminProblemDetail } from "@/lib/api/admin";
-import { ApiError } from "@/lib/api/client";
+import { getErrorMessage } from "@/lib/api/client";
 import { ProblemForm, type ProblemFormValues } from "@/components/admin/ProblemForm";
 import { Loader } from "@/components/ui/Loader";
 import { AdminRoute } from "@/components/auth/AdminRoute";
-import { SiteHeader } from "@/app/_components/home/SiteHeader";
+import { AdminShell, AdminErrorState } from "@/components/admin/AdminShell";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
 
 function EditProblemContent() {
@@ -16,17 +15,24 @@ function EditProblemContent() {
   const router = useRouter();
   const [problem, setProblem] = useState<AdminProblemDetail | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [loadErrorMessage, setLoadErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const load = useCallback(() => {
+    setStatus("loading");
     getAdminProblem(params.id)
       .then((data) => {
         setProblem(data);
         setStatus("ready");
       })
-      .catch(() => setStatus("error"));
+      .catch((requestError) => {
+        setLoadErrorMessage(getErrorMessage(requestError, "Could not load this problem."));
+        setStatus("error");
+      });
   }, [params.id]);
+
+  useEffect(load, [load]);
 
   const submit = async (values: ProblemFormValues) => {
     setIsSubmitting(true);
@@ -53,43 +59,39 @@ function EditProblemContent() {
       });
       router.push("/admin/problems");
     } catch (requestError) {
-      setError(requestError instanceof ApiError ? requestError.message : "Could not update the problem.");
+      setError(getErrorMessage(requestError, "Could not update the problem."));
       setIsSubmitting(false);
     }
   };
 
-  if (status === "loading") return <Loader label="Loading problem…" />;
+  if (status === "loading") {
+    return (
+      <AdminShell eyebrow="CONTENT / EDIT PROBLEM" title="Loading…">
+        <Loader label="Loading problem…" />
+      </AdminShell>
+    );
+  }
+
   if (status === "error" || !problem) {
     return (
-      <main className="dashboard-shell">
-        <p className="problem-list-status">Could not load this problem.</p>
-        <Link className="text-link" href="/admin/problems">
-          ← Back to problems
-        </Link>
-      </main>
+      <AdminShell eyebrow="CONTENT / EDIT PROBLEM" title="Edit problem">
+        <AdminErrorState message={loadErrorMessage} onRetry={load} />
+      </AdminShell>
     );
   }
 
   return (
-    <main className="dashboard-shell">
-      <div className="dashboard-head">
-        <div>
-          <p className="eyebrow">CONTENT / EDIT PROBLEM</p>
-          <h1>{problem.title}</h1>
-        </div>
-        <Link className="text-link" href="/admin/problems">
-          ← Back to problems
-        </Link>
+    <AdminShell eyebrow="CONTENT / EDIT PROBLEM" title={problem.title}>
+      <div className="admin-card">
+        <ProblemForm initial={problem} submitLabel="Save changes" isSubmitting={isSubmitting} error={error} onSubmit={submit} isEdit />
       </div>
-      <ProblemForm initial={problem} submitLabel="Save changes" isSubmitting={isSubmitting} error={error} onSubmit={submit} isEdit />
-    </main>
+    </AdminShell>
   );
 }
 
 export default function EditProblemPage() {
   return (
     <AdminRoute>
-      <SiteHeader />
       <EditProblemContent />
       <SiteFooter />
     </AdminRoute>

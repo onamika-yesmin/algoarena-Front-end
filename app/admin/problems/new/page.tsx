@@ -2,12 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { addAdminTestCases, createAdminProblem } from "@/lib/api/admin";
-import { ApiError } from "@/lib/api/client";
+import { ApiError, getErrorMessage } from "@/lib/api/client";
 import { ProblemForm, type ProblemFormValues } from "@/components/admin/ProblemForm";
 import { AdminRoute } from "@/components/auth/AdminRoute";
-import { SiteHeader } from "@/app/_components/home/SiteHeader";
+import { AdminShell } from "@/components/admin/AdminShell";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
 
 function NewProblemContent() {
@@ -50,32 +49,27 @@ function NewProblemContent() {
 
       router.push("/admin/problems");
     } catch (requestError) {
-      setError(requestError instanceof ApiError ? requestError.message : "Could not create the problem.");
+      setError(getErrorMessage(requestError, "Could not create the problem."));
       setIsSubmitting(false);
     }
   };
 
   return (
-    <main className="dashboard-shell">
-      <div className="dashboard-head">
-        <div>
-          <p className="eyebrow">CONTENT / NEW PROBLEM</p>
-          <h1>Create problem</h1>
-          <p>Every test case you add here (sample and hidden) is used by the judge — this problem is gradeable the moment you save it.</p>
-        </div>
-        <Link className="text-link" href="/admin/problems">
-          ← Back to problems
-        </Link>
+    <AdminShell
+      eyebrow="CONTENT / NEW PROBLEM"
+      title="Create problem"
+      description="Every test case you add here (sample and hidden) is used by the judge — this problem is gradeable the moment you save it."
+    >
+      <div className="admin-card">
+        <ProblemForm submitLabel="Create problem" isSubmitting={isSubmitting} error={error} onSubmit={submit} />
       </div>
-      <ProblemForm submitLabel="Create problem" isSubmitting={isSubmitting} error={error} onSubmit={submit} />
-    </main>
+    </AdminShell>
   );
 }
 
 export default function NewProblemPage() {
   return (
     <AdminRoute>
-      <SiteHeader />
       <NewProblemContent />
       <SiteFooter />
     </AdminRoute>

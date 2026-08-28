@@ -123,3 +123,189 @@
 .icon-button:disabled { opacity:.5; cursor:not-allowed; }
 .form-error { color:#ff8080; font-size:13px; margin:0; }
 .form-success { color:#65dfad; font-size:13px; margin:0; }
+
+/* ---------------------------------------------------------------------- */
+/* Admin dashboard shell (components/admin/AdminShell.tsx). A dedicated
+   two-column app layout — sidebar + content — instead of the marketing
+   dashboard-shell used elsewhere, so the control room reads as its own
+   tool rather than another public page. */
+
+.admin-shell {
+  width: min(1320px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 40px 0 110px;
+  display: grid;
+  grid-template-columns: 232px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+.admin-sidebar {
+  position: sticky;
+  top: 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 14px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, #171c34, #12162a);
+  border-radius: 12px;
+}
+
+.admin-sidebar-kicker {
+  font: 10px "DM Mono";
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #6d748d;
+  margin: 6px 10px 12px;
+}
+
+.admin-sidebar nav { display: flex; flex-direction: column; gap: 2px; margin-bottom: 14px; }
+
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 12px;
+  border-radius: 8px;
+  color: #b8bdd0;
+  font-size: 13.5px;
+  font-weight: 600;
+  transition: background .15s, color .15s;
+}
+.admin-nav-item svg { flex-shrink: 0; opacity: .85; }
+.admin-nav-item:hover { background: rgba(128,103,255,.1); color: #fff; }
+.admin-nav-item.is-active { background: rgba(128,103,255,.18); color: #fff; }
+.admin-nav-item.is-active svg { color: var(--cyan); opacity: 1; }
+
+.admin-sidebar-exit {
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+  margin-top: 4px;
+  color: #8a8fa2;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.admin-sidebar-exit:hover { color: var(--cyan); }
+
+.admin-main-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+.admin-main-head h1 { font: 700 clamp(28px,3.4vw,40px)/1.1 "Space Grotesk"; letter-spacing: -1.6px; margin: 6px 0 10px; }
+.admin-main-desc { color: #aeb4c9; max-width: 560px; margin: 0; line-height: 1.65; font-size: 13.5px; }
+.admin-main-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* Stat cards with an icon accent, used on /admin overview. */
+.stat-card-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 4px 0 36px; }
+.stat-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #171c34;
+  border-radius: 12px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.stat-card-icon {
+  width: 38px; height: 38px; border-radius: 9px;
+  display: grid; place-items: center;
+  background: rgba(128,103,255,.16); color: var(--violet);
+}
+.stat-card.accent-cyan .stat-card-icon { background: rgba(85,216,210,.16); color: var(--cyan); }
+.stat-card.accent-orange .stat-card-icon { background: rgba(255,178,84,.16); color: var(--orange); }
+.stat-card b { font: 700 30px "Space Grotesk"; color: #fff; letter-spacing: -.5px; }
+.stat-card span { color: #9da5bf; font-size: 12.5px; }
+.stat-card small { color: #6d748d; font: 10.5px "DM Mono"; }
+
+/* Section card wrapping a table/list/form inside the admin main column. */
+.admin-card { border: 1px solid var(--line); background: #12172b; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+.admin-card > h2 { font: 700 20px "Space Grotesk"; margin: 0 0 4px; }
+.admin-card > p.admin-card-hint { color: #9da5bf; font-size: 12.5px; margin: 0 0 18px; }
+
+/* Quick-link tiles (overview page: User control / Problem library / etc). */
+.admin-link-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.admin-link-card {
+  border: 1px solid var(--line);
+  background: #171c34;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color .15s, transform .15s;
+}
+.admin-link-card:hover { border-color: var(--violet); transform: translateY(-2px); }
+.admin-link-card .panel-kicker { display: flex; align-items: center; gap: 8px; }
+.admin-link-card h2 { font: 700 21px "Space Grotesk"; margin: 6px 0 2px; }
+.admin-link-card p { color: #9da5bf; font-size: 12.5px; line-height: 1.6; min-height: 36px; margin: 0; }
+.admin-link-card .text-link { margin-top: 6px; }
+
+/* Refined admin tables: sticky header, zebra rows, hover highlight. */
+.admin-table-wrap table { width: 100%; border-collapse: separate; border-spacing: 0; }
+.admin-table-wrap thead th {
+  position: sticky; top: 0;
+  background: #171c34;
+  color: #8a8fa2;
+  font: 10px "DM Mono";
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  text-align: left;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+}
+.admin-table-wrap tbody td { padding: 13px 14px; border-bottom: 1px solid rgba(213,218,255,.08); font-size: 13px; color: #dfe1ee; }
+.admin-table-wrap tbody tr:hover { background: rgba(128,103,255,.06); }
+.admin-table-wrap tbody tr:last-child td { border-bottom: 0; }
+.admin-table-wrap { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+
+.admin-cell-user { display: flex; align-items: center; gap: 10px; }
+.admin-cell-avatar {
+  width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+  display: grid; place-items: center; overflow: hidden;
+  background: var(--violet); color: #fff; font: 700 12px "Space Grotesk";
+}
+.admin-cell-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.admin-cell-name { color: #fff; font-weight: 600; }
+.admin-cell-sub { display: block; color: #8a8fa2; font-size: 11.5px; }
+
+/* Toolbar: search input with an icon, kept above tables. */
+.admin-toolbar { position: relative; }
+.admin-toolbar-search { position: relative; flex: 1; max-width: 340px; }
+.admin-toolbar-search svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6d748d; pointer-events: none; }
+.admin-toolbar-search input { width: 100%; padding-left: 36px; margin: 0; min-width: 0; }
+
+/* Error / empty state banner, used in place of a bare line of text. */
+.admin-state {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px 22px;
+  margin: 18px 0;
+}
+.admin-state svg { flex-shrink: 0; margin-top: 2px; }
+.admin-state-title { margin: 0 0 4px; font-weight: 700; color: #fff; font-size: 14px; }
+.admin-state-detail { margin: 0; color: #9da5bf; font-size: 12.5px; line-height: 1.6; }
+.admin-state-error { border-color: rgba(255,128,128,.35); background: rgba(58,20,24,.35); }
+.admin-state-error svg { color: #ff8080; }
+.admin-state-error button { margin-left: auto; }
+.admin-state-empty { background: #12172b; color: #9da5bf; }
+.admin-state-empty svg { color: #6d748d; }
+
+@media (max-width: 900px) {
+  .admin-shell { grid-template-columns: 1fr; }
+  .admin-sidebar { position: static; flex-direction: row; overflow-x: auto; align-items: center; }
+  .admin-sidebar-kicker { display: none; }
+  .admin-sidebar nav { flex-direction: row; margin-bottom: 0; }
+  .admin-sidebar-exit { display: none; }
+  .stat-card-grid { grid-template-columns: repeat(2, 1fr); }
+  .admin-link-grid { grid-template-columns: 1fr; }
+}

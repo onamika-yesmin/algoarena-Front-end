@@ -1,36 +1,40 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { deleteAdminProblem, listAdminProblems, updateAdminProblem, type AdminProblemSummary } from "@/lib/api/admin";
-import { ApiError } from "@/lib/api/client";
+import { getErrorMessage } from "@/lib/api/client";
 import { Loader } from "@/components/ui/Loader";
 import { AdminRoute } from "@/components/auth/AdminRoute";
-import { SiteHeader } from "@/app/_components/home/SiteHeader";
+import { AdminShell, AdminErrorState, AdminEmptyState } from "@/components/admin/AdminShell";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
+import { IconSearch } from "@/components/admin/icons";
 
 function AdminProblemsContent() {
   const [problems, setProblems] = useState<AdminProblemSummary[]>([]);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [loadErrorMessage, setLoadErrorMessage] = useState("");
   const [search, setSearch] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const load = () => {
+  const load = useCallback(() => {
     setStatus("loading");
     listAdminProblems({ search: search || undefined, limit: 100 })
       .then((result) => {
         setProblems(result.items);
         setStatus("ready");
       })
-      .catch(() => setStatus("error"));
-  };
+      .catch((requestError) => {
+        setLoadErrorMessage(getErrorMessage(requestError, "Could not load problems."));
+        setStatus("error");
+      });
+  }, [search]);
 
   useEffect(() => {
     const timeout = setTimeout(load, 250);
     return () => clearTimeout(timeout);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search]);
+  }, [load]);
 
   const togglePublished = async (problem: AdminProblemSummary) => {
     setBusyId(problem.id);
@@ -39,7 +43,7 @@ function AdminProblemsContent() {
       await updateAdminProblem(problem.id, { isPublished: !problem.isPublished });
       setProblems((current) => current.map((item) => (item.id === problem.id ? { ...item, isPublished: !item.isPublished } : item)));
     } catch (requestError) {
-      setError(requestError instanceof ApiError ? requestError.message : "Could not update the problem.");
+      setError(getErrorMessage(requestError, "Could not update the problem."));
     } finally {
       setBusyId(null);
     }
@@ -53,39 +57,37 @@ function AdminProblemsContent() {
       await deleteAdminProblem(problem.id);
       setProblems((current) => current.filter((item) => item.id !== problem.id));
     } catch (requestError) {
-      setError(requestError instanceof ApiError ? requestError.message : "Could not delete the problem.");
+      setError(getErrorMessage(requestError, "Could not delete the problem."));
     } finally {
       setBusyId(null);
     }
   };
 
   return (
-    <main className="dashboard-shell">
-      <div className="dashboard-head">
-        <div>
-          <p className="eyebrow">CONTENT / PROBLEMS</p>
-          <h1>Problem manager</h1>
-          <p>Create, edit, publish and remove problems from the library.</p>
-        </div>
+    <AdminShell
+      eyebrow="CONTENT / PROBLEMS"
+      title="Problem manager"
+      description="Create, edit, publish and remove problems from the library."
+      actions={
         <Link className="button button-small" href="/admin/problems/new">
           New problem <span>→</span>
         </Link>
-      </div>
-
+      }
+    >
       <div className="admin-toolbar">
-        <input placeholder="Search by title…" value={search} onChange={(event) => setSearch(event.target.value)} aria-label="Search problems" />
-        <Link className="text-link" href="/admin">
-          ← Back to dashboard
-        </Link>
+        <div className="admin-toolbar-search">
+          <IconSearch />
+          <input placeholder="Search by title…" value={search} onChange={(event) => setSearch(event.target.value)} aria-label="Search problems" />
+        </div>
       </div>
 
       {error && <p className="form-error">{error}</p>}
       {status === "loading" && <Loader label="Loading problems…" />}
-      {status === "error" && <p className="problem-list-status">Could not load problems.</p>}
-      {status === "ready" && problems.length === 0 && <p className="problem-list-status">No problems yet — create the first one.</p>}
+      {status === "error" && <AdminErrorState message={loadErrorMessage} onRetry={load} />}
+      {status === "ready" && problems.length === 0 && <AdminEmptyState message="No problems yet — create the first one." />}
 
       {status === "ready" && problems.length > 0 && (
-        <div className="admin-table-wrap submission-history">
+        <div className="admin-table-wrap">
           <table>
             <thead>
               <tr>
@@ -99,8 +101,10 @@ function AdminProblemsContent() {
             <tbody>
               {problems.map((problem) => (
                 <tr key={problem.id}>
-                  <td>{problem.title}</td>
-                  <td>{problem.difficulty}</td>
+                  <td className="admin-cell-name">{problem.title}</td>
+                  <td>
+                    <span className={`pill pill-${problem.difficulty.toLowerCase()}`}>{problem.difficulty}</span>
+                  </td>
                   <td>{problem.basePoints}</td>
                   <td>
                     <span className={`badge ${problem.isPublished ? "badge-published" : "badge-draft"}`}>
@@ -124,14 +128,13 @@ function AdminProblemsContent() {
           </table>
         </div>
       )}
-    </main>
+    </AdminShell>
   );
 }
 
 export default function AdminProblemsPage() {
   return (
     <AdminRoute>
-      <SiteHeader />
       <AdminProblemsContent />
       <SiteFooter />
     </AdminRoute>

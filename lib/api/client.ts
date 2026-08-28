@@ -18,6 +18,22 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * Turns any thrown value into a readable string, preferring the backend's
+ * own message (ApiError) over a generic fallback. UI code should use this
+ * instead of swallowing errors into a fixed "Could not load X" string —
+ * a real message (and status code, when useful) is what actually lets
+ * someone tell a stale-session 401 apart from a server-side 500 without
+ * opening devtools.
+ */
+export function getErrorMessage(error: unknown, fallback = "Something went wrong."): string {
+  if (error instanceof ApiError) {
+    return error.statusCode ? `${error.message} (HTTP ${error.statusCode})` : error.message;
+  }
+  if (error instanceof Error && error.message) return error.message;
+  return fallback;
+}
+
 interface RequestOptions {
   method?: "GET" | "POST" | "PATCH" | "DELETE";
   body?: unknown;

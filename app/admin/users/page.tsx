@@ -1,36 +1,43 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/providers/AuthProvider";
 import { listAdminUsers, updateAdminUser } from "@/lib/api/admin";
 import type { AdminUser } from "@/types/api";
-import { ApiError } from "@/lib/api/client";
+import { getErrorMessage } from "@/lib/api/client";
 import { Loader } from "@/components/ui/Loader";
 import { AdminRoute } from "@/components/auth/AdminRoute";
-import { SiteHeader } from "@/app/_components/home/SiteHeader";
+import { AdminShell, AdminErrorState, AdminEmptyState } from "@/components/admin/AdminShell";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
+import { IconSearch } from "@/components/admin/icons";
 
 function AdminUsersContent() {
   const { user: me } = useAuth();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [loadErrorMessage, setLoadErrorMessage] = useState("");
   const [search, setSearch] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     setStatus("loading");
-    const timeout = setTimeout(() => {
-      listAdminUsers({ search: search || undefined, limit: 100 })
-        .then((result) => {
-          setUsers(result.items);
-          setStatus("ready");
-        })
-        .catch(() => setStatus("error"));
-    }, 250);
-    return () => clearTimeout(timeout);
+    listAdminUsers({ search: search || undefined, limit: 100 })
+      .then((result) => {
+        setUsers(result.items);
+        setStatus("ready");
+      })
+      .catch((requestError) => {
+        setLoadErrorMessage(getErrorMessage(requestError, "Could not load users."));
+        setStatus("error");
+      });
   }, [search]);
+
+  useEffect(() => {
+    const timeout = setTimeout(load, 250);
+    return () => clearTimeout(timeout);
+  }, [load]);
 
   const applyUpdate = async (userId: string, payload: { role?: "user" | "admin"; status?: "active" | "blocked" }) => {
     setBusyId(userId);
@@ -39,35 +46,28 @@ function AdminUsersContent() {
       const updated = await updateAdminUser(userId, payload);
       setUsers((current) => current.map((item) => (item.id === userId ? { ...item, ...updated } : item)));
     } catch (requestError) {
-      setError(requestError instanceof ApiError ? requestError.message : "Could not update this user.");
+      setError(getErrorMessage(requestError, "Could not update this user."));
     } finally {
       setBusyId(null);
     }
   };
 
   return (
-    <main className="dashboard-shell">
-      <div className="dashboard-head">
-        <div>
-          <p className="eyebrow">PEOPLE / USERS</p>
-          <h1>User manager</h1>
-          <p>Promote trusted learners to admin, or block accounts that abuse the platform.</p>
-        </div>
-      </div>
-
+    <AdminShell eyebrow="PEOPLE / USERS" title="User manager" description="Promote trusted learners to admin, or block accounts that abuse the platform.">
       <div className="admin-toolbar">
-        <input placeholder="Search by name or email…" value={search} onChange={(event) => setSearch(event.target.value)} aria-label="Search users" />
-        <Link className="text-link" href="/admin">
-          ← Back to dashboard
-        </Link>
+        <div className="admin-toolbar-search">
+          <IconSearch />
+          <input placeholder="Search by name or email…" value={search} onChange={(event) => setSearch(event.target.value)} aria-label="Search users" />
+        </div>
       </div>
 
       {error && <p className="form-error">{error}</p>}
       {status === "loading" && <Loader label="Loading users…" />}
-      {status === "error" && <p className="problem-list-status">Could not load users.</p>}
+      {status === "error" && <AdminErrorState message={loadErrorMessage} onRetry={load} />}
+      {status === "ready" && users.length === 0 && <AdminEmptyState message="No users match this search." />}
 
       {status === "ready" && users.length > 0 && (
-        <div className="admin-table-wrap submission-history">
+        <div className="admin-table-wrap">
           <table>
             <thead>
               <tr>
@@ -84,7 +84,18 @@ function AdminUsersContent() {
                 const isSelf = me && (me.id ?? me._id) === user.id;
                 return (
                   <tr key={user.id}>
-                    <td>{user.name}</td>
+                    <td>
+                      <div className="admin-cell-user">
+                        <span className="admin-cell-avatar">
+                          {user.profilePicUrl ? (
+                            <Image src={user.profilePicUrl} alt="" width={30} height={30} />
+                          ) : (
+                            user.name.slice(0, 1).toUpperCase()
+                          )}
+                        </span>
+                        <span className="admin-cell-name">{user.name}</span>
+                      </div>
+                    </td>
                     <td>{user.email}</td>
                     <td>
                       <span className={`badge ${user.role === "admin" ? "badge-admin" : "badge-user"}`}>{user.role}</span>
@@ -95,9 +106,7 @@ function AdminUsersContent() {
                     <td>{new Date(user.createdAt).toLocaleDateString()}</td>
                     <td style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
                       {isSelf ? (
-                        <span className="problem-list-status" style={{ padding: 0 }}>
-                          (you)
-                        </span>
+                        <span className="admin-cell-sub">(you)</span>
                       ) : (
                         <>
                           <button
@@ -126,14 +135,13 @@ function AdminUsersContent() {
           </table>
         </div>
       )}
-    </main>
+    </AdminShell>
   );
 }
 
 export default function AdminUsersPage() {
   return (
     <AdminRoute>
-      <SiteHeader />
       <AdminUsersContent />
       <SiteFooter />
     </AdminRoute>
