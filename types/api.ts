@@ -185,3 +185,30 @@ export interface CurrentUser {
   status: "active" | "blocked";
   createdAt?: string;
 }
+
+export interface AdminStats {
+  totalUsers: number;
+  totalProblems: number;
+  totalSubmissions: number;
+  submissionsToday: number;
+  activeContests: number;
+  acceptedSubmissions: number;
+  blockedUsers: number;
+}
+
+export interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: "user" | "admin";
+  status: "active" | "blocked";
+  profilePicUrl?: string;
+  createdAt: string;
+}
+
+export interface AdminUserListResult {
+  items: AdminUser[];
+  total: number;
+  page: number;
+  limit: number;
+}
