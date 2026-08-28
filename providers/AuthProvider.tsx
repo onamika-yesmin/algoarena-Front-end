@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { ApiError } from "@/lib/api/client";
 import { getCurrentUser, logout as logoutRequest } from "@/lib/api/auth";
+import { clearTokens } from "@/lib/auth-storage";
 import type { CurrentUser } from "@/types/api";
 
 interface AuthContextValue {
@@ -42,6 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await logoutRequest();
     } finally {
+      clearTokens();
       setUser(null);
     }
   }, []);
