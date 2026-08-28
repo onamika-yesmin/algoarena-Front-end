@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/providers/AuthProvider";
 import { getGlobalLeaderboard, getMyRank } from "@/lib/api/leaderboard";
 import type { LeaderboardEntry, MyRank } from "@/types/api";
+import { Loader } from "@/components/ui/Loader";
+import { SiteHeader } from "@/app/_components/home/SiteHeader";
+import { SiteFooter } from "@/app/_components/home/SiteFooter";
 
 const PAGE_SIZE = 25;
 
@@ -46,7 +49,9 @@ export default function LeaderboardPage() {
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
-    <main className="section-shell workspace">
+    <>
+      <SiteHeader />
+      <main className="section-shell workspace">
       <p className="eyebrow">
         <b />
         LEADERBOARD
@@ -66,7 +71,7 @@ export default function LeaderboardPage() {
         </div>
       )}
 
-      {status === "loading" && <p className="problem-list-status">Loading leaderboard…</p>}
+      {status === "loading" && <Loader label="Loading leaderboard…" />}
       {status === "error" && <p className="problem-list-status">Could not load the leaderboard.</p>}
       {status === "ready" && entries.length === 0 && <p className="problem-list-status">No ranked solvers yet — be the first to solve a problem.</p>}
 
@@ -108,6 +113,8 @@ export default function LeaderboardPage() {
           </button>
         </div>
       )}
-    </main>
+      </main>
+      <SiteFooter />
+    </>
   );
 }

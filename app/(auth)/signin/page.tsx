@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { appConfig } from "@/lib/config";
 import { setTokens } from "@/lib/auth-storage";
+import { Spinner } from "@/components/ui/Loader";
 
 declare global {
     interface Window {
@@ -103,7 +104,7 @@ export default function SignInPage() {
         </form>
         <button className="auth-switch" type="button" onClick={() => setMode(mode === "login" ? "register" : "login")}>{mode === "login" ? "New here? Create an account" : "Already have an account? Sign in"}</button>
         <p className="auth-divider">or continue with Google</p><div className="google-button" ref={googleButton} />
-        {isLoading && <p className="auth-status">Preparing Google sign-in…</p>}
+        {isLoading && <p className="auth-status"><Spinner size="sm" /> Preparing Google sign-in…</p>}
         <Link className="text-link" href="/">← Back to home</Link>
     </section></main>;
 }

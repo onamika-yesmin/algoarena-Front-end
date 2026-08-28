@@ -11,6 +11,9 @@ import type { Language, ProblemDetail, Submission } from "@/types/api";
 import MonacoEditor from "@/components/editor/MonacoEditor";
 import VerdictPanel from "@/components/verdict/VerdictPanel";
 import HintPanel from "@/components/hints/HintPanel";
+import { PageLoader } from "@/components/ui/Loader";
+import { SiteHeader } from "@/app/_components/home/SiteHeader";
+import { SiteFooter } from "@/app/_components/home/SiteFooter";
 
 const languages: Language[] = ["python", "cpp", "javascript"];
 
@@ -104,25 +107,33 @@ export default function ProblemDetailPage() {
 
   if (status === "loading") {
     return (
-      <main className="section-shell problem-workspace">
-        <p className="problem-list-status">Loading problem…</p>
-      </main>
+      <>
+        <SiteHeader />
+        <PageLoader label="Loading problem…" />
+        <SiteFooter />
+      </>
     );
   }
 
   if (status === "error" || !problem) {
     return (
-      <main className="section-shell problem-workspace">
-        <p className="problem-list-status">Could not load this problem. It may not exist.</p>
-        <Link className="text-link" href="/problems">
-          ← Back to problems
-        </Link>
-      </main>
+      <>
+        <SiteHeader />
+        <main className="section-shell problem-workspace">
+          <p className="problem-list-status">Could not load this problem. It may not exist.</p>
+          <Link className="text-link" href="/problems">
+            ← Back to problems
+          </Link>
+        </main>
+        <SiteFooter />
+      </>
     );
   }
 
   return (
-    <main className="section-shell problem-workspace">
+    <>
+      <SiteHeader />
+      <main className="section-shell problem-workspace">
       <div className="problem-workspace-head">
         <div>
           <p className="eyebrow">
@@ -235,6 +246,8 @@ export default function ProblemDetailPage() {
           )}
         </section>
       </div>
-    </main>
+      </main>
+      <SiteFooter />
+    </>
   );
 }

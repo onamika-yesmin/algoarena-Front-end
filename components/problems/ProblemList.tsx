@@ -5,6 +5,7 @@ import { listProblems } from "@/lib/api/problems";
 import type { ProblemSummary } from "@/types/api";
 import ProblemCard from "./ProblemCard";
 import ProblemFilters from "./ProblemFilters";
+import { Loader } from "@/components/ui/Loader";
 
 export default function ProblemList() {
   const [problems, setProblems] = useState<ProblemSummary[]>([]);
@@ -56,7 +57,7 @@ export default function ProblemList() {
         }}
       />
 
-      {status === "loading" && <p className="problem-list-status">Loading problems…</p>}
+      {status === "loading" && <Loader label="Loading problems…" />}
       {status === "error" && <p className="problem-list-status">Could not load problems. Is the backend running?</p>}
       {status === "ready" && problems.length === 0 && <p className="problem-list-status">No problems match your filters yet.</p>}
 

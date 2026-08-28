@@ -30,6 +30,12 @@ export function SiteHeader() {
         <Link href="/problems">Problems</Link>
         <Link href="/contest">Contests</Link>
         <Link href="/leaderboard">Leaderboard</Link>
+        {!isLoading && user && <Link href="/analytics">Analytics</Link>}
+        {!isLoading && user?.role === "admin" && (
+          <Link href="/admin" className="admin-nav-link">
+            Admin
+          </Link>
+        )}
       </nav>
       <div className="header-actions">
         {!isLoading && user ? (
@@ -47,6 +53,7 @@ export function SiteHeader() {
                 <span className="header-avatar header-avatar-fallback">{user.name.slice(0, 1).toUpperCase()}</span>
               )}
               <span className="header-account-name">{user.name}</span>
+              {user.role === "admin" && <span className="header-role-badge">Admin</span>}
             </Link>
             <button className="sign-in header-signout" type="button" onClick={handleSignOut} disabled={isSigningOut}>
               {isSigningOut ? "Signing out…" : "Sign out"}

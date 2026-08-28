@@ -7,6 +7,9 @@ import { useAuth } from "@/providers/AuthProvider";
 import { getContestByIdentifier, getContestScoreboard, registerForContest } from "@/lib/api/contests";
 import { ApiError } from "@/lib/api/client";
 import type { ContestDetail, ContestScoreboardEntry } from "@/types/api";
+import { PageLoader } from "@/components/ui/Loader";
+import { SiteHeader } from "@/app/_components/home/SiteHeader";
+import { SiteFooter } from "@/app/_components/home/SiteFooter";
 
 const statusLabel: Record<string, string> = {
   UPCOMING: "Upcoming",
@@ -61,25 +64,33 @@ export default function ContestDetailPage() {
 
   if (status === "loading") {
     return (
-      <main className="section-shell workspace">
-        <p className="problem-list-status">Loading contest…</p>
-      </main>
+      <>
+        <SiteHeader />
+        <PageLoader label="Loading contest…" />
+        <SiteFooter />
+      </>
     );
   }
 
   if (status === "error" || !contest) {
     return (
-      <main className="section-shell workspace">
-        <p className="problem-list-status">Could not load this contest. It may not exist.</p>
-        <Link className="text-link" href="/contest">
-          ← Back to contests
-        </Link>
-      </main>
+      <>
+        <SiteHeader />
+        <main className="section-shell workspace">
+          <p className="problem-list-status">Could not load this contest. It may not exist.</p>
+          <Link className="text-link" href="/contest">
+            ← Back to contests
+          </Link>
+        </main>
+        <SiteFooter />
+      </>
     );
   }
 
   return (
-    <main className="section-shell workspace">
+    <>
+      <SiteHeader />
+      <main className="section-shell workspace">
       <p className="eyebrow">
         <b />
         {statusLabel[contest.status] ?? contest.status}
@@ -160,6 +171,8 @@ export default function ContestDetailPage() {
       <Link className="text-link" href="/contest" style={{ marginTop: 24, display: "inline-flex" }}>
         ← All contests
       </Link>
-    </main>
+      </main>
+      <SiteFooter />
+    </>
   );
 }

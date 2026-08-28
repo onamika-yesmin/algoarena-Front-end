@@ -4,6 +4,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { listContests } from "@/lib/api/contests";
 import type { ContestSummary } from "@/types/api";
+import { Loader } from "@/components/ui/Loader";
+import { SiteHeader } from "@/app/_components/home/SiteHeader";
+import { SiteFooter } from "@/app/_components/home/SiteFooter";
 
 const statusLabel: Record<string, string> = {
   UPCOMING: "Upcoming",
@@ -32,7 +35,9 @@ export default function ContestPage() {
   }, []);
 
   return (
-    <main className="section-shell workspace">
+    <>
+      <SiteHeader />
+      <main className="section-shell workspace">
       <p className="eyebrow">
         <b />
         CONTESTS
@@ -40,7 +45,7 @@ export default function ContestPage() {
       <h1>Live contests</h1>
       <p>Compete head-to-head against other solvers, ranked on a live scoreboard.</p>
 
-      {status === "loading" && <p className="problem-list-status">Loading contests…</p>}
+      {status === "loading" && <Loader label="Loading contests…" />}
       {status === "error" && <p className="problem-list-status">Could not load contests.</p>}
       {status === "ready" && contests.length === 0 && <p className="problem-list-status">No contests are scheduled yet — check back soon.</p>}
 
@@ -61,6 +66,8 @@ export default function ContestPage() {
           ))}
         </div>
       )}
-    </main>
+      </main>
+      <SiteFooter />
+    </>
   );
 }
