@@ -30,7 +30,9 @@ export function SiteHeader() {
         <Link href="/problems">Problems</Link>
         <Link href="/contest">Contests</Link>
         <Link href="/leaderboard">Leaderboard</Link>
+        <Link href="/community">Community</Link>
         {!isLoading && user && <Link href="/analytics">Analytics</Link>}
+        {!isLoading && user && <Link href="/interview">Interview</Link>}
         {!isLoading && user?.role === "admin" && (
           <Link href="/admin" className="admin-nav-link">
             Admin
