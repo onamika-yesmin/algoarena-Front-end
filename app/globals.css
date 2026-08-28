@@ -67,3 +67,7 @@
 .hint-entry-level{display:inline-block;font:10px 'DM Mono';color:#55d8d2;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
 .hint-entry p{margin:0;color:#c3c8dd;line-height:1.6}
 .hint-panel-note{margin:14px 0 0;color:#8a8fa2;font-size:12px}
+.pill-contest-upcoming{background:#1c2a4a;color:#8fc3ff}
+.pill-contest-ongoing{background:#123526;color:#65dfad}
+.pill-contest-ended{background:#242945;color:#9da5bf}
+.contest-card-description{color:#9da5bf;font-size:13px;line-height:1.5;margin:0}
