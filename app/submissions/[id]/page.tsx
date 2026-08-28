@@ -6,8 +6,12 @@ import { useEffect, useState } from "react";
 import { getSubmissionById } from "@/lib/api/submissions";
 import type { Submission } from "@/types/api";
 import VerdictPanel from "@/components/verdict/VerdictPanel";
+import { PageLoader } from "@/components/ui/Loader";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { SiteHeader } from "@/app/_components/home/SiteHeader";
+import { SiteFooter } from "@/app/_components/home/SiteFooter";
 
-export default function SubmissionDetailPage() {
+function SubmissionDetailContent() {
   const params = useParams<{ id: string }>();
   const [submission, setSubmission] = useState<Submission | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
@@ -30,11 +34,7 @@ export default function SubmissionDetailPage() {
   }, [params.id]);
 
   if (status === "loading") {
-    return (
-      <main className="section-shell workspace">
-        <p>Loading submission…</p>
-      </main>
-    );
+    return <PageLoader label="Loading submission…" />;
   }
 
   if (status === "error" || !submission) {
@@ -72,5 +72,15 @@ export default function SubmissionDetailPage() {
         ← Back to submissions
       </Link>
     </main>
+  );
+}
+
+export default function SubmissionDetailPage() {
+  return (
+    <ProtectedRoute>
+      <SiteHeader />
+      <SubmissionDetailContent />
+      <SiteFooter />
+    </ProtectedRoute>
   );
 }

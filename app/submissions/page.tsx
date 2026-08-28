@@ -5,25 +5,25 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/providers/AuthProvider";
 import { listSubmissions } from "@/lib/api/submissions";
 import type { Submission } from "@/types/api";
+import { Loader } from "@/components/ui/Loader";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { SiteHeader } from "@/app/_components/home/SiteHeader";
+import { SiteFooter } from "@/app/_components/home/SiteFooter";
 
-export default function SubmissionsPage() {
-  const { user, isLoading: authLoading } = useAuth();
+function SubmissionsContent() {
+  const { user } = useAuth();
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
 
   useEffect(() => {
-    if (authLoading) return;
-    if (!user) {
-      setStatus("ready");
-      return;
-    }
+    if (!user) return;
     listSubmissions({ limit: 50 })
       .then((result) => {
         setSubmissions(result.items);
         setStatus("ready");
       })
       .catch(() => setStatus("error"));
-  }, [user, authLoading]);
+  }, [user]);
 
   return (
     <main className="section-shell workspace">
@@ -33,18 +33,9 @@ export default function SubmissionsPage() {
       </p>
       <h1>Your submission history</h1>
 
-      {!authLoading && !user && (
-        <>
-          <p>Sign in to see your submission history.</p>
-          <Link className="button" href="/signin">
-            Sign in <span aria-hidden="true">→</span>
-          </Link>
-        </>
-      )}
-
-      {user && status === "loading" && <p>Loading submissions…</p>}
-      {user && status === "error" && <p>Could not load your submissions.</p>}
-      {user && status === "ready" && submissions.length === 0 && (
+      {status === "loading" && <Loader label="Loading submissions…" />}
+      {status === "error" && <p className="problem-list-status">Could not load your submissions.</p>}
+      {status === "ready" && submissions.length === 0 && (
         <>
           <p>Run a solution from a problem workspace to begin building your history.</p>
           <Link className="button" href="/problems">
@@ -53,7 +44,7 @@ export default function SubmissionsPage() {
         </>
       )}
 
-      {user && submissions.length > 0 && (
+      {status === "ready" && submissions.length > 0 && (
         <div className="submission-history" style={{ marginTop: 28 }}>
           <table>
             <thead>
@@ -88,5 +79,15 @@ export default function SubmissionsPage() {
         </div>
       )}
     </main>
+  );
+}
+
+export default function SubmissionsPage() {
+  return (
+    <ProtectedRoute>
+      <SiteHeader />
+      <SubmissionsContent />
+      <SiteFooter />
+    </ProtectedRoute>
   );
 }
