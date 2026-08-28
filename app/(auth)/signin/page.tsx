@@ -15,7 +15,7 @@ declare global {
 
 export default function SignInPage() {
     const googleButton = useRef<HTMLDivElement>(null);
-    const [message, setMessage] = useState("Google দিয়ে নিরাপদে sign in করুন। নতুন হলে account তৈরি হবে।");
+    const [message, setMessage] = useState("Google দিয়ে নিরাপদে sign in করুন। নতুন হলে account তৈরি হবে।");
     const [isLoading, setIsLoading] = useState(true);
     const [mode, setMode] = useState<"login" | "register">("login");
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,7 +39,8 @@ export default function SignInPage() {
     useEffect(() => {
         const setupGoogleSignIn = async () => {
             try {
-                if (!appConfig.apiUrl) throw new Error("API URL is not configured.");
+                // apiUrl is intentionally "" by default (a same-origin relative
+                // path proxied by next.config.ts) — that is not misconfiguration.
                 const configResponse = await fetch(`${appConfig.apiUrl}/api/auth/google/client-config`);
                 const config = await configResponse.json();
                 if (!configResponse.ok || !config.data?.clientId) throw new Error(config.message ?? "Google sign-in is unavailable.");
