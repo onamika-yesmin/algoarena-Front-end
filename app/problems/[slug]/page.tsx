@@ -1,6 +1,5 @@
 "use client";
 
-<<<<<<< HEAD
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -14,10 +13,6 @@ import VerdictPanel from "@/components/verdict/VerdictPanel";
 import HintPanel from "@/components/hints/HintPanel";
 
 const languages: Language[] = ["python", "cpp", "javascript"];
-=======
-const apiUrl = (process.env.NEXT_PUBLIC_API_URL ?? "https://algoarena-back-end.vercel.app").replace(/\/$/, "");
-const starter = { javascript: 'const input = require("fs").readFileSync(0, "utf8").trim();\nconsole.log(input);', typescript: 'const input = require("fs").readFileSync(0, "utf8").trim();\nconsole.log(input);', python: 'import sys\nprint(sys.stdin.read().strip())' };
->>>>>>> origin/anamika
 
 export default function ProblemDetailPage() {
   const params = useParams<{ slug: string }>();
