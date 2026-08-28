@@ -183,4 +183,5 @@ export interface CurrentUser {
   profilePicUrl?: string;
   role: "user" | "admin";
   status: "active" | "blocked";
+  createdAt?: string;
 }
