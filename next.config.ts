@@ -14,7 +14,16 @@ const nextConfig: NextConfig = {
     ];
   },
   async rewrites() {
-    return [{ source: "/favicon.ico", destination: "/icon.svg" }];
+    return [
+      { source: "/favicon.ico", destination: "/icon.svg" },
+      // Proxies browser API calls to the backend's own Vercel deployment
+      // server-side, so the browser only ever talks to this app's origin.
+      // See lib/config.ts for why: it keeps the session cookie first-party
+      // instead of the browser treating it as a third-party cookie (which
+      // is blocked by default in current browsers) across the frontend's
+      // and backend's separate domains.
+      { source: "/api/:path*", destination: "https://algoarena-back-end.vercel.app/api/:path*" },
+    ];
   },
 };
 
