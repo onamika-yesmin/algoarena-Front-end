@@ -122,6 +122,59 @@ export interface MyRank {
   totalRanked: number;
 }
 
+export type ContestStatus = "UPCOMING" | "ONGOING" | "ENDED";
+
+export interface ContestSummary {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  startTime: string;
+  endTime: string;
+  problemCount: number;
+  status: ContestStatus;
+}
+
+export interface ContestListResult {
+  items: ContestSummary[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface ContestProblemEntry {
+  problemId: string;
+  slug: string | null;
+  title: string;
+  difficulty: Difficulty | null;
+  points: number;
+}
+
+export interface ContestDetail {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  startTime: string;
+  endTime: string;
+  status: ContestStatus;
+  isRegistered: boolean;
+  problems: ContestProblemEntry[];
+}
+
+export interface ContestScoreboardEntry {
+  rank: number;
+  userId: string;
+  name: string;
+  totalScore: number;
+  problemsSolved: number;
+}
+
+export interface ContestScoreboardResult {
+  contestId: string;
+  entries: ContestScoreboardEntry[];
+}
+
 export interface CurrentUser {
   id?: string;
   _id?: string;

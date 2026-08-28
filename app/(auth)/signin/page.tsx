@@ -15,7 +15,7 @@ declare global {
 
 export default function SignInPage() {
     const googleButton = useRef<HTMLDivElement>(null);
-    const [message, setMessage] = useState("Google দিয়ে নিরাপদে sign in করুন। নতুন হলে account তৈরি হবে।");
+    const [message, setMessage] = useState("Google দিয়ে নিরাপদে sign in করুন। নতুন হলে account তৈরি হবে।");
     const [isLoading, setIsLoading] = useState(true);
     const [mode, setMode] = useState<"login" | "register">("login");
     const [isSubmitting, setIsSubmitting] = useState(false);
