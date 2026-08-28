@@ -71,3 +71,19 @@
 .pill-contest-ongoing{background:#123526;color:#65dfad}
 .pill-contest-ended{background:#242945;color:#9da5bf}
 .contest-card-description{color:#9da5bf;font-size:13px;line-height:1.5;margin:0}
+
+/* Auth-aware site header: profile avatar + sign out (replaces the static
+   "Sign in" link when a session — cookie or Bearer-token — is active). */
+.header-account { display:flex; align-items:center; gap:16px; }
+.header-avatar-link { display:flex; align-items:center; gap:10px; color:#e7e9f5; font-size:13px; font-weight:600; }
+.header-avatar-link:hover { color:var(--cyan); }
+.header-avatar { width:36px; height:36px; border-radius:50%; object-fit:cover; border:1px solid #3d4673; }
+.header-avatar-fallback { display:flex; align-items:center; justify-content:center; background:var(--violet); color:white; font:700 14px 'Space Grotesk'; }
+.header-account-name { max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.header-signout { background:transparent; border:1px solid #3d4673; border-radius:5px; padding:8px 14px; cursor:pointer; font:inherit; }
+.header-signout:hover { color:white; border-color:var(--cyan); }
+.header-signout:disabled { opacity:.6; cursor:default; }
+
+@media (max-width:760px) {
+  .header-account-name { display:none; }
+}
