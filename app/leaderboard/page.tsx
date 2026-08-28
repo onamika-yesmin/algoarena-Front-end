@@ -5,6 +5,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { getGlobalLeaderboard, getMyRank } from "@/lib/api/leaderboard";
 import type { LeaderboardEntry, MyRank } from "@/types/api";
 import { Loader } from "@/components/ui/Loader";
+import { getErrorMessage } from "@/lib/api/client";
 import { SiteHeader } from "@/app/_components/home/SiteHeader";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
 
@@ -16,6 +17,7 @@ export default function LeaderboardPage() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [errorMessage, setErrorMessage] = useState("");
   const [myRank, setMyRank] = useState<MyRank | null>(null);
 
   useEffect(() => {
@@ -28,8 +30,11 @@ export default function LeaderboardPage() {
         setTotal(result.total);
         setStatus("ready");
       })
-      .catch(() => {
-        if (!cancelled) setStatus("error");
+      .catch((error) => {
+        if (!cancelled) {
+          setErrorMessage(getErrorMessage(error, "Could not load the leaderboard."));
+          setStatus("error");
+        }
       });
     return () => {
       cancelled = true;
@@ -72,7 +77,7 @@ export default function LeaderboardPage() {
       )}
 
       {status === "loading" && <Loader label="Loading leaderboard…" />}
-      {status === "error" && <p className="problem-list-status">Could not load the leaderboard.</p>}
+      {status === "error" && <p className="problem-list-status">{errorMessage}</p>}
       {status === "ready" && entries.length === 0 && <p className="problem-list-status">No ranked solvers yet — be the first to solve a problem.</p>}
 
       {status === "ready" && entries.length > 0 && (

@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/providers/AuthProvider";
 import { getContestByIdentifier, getContestScoreboard, registerForContest } from "@/lib/api/contests";
-import { ApiError } from "@/lib/api/client";
+import { ApiError, getErrorMessage } from "@/lib/api/client";
 import type { ContestDetail, ContestScoreboardEntry } from "@/types/api";
 import { PageLoader } from "@/components/ui/Loader";
 import { SiteHeader } from "@/app/_components/home/SiteHeader";
@@ -23,6 +23,7 @@ export default function ContestDetailPage() {
 
   const [contest, setContest] = useState<ContestDetail | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [loadErrorMessage, setLoadErrorMessage] = useState("");
   const [scoreboard, setScoreboard] = useState<ContestScoreboardEntry[]>([]);
   const [isRegistering, setIsRegistering] = useState(false);
   const [registerError, setRegisterError] = useState<string | null>(null);
@@ -34,7 +35,10 @@ export default function ContestDetailPage() {
         setContest(data);
         setStatus("ready");
       })
-      .catch(() => setStatus("error"));
+      .catch((error) => {
+        setLoadErrorMessage(getErrorMessage(error, "Could not load this contest. It may not exist."));
+        setStatus("error");
+      });
   };
 
   useEffect(() => {
@@ -77,7 +81,7 @@ export default function ContestDetailPage() {
       <>
         <SiteHeader />
         <main className="section-shell workspace">
-          <p className="problem-list-status">Could not load this contest. It may not exist.</p>
+          <p className="problem-list-status">{loadErrorMessage}</p>
           <Link className="text-link" href="/contest">
             ← Back to contests
           </Link>

@@ -6,6 +6,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { listSubmissions } from "@/lib/api/submissions";
 import type { Submission } from "@/types/api";
 import { Loader } from "@/components/ui/Loader";
+import { getErrorMessage } from "@/lib/api/client";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { SiteHeader } from "@/app/_components/home/SiteHeader";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
@@ -14,6 +15,7 @@ function SubmissionsContent() {
   const { user } = useAuth();
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     if (!user) return;
@@ -22,7 +24,10 @@ function SubmissionsContent() {
         setSubmissions(result.items);
         setStatus("ready");
       })
-      .catch(() => setStatus("error"));
+      .catch((error) => {
+        setErrorMessage(getErrorMessage(error, "Could not load your submissions."));
+        setStatus("error");
+      });
   }, [user]);
 
   return (
@@ -34,7 +39,7 @@ function SubmissionsContent() {
       <h1>Your submission history</h1>
 
       {status === "loading" && <Loader label="Loading submissions…" />}
-      {status === "error" && <p className="problem-list-status">Could not load your submissions.</p>}
+      {status === "error" && <p className="problem-list-status">{errorMessage}</p>}
       {status === "ready" && submissions.length === 0 && (
         <>
           <p>Run a solution from a problem workspace to begin building your history.</p>

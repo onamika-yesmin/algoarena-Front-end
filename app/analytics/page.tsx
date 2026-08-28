@@ -8,6 +8,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Loader } from "@/components/ui/Loader";
 import { getMyAnalytics } from "@/lib/api/analytics";
 import type { AnalyticsResult } from "@/lib/api/analytics";
+import { getErrorMessage } from "@/lib/api/client";
 import styles from "./analytics.module.css";
 
 const VERDICT_LABELS: Record<string, string> = {
@@ -104,6 +105,7 @@ function ActivityStrip({ activity }: { activity: AnalyticsResult["activity"] }) 
 function AnalyticsContent() {
   const [analytics, setAnalytics] = useState<AnalyticsResult | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -114,8 +116,11 @@ function AnalyticsContent() {
         setAnalytics(result);
         setStatus("ready");
       })
-      .catch(() => {
-        if (!cancelled) setStatus("error");
+      .catch((error) => {
+        if (!cancelled) {
+          setErrorMessage(getErrorMessage(error, "Could not load your analytics. Please try again later."));
+          setStatus("error");
+        }
       });
     return () => {
       cancelled = true;
@@ -139,7 +144,7 @@ function AnalyticsContent() {
       </div>
 
       {status === "loading" && <Loader label="Loading your analytics…" />}
-      {status === "error" && <p className="problem-list-status">Could not load your analytics. Please try again later.</p>}
+      {status === "error" && <p className="problem-list-status">{errorMessage}</p>}
 
       {status === "ready" && analytics && (
         <>

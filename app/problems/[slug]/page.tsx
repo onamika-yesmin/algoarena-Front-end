@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/providers/AuthProvider";
 import { getProblemBySlug } from "@/lib/api/problems";
 import { listSubmissions, runCode, submitSolution } from "@/lib/api/submissions";
-import { ApiError } from "@/lib/api/client";
+import { ApiError, getErrorMessage } from "@/lib/api/client";
 import type { Language, ProblemDetail, Submission } from "@/types/api";
 import MonacoEditor from "@/components/editor/MonacoEditor";
 import VerdictPanel from "@/components/verdict/VerdictPanel";
@@ -24,6 +24,7 @@ export default function ProblemDetailPage() {
 
   const [problem, setProblem] = useState<ProblemDetail | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [loadErrorMessage, setLoadErrorMessage] = useState("");
   const [language, setLanguage] = useState<Language>("python");
   const [codeByLanguage, setCodeByLanguage] = useState<Partial<Record<Language, string>>>({});
   const [output, setOutput] = useState("Run your code against the first sample test to see output here.");
@@ -47,8 +48,11 @@ export default function ProblemDetailPage() {
         });
         setStatus("ready");
       })
-      .catch(() => {
-        if (!cancelled) setStatus("error");
+      .catch((error) => {
+        if (!cancelled) {
+          setLoadErrorMessage(getErrorMessage(error, "Could not load this problem. It may not exist."));
+          setStatus("error");
+        }
       });
     return () => {
       cancelled = true;
@@ -120,7 +124,7 @@ export default function ProblemDetailPage() {
       <>
         <SiteHeader />
         <main className="section-shell problem-workspace">
-          <p className="problem-list-status">Could not load this problem. It may not exist.</p>
+          <p className="problem-list-status">{loadErrorMessage}</p>
           <Link className="text-link" href="/problems">
             ← Back to problems
           </Link>

@@ -10,7 +10,7 @@ import {
   listCommunityComments,
 } from "@/lib/api/community";
 import type { CommunityComment, CommunitySubmissionDetail } from "@/lib/api/community";
-import { ApiError } from "@/lib/api/client";
+import { ApiError, getErrorMessage } from "@/lib/api/client";
 import { PageLoader, Loader } from "@/components/ui/Loader";
 import { SiteHeader } from "@/app/_components/home/SiteHeader";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
@@ -43,6 +43,7 @@ function CommentThread({ submissionId }: { submissionId: string }) {
   const { user } = useAuth();
   const [comments, setComments] = useState<CommunityComment[]>([]);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [loadErrorMessage, setLoadErrorMessage] = useState("");
   const [draft, setDraft] = useState("");
   const [isPosting, setIsPosting] = useState(false);
   const [postError, setPostError] = useState<string | null>(null);
@@ -56,8 +57,11 @@ function CommentThread({ submissionId }: { submissionId: string }) {
           setStatus("ready");
         }
       })
-      .catch(() => {
-        if (!cancelled) setStatus("error");
+      .catch((error) => {
+        if (!cancelled) {
+          setLoadErrorMessage(getErrorMessage(error, "Could not load comments."));
+          setStatus("error");
+        }
       });
     return () => {
       cancelled = true;
@@ -85,7 +89,7 @@ function CommentThread({ submissionId }: { submissionId: string }) {
       <h3>Discussion</h3>
 
       {status === "loading" && <Loader label="Loading comments…" />}
-      {status === "error" && <p className="problem-list-status">Could not load comments.</p>}
+      {status === "error" && <p className="problem-list-status">{loadErrorMessage}</p>}
 
       {status === "ready" && (
         <div className={styles.commentList}>
@@ -133,6 +137,7 @@ function CommentThread({ submissionId }: { submissionId: string }) {
 export default function CommunitySubmissionPage() {
   const params = useParams<{ submissionId: string }>();
   const [submission, setSubmission] = useState<CommunitySubmissionDetail | null>(null);
+  const [pageErrorMessage, setPageErrorMessage] = useState("");
   const [status, setStatus] = useState<"loading" | "ready" | "notfound" | "error">("loading");
 
   useEffect(() => {
@@ -146,7 +151,12 @@ export default function CommunitySubmissionPage() {
       })
       .catch((error) => {
         if (cancelled) return;
-        setStatus(error instanceof ApiError && error.statusCode === 404 ? "notfound" : "error");
+        if (error instanceof ApiError && error.statusCode === 404) {
+          setStatus("notfound");
+        } else {
+          setPageErrorMessage(getErrorMessage(error, "Could not load this submission."));
+          setStatus("error");
+        }
       });
     return () => {
       cancelled = true;
@@ -168,7 +178,7 @@ export default function CommunitySubmissionPage() {
           <p>
             {status === "notfound"
               ? "This submission isn't available in the community — it may not exist, or may not be an accepted solution."
-              : "Could not load this submission."}
+              : pageErrorMessage}
           </p>
           <Link className="text-link" href="/community">
             ← Back to community

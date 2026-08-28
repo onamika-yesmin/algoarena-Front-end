@@ -7,7 +7,7 @@ import { SiteHeader } from "../_components/home/SiteHeader";
 import { SiteFooter } from "../_components/home/SiteFooter";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Loader } from "@/components/ui/Loader";
-import { ApiError } from "@/lib/api/client";
+import { getErrorMessage } from "@/lib/api/client";
 import {
   listInterviewSessions,
   startInterviewSession,
@@ -44,7 +44,7 @@ function InterviewContent() {
   useEffect(() => {
     listInterviewSessions()
       .then(setSessions)
-      .catch((error) => setListError(error instanceof ApiError ? error.message : "Could not load your past interviews."))
+      .catch((error) => setListError(getErrorMessage(error, "Could not load your past interviews.")))
       .finally(() => setIsLoading(false));
   }, []);
 
@@ -56,7 +56,7 @@ function InterviewContent() {
       const session = await startInterviewSession({ topic, difficulty });
       router.push(`/interview/${session.id}`);
     } catch (error) {
-      setStartError(error instanceof ApiError ? error.message : "Could not start the interview. Try again.");
+      setStartError(getErrorMessage(error, "Could not start the interview. Try again."));
       setIsStarting(false);
     }
   };

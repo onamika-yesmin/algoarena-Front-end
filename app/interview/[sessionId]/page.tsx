@@ -7,7 +7,7 @@ import { SiteHeader } from "../../_components/home/SiteHeader";
 import { SiteFooter } from "../../_components/home/SiteFooter";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Loader, PageLoader } from "@/components/ui/Loader";
-import { ApiError } from "@/lib/api/client";
+import { getErrorMessage } from "@/lib/api/client";
 import { getInterviewSession, respondToInterview, type InterviewSession } from "@/lib/api/interview";
 import styles from "../interview.module.css";
 
@@ -35,7 +35,7 @@ function InterviewRoomContent() {
       })
       .catch((error) => {
         if (!cancelled) {
-          setLoadError(error instanceof ApiError ? error.message : "Could not load this interview.");
+          setLoadError(getErrorMessage(error, "Could not load this interview."));
         }
       })
       .finally(() => {
@@ -62,7 +62,7 @@ function InterviewRoomContent() {
       setSession(updated);
       setAnswer("");
     } catch (error) {
-      setSendError(error instanceof ApiError ? error.message : "Could not send your answer. Try again.");
+      setSendError(getErrorMessage(error, "Could not send your answer. Try again."));
     } finally {
       setIsSending(false);
     }

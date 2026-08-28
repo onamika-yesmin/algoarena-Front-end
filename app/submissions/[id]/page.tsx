@@ -7,6 +7,7 @@ import { getSubmissionById } from "@/lib/api/submissions";
 import type { Submission } from "@/types/api";
 import VerdictPanel from "@/components/verdict/VerdictPanel";
 import { PageLoader } from "@/components/ui/Loader";
+import { getErrorMessage } from "@/lib/api/client";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { SiteHeader } from "@/app/_components/home/SiteHeader";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
@@ -15,6 +16,7 @@ function SubmissionDetailContent() {
   const params = useParams<{ id: string }>();
   const [submission, setSubmission] = useState<Submission | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -25,8 +27,11 @@ function SubmissionDetailContent() {
           setStatus("ready");
         }
       })
-      .catch(() => {
-        if (!cancelled) setStatus("error");
+      .catch((error) => {
+        if (!cancelled) {
+          setErrorMessage(getErrorMessage(error, "Could not load this submission — it may not exist, or you may not have access to it."));
+          setStatus("error");
+        }
       });
     return () => {
       cancelled = true;
@@ -40,7 +45,7 @@ function SubmissionDetailContent() {
   if (status === "error" || !submission) {
     return (
       <main className="section-shell workspace">
-        <p>Could not load this submission — it may not exist, or you may not have access to it.</p>
+        <p>{errorMessage}</p>
         <Link className="text-link" href="/submissions">
           ← Back to submissions
         </Link>

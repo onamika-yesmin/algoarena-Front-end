@@ -6,6 +6,7 @@ import type { ProblemSummary } from "@/types/api";
 import ProblemCard from "./ProblemCard";
 import ProblemFilters from "./ProblemFilters";
 import { Loader } from "@/components/ui/Loader";
+import { getErrorMessage } from "@/lib/api/client";
 
 export default function ProblemList() {
   const [problems, setProblems] = useState<ProblemSummary[]>([]);
@@ -14,6 +15,7 @@ export default function ProblemList() {
   const [difficulty, setDifficulty] = useState("");
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [errorMessage, setErrorMessage] = useState("");
   const limit = 20;
 
   useEffect(() => {
@@ -28,8 +30,11 @@ export default function ProblemList() {
         setProblems(result.items);
         setTotal(result.total);
         setStatus("ready");
-      } catch {
-        if (!cancelled) setStatus("error");
+      } catch (error) {
+        if (!cancelled) {
+          setErrorMessage(getErrorMessage(error, "Could not load problems."));
+          setStatus("error");
+        }
       }
     }, 250); // debounce search typing
 
@@ -58,7 +63,7 @@ export default function ProblemList() {
       />
 
       {status === "loading" && <Loader label="Loading problems…" />}
-      {status === "error" && <p className="problem-list-status">Could not load problems. Is the backend running?</p>}
+      {status === "error" && <p className="problem-list-status">{errorMessage}</p>}
       {status === "ready" && problems.length === 0 && <p className="problem-list-status">No problems match your filters yet.</p>}
 
       {status === "ready" && problems.length > 0 && (

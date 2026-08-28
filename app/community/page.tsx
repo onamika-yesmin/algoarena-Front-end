@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { getCommunityFeed } from "@/lib/api/community";
 import type { CommunityFeedItem } from "@/lib/api/community";
 import { Loader } from "@/components/ui/Loader";
+import { getErrorMessage } from "@/lib/api/client";
 import { SiteHeader } from "@/app/_components/home/SiteHeader";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
 import styles from "./community.module.css";
@@ -48,6 +49,7 @@ export default function CommunityPage() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -59,8 +61,11 @@ export default function CommunityPage() {
         setTotal(result.total);
         setStatus("ready");
       })
-      .catch(() => {
-        if (!cancelled) setStatus("error");
+      .catch((error) => {
+        if (!cancelled) {
+          setErrorMessage(getErrorMessage(error, "Could not load the community feed."));
+          setStatus("error");
+        }
       });
     return () => {
       cancelled = true;
@@ -81,7 +86,7 @@ export default function CommunityPage() {
         <p>Every accepted submission from every solver, in one public feed — browse approaches, and discuss them.</p>
 
         {status === "loading" && <Loader label="Loading community feed…" />}
-        {status === "error" && <p className="problem-list-status">Could not load the community feed.</p>}
+        {status === "error" && <p className="problem-list-status">{errorMessage}</p>}
 
         {status === "ready" && items.length === 0 && (
           <div className={styles.emptyState}>

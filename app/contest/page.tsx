@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { listContests } from "@/lib/api/contests";
 import type { ContestSummary } from "@/types/api";
 import { Loader } from "@/components/ui/Loader";
+import { getErrorMessage } from "@/lib/api/client";
 import { SiteHeader } from "@/app/_components/home/SiteHeader";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
 
@@ -17,6 +18,7 @@ const statusLabel: Record<string, string> = {
 export default function ContestPage() {
   const [contests, setContests] = useState<ContestSummary[]>([]);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -26,8 +28,11 @@ export default function ContestPage() {
         setContests(result.items);
         setStatus("ready");
       })
-      .catch(() => {
-        if (!cancelled) setStatus("error");
+      .catch((error) => {
+        if (!cancelled) {
+          setErrorMessage(getErrorMessage(error, "Could not load contests."));
+          setStatus("error");
+        }
       });
     return () => {
       cancelled = true;
@@ -46,7 +51,7 @@ export default function ContestPage() {
       <p>Compete head-to-head against other solvers, ranked on a live scoreboard.</p>
 
       {status === "loading" && <Loader label="Loading contests…" />}
-      {status === "error" && <p className="problem-list-status">Could not load contests.</p>}
+      {status === "error" && <p className="problem-list-status">{errorMessage}</p>}
       {status === "ready" && contests.length === 0 && <p className="problem-list-status">No contests are scheduled yet — check back soon.</p>}
 
       {status === "ready" && contests.length > 0 && (
