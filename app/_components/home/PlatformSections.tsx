@@ -1,14 +1,16 @@
 import Link from "next/link";
 
+// Contests, leaderboard, mock interviews, and the community feed each get
+// their own full spotlight section on the homepage (see EditorSpotlight,
+// InterviewSpotlight, ContestSpotlight, CommunitySpotlight) — this grid
+// only covers what's left, so nothing is pitched to visitors twice.
 const sections = [
   { number: "01", title: "Daily challenges", text: "Build a durable habit with focused problems every day.", href: "/problems", action: "Solve today’s problem" },
   { number: "02", title: "Problem library", text: "Filter coding challenges by topic and difficulty.", href: "/problems", action: "Browse problems" },
-  { number: "03", title: "Live contests", text: "Work under a clock and test your rank with the community.", href: "/contest", action: "See contests" },
-  { number: "04", title: "Leaderboard", text: "Track progress and discover the strongest solvers.", href: "/leaderboard", action: "View rankings" },
-  { number: "05", title: "Submission history", text: "Return to each attempt and improve your approach.", href: "/submissions", action: "View submissions" },
-  { number: "06", title: "AI practice tools", text: "Use guided feedback to understand your next move.", href: "/analytics", action: "Open analytics" },
-  { number: "07", title: "Mock interviews", text: "Practise explaining your thinking before the real interview.", href: "/interview/demo", action: "Start an interview" },
-  { number: "08", title: "Your profile", text: "Keep your learning streak, achievements, and goals together.", href: "/profile", action: "Go to profile" },
+  { number: "03", title: "Submission history", text: "Return to each attempt and improve your approach.", href: "/submissions", action: "View submissions" },
+  { number: "04", title: "Your analytics", text: "Verdicts, languages, difficulty, and your solving streak.", href: "/analytics", action: "Open analytics" },
+  { number: "05", title: "Your profile", text: "Keep your learning streak, achievements, and goals together.", href: "/profile", action: "Go to profile" },
+  { number: "06", title: "Sign in with Google", text: "One click, and your progress follows you everywhere.", href: "/signin", action: "Sign in" },
 ];
 
 export function PlatformSections() {
