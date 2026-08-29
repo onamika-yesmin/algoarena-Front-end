@@ -98,15 +98,15 @@ function AdminUsersContent() {
                         <span className="admin-cell-name">{user.name}</span>
                       </div>
                     </td>
-                    <td>{user.email}</td>
-                    <td>
+                    <td data-label="Email">{user.email}</td>
+                    <td data-label="Role">
                       <span className={`badge ${user.role === "admin" ? "badge-admin" : "badge-user"}`}>{user.role}</span>
                     </td>
-                    <td>
+                    <td data-label="Status">
                       <span className={`badge ${user.status === "active" ? "badge-active" : "badge-blocked"}`}>{user.status}</span>
                     </td>
-                    <td>{new Date(user.createdAt).toLocaleDateString()}</td>
-                    <td style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                    <td data-label="Joined">{new Date(user.createdAt).toLocaleDateString()}</td>
+                    <td className="admin-cell-actions">
                       {isSelf ? (
                         <span className="admin-cell-sub">(you)</span>
                       ) : (

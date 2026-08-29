@@ -125,12 +125,12 @@ function AdminContestsContent() {
                 {contests.map((contest) => (
                   <tr key={contest.id}>
                     <td className="admin-cell-name">{contest.title}</td>
-                    <td>
+                    <td data-label="Status">
                       <span className={`pill pill-contest-${contest.status.toLowerCase()}`}>{statusLabel[contest.status] ?? contest.status}</span>
                     </td>
-                    <td>{contest.problemCount}</td>
-                    <td>{new Date(contest.startTime).toLocaleString()}</td>
-                    <td>
+                    <td data-label="Problems">{contest.problemCount}</td>
+                    <td data-label="Starts">{new Date(contest.startTime).toLocaleString()}</td>
+                    <td className="admin-cell-actions">
                       <Link className="icon-button" href={`/contest/${contest.slug}`}>
                         View →
                       </Link>

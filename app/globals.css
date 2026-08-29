@@ -335,6 +335,63 @@
 .admin-cell-name { color: #fff; font-weight: 600; }
 .admin-cell-sub { display: block; color: #8a8fa2; font-size: 11.5px; }
 
+/* Action-cell buttons (Edit/Publish/Delete, Make admin/Block, View). Shared
+   class instead of the old inline style="{display:flex,...}" so the mobile
+   card layout below can override it without fighting inline styles. */
+.admin-cell-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+
+/* Admin tables → mobile cards. Below 700px a <table> with sticky headers is
+   unusable: the row scrolls horizontally and the action buttons (Edit,
+   Publish, Delete, Make admin, Block…) end up scrolled off-screen with no
+   visible affordance that more content exists — exactly what real device
+   screenshots showed on /admin/users and /admin/problems. Instead, drop the
+   table semantics visually (display:block on every row element) and stack
+   each row as a bordered card: the first cell (name/title) becomes the card
+   header, the middle cells get their column name from data-label via
+   ::before, and the last cell (actions) becomes a wrapped button row —
+   every control stays on-screen with no hidden horizontal scroll. */
+@media (max-width: 700px) {
+  .admin-table-wrap table,
+  .admin-table-wrap thead,
+  .admin-table-wrap tbody,
+  .admin-table-wrap tr,
+  .admin-table-wrap td {
+    display: block;
+    width: 100%;
+  }
+  .admin-table-wrap thead { position: absolute; left: -9999px; }
+  .admin-table-wrap tbody tr {
+    padding: 15px 14px;
+    border-bottom: 1px solid rgba(213,218,255,.08);
+  }
+  .admin-table-wrap tbody tr:last-child { border-bottom: 0; }
+  .admin-table-wrap tbody td {
+    padding: 5px 0;
+    border-bottom: 0;
+  }
+  .admin-table-wrap tbody td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font: 10px "DM Mono";
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: #6d748d;
+    margin-bottom: 3px;
+  }
+  .admin-table-wrap tbody td:first-child {
+    padding: 0 0 12px;
+    font: 700 15px "Space Grotesk";
+    color: #fff;
+  }
+  .admin-table-wrap tbody td:first-child.admin-cell-name { padding: 0 0 12px; }
+  .admin-table-wrap .admin-cell-actions {
+    justify-content: flex-start;
+    padding-top: 12px;
+    margin-top: 2px;
+    border-top: 1px solid rgba(213,218,255,.08);
+  }
+}
+
 /* Toolbar: search input with an icon, kept above tables. */
 .admin-toolbar { position: relative; }
 .admin-toolbar-search { position: relative; flex: 1; max-width: 340px; }
@@ -385,6 +442,14 @@
   display: inline-flex; align-items: center; justify-content: center; gap: 12px;
   border: 1px solid #3d4673; color: #e7e9f5; border-radius: 5px; padding: 13px 18px;
   font-weight: 700; font-size: 13px; transition: border-color .2s, background .2s, transform .2s;
+  /* Explicit reset: when this class is used on a <button> (mobile-nav
+     "Sign out"), the element has no background/font/cursor rule of its own
+     to fall back on, so the browser's native button chrome shows through —
+     a light grey/white box instead of the intended transparent pill. Anchors
+     using this class were already fine since <a> has no such UA default. */
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
 }
 .button-outline:hover { border-color: var(--cyan); background: rgba(85,216,210,.08); transform: translateY(-2px); }
 .button-outline span { display: inline-block; transition: transform .2s; }

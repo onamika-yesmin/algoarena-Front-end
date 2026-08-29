@@ -104,16 +104,16 @@ function AdminProblemsContent() {
               {problems.map((problem) => (
                 <tr key={problem.id}>
                   <td className="admin-cell-name">{problem.title}</td>
-                  <td>
+                  <td data-label="Difficulty">
                     <span className={`pill pill-${problem.difficulty.toLowerCase()}`}>{problem.difficulty}</span>
                   </td>
-                  <td>{problem.basePoints}</td>
-                  <td>
+                  <td data-label="Points">{problem.basePoints}</td>
+                  <td data-label="Status">
                     <span className={`badge ${problem.isPublished ? "badge-published" : "badge-draft"}`}>
                       {problem.isPublished ? "Published" : "Draft"}
                     </span>
                   </td>
-                  <td style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                  <td className="admin-cell-actions">
                     <Link className="icon-button" href={`/admin/problems/${problem.id}/edit`}>
                       Edit
                     </Link>
