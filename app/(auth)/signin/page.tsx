@@ -22,7 +22,7 @@ const ALLOWED_AVATAR_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gi
 export default function SignInPage() {
     const googleButton = useRef<HTMLDivElement>(null);
     const avatarInput = useRef<HTMLInputElement>(null);
-    const [message, setMessage] = useState("Google দিয়ে নিরাপদে sign in করুন। নতুন হলে account তৈরি হবে।");
+    const [message, setMessage] = useState("Sign in securely with Google. New here? Your account will be created automatically.");
     const [isLoading, setIsLoading] = useState(true);
     const [mode, setMode] = useState<"login" | "register">("login");
     const [isSubmitting, setIsSubmitting] = useState(false);
