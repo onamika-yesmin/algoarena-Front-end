@@ -126,7 +126,12 @@ export default function ContestDetailPage() {
           {contest.problems.length === 0 && <p>No problems have been added to this contest yet.</p>}
           {contest.problems.map((entry) =>
             entry.slug ? (
-              <Link key={entry.problemId} href={`/problems/${entry.slug}`} className="problem-card" style={{ marginBottom: 12 }}>
+              <Link
+                key={entry.problemId}
+                href={`/problems/${entry.slug}?contestId=${contest.id}`}
+                className="problem-card"
+                style={{ marginBottom: 12 }}
+              >
                 <div className="problem-card-top">
                   <span className={`pill pill-${(entry.difficulty ?? "easy").toLowerCase()}`}>{entry.difficulty}</span>
                 </div>

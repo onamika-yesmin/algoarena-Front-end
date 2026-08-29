@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/providers/AuthProvider";
 import { getProblemBySlug } from "@/lib/api/problems";
@@ -22,6 +22,12 @@ export default function ProblemDetailPage() {
   const params = useParams<{ slug: string }>();
   const slug = params.slug;
   const { user } = useAuth();
+  // Set when this problem was opened from a contest (contest/[id]/page.tsx
+  // links here with ?contestId=...) so a submission made from within a
+  // contest actually counts toward that contest's scoreboard — previously
+  // this was never read anywhere and no submission was ever tagged with a
+  // contestId, so every contest scoreboard stayed empty forever.
+  const contestId = useSearchParams().get("contestId") ?? undefined;
 
   const [problem, setProblem] = useState<ProblemDetail | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
@@ -100,7 +106,7 @@ export default function ProblemDetailPage() {
     setIsSubmitting(true);
     setSubmitError(null);
     try {
-      const result = await submitSolution({ problemId: problem.id, code, language });
+      const result = await submitSolution({ problemId: problem.id, code, language, contestId });
       setSubmission(result);
       refreshHistory(problem.id);
     } catch (error) {

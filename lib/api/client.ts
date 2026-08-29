@@ -42,7 +42,13 @@ interface RequestOptions {
   _isRetry?: boolean;
 }
 
-const REFRESH_PATH = "/api/auth/refresh";
+// Must match the backend's actual mounted route (auth.route.ts: POST
+// /refresh-token under the /api/auth router) — this used to say
+// "/api/auth/refresh" (no route exists there), so every expired-access-token
+// request 404'd, tryRefresh() returned false, and the client wiped a still-
+// valid refresh token — silently logging the user out instead of
+// transparently re-authenticating them.
+const REFRESH_PATH = "/api/auth/refresh-token";
 
 // Concurrent 401s share one in-flight refresh instead of each firing their
 // own — otherwise several failed requests on the same page (e.g. /me plus a
