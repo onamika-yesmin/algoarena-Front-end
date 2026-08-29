@@ -1,11 +1,17 @@
+"use client";
+
 import Link from "next/link";
+import { useReveal } from "@/hooks/useReveal";
 import { IconCheck } from "./icons";
 
 export function CommunitySpotlight() {
+  const copy = useReveal<HTMLDivElement>();
+  const media = useReveal<HTMLDivElement>(1);
+
   return (
     <section className="spotlight spotlight-reverse section-shell">
       <div className="spotlight-grid">
-        <div className="spotlight-copy">
+        <div ref={copy.ref} className={`spotlight-copy ${copy.className}`}>
           <p className="eyebrow">
             <b /> COMMUNITY
           </p>
@@ -35,7 +41,7 @@ export function CommunitySpotlight() {
             </Link>
           </div>
         </div>
-        <div className="spotlight-media">
+        <div ref={media.ref} className={`spotlight-media ${media.className}`}>
           <div className="feed-mock">
             <div className="feed-mock-item">
               <span className="feed-mock-avatar">N</span>

@@ -1,11 +1,17 @@
+"use client";
+
 import Link from "next/link";
+import { useReveal } from "@/hooks/useReveal";
 import { IconCheck } from "./icons";
 
 export function InterviewSpotlight() {
+  const copy = useReveal<HTMLDivElement>();
+  const media = useReveal<HTMLDivElement>(1);
+
   return (
     <section className="spotlight spotlight-reverse section-shell">
       <div className="spotlight-grid">
-        <div className="spotlight-copy">
+        <div ref={copy.ref} className={`spotlight-copy ${copy.className}`}>
           <p className="eyebrow">
             <b /> AI MOCK INTERVIEW
           </p>
@@ -35,7 +41,7 @@ export function InterviewSpotlight() {
             </Link>
           </div>
         </div>
-        <div className="spotlight-media">
+        <div ref={media.ref} className={`spotlight-media ${media.className}`}>
           <div className="chat-mock">
             <div className="chat-mock-top">
               <b /> Mock interview · Dynamic Programming · Medium

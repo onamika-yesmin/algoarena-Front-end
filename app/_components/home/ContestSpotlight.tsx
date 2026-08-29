@@ -1,11 +1,17 @@
+"use client";
+
 import Link from "next/link";
+import { useReveal } from "@/hooks/useReveal";
 import { IconCheck } from "./icons";
 
 export function ContestSpotlight() {
+  const copy = useReveal<HTMLDivElement>();
+  const media = useReveal<HTMLDivElement>(1);
+
   return (
     <section className="spotlight section-shell">
       <div className="spotlight-grid">
-        <div className="spotlight-copy">
+        <div ref={copy.ref} className={`spotlight-copy ${copy.className}`}>
           <p className="eyebrow">
             <b /> CONTESTS &amp; RANKINGS
           </p>
@@ -38,7 +44,7 @@ export function ContestSpotlight() {
             </Link>
           </div>
         </div>
-        <div className="spotlight-media">
+        <div ref={media.ref} className={`spotlight-media ${media.className}`}>
           <div className="rank-mock">
             <div className="rank-mock-head">
               Global rankings <span>Live</span>

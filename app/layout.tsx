@@ -19,6 +19,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body>
+        {/* Scroll-reveal sections (hooks/useReveal.ts) start hidden and fade
+            in via JS. If JavaScript never runs, this forces them visible
+            instead of leaving real content permanently invisible. */}
+        <noscript>
+          <style>{`.reveal{opacity:1!important;transform:none!important}`}</style>
+        </noscript>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
