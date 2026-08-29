@@ -50,7 +50,7 @@ export function ContestSpotlight() {
               <b className="rank-medal">🥈</b> <span>Farhan A.</span> <span>1,985 pts</span>
             </div>
             <div className="rank-row">
-              <b className="rank-medal">🥉</b> <span>Tumit H.</span> <span>1,860 pts</span>
+              <b className="rank-medal">🥉</b> <span>Onamika Y.</span> <span>1,860 pts</span>
             </div>
             <div className="rank-row">
               <b>#4</b> <span>Rifat K.</span> <span>1,705 pts</span>

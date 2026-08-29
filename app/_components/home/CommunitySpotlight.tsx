@@ -56,10 +56,10 @@ export function CommunitySpotlight() {
               </div>
             </div>
             <div className="feed-mock-item">
-              <span className="feed-mock-avatar">T</span>
+              <span className="feed-mock-avatar">O</span>
               <div className="feed-mock-body">
                 <p>
-                  <b>Tumit H.</b> solved &quot;Two Sum&quot; in JavaScript
+                  <b>Onamika Y.</b> solved &quot;Two Sum&quot; in JavaScript
                 </p>
                 <span>Accepted · 55 ms · 2 comments</span>
               </div>
