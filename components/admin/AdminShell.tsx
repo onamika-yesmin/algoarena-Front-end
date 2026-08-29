@@ -96,3 +96,37 @@ export function AdminEmptyState({ message }: { message: ReactNode }) {
     </div>
   );
 }
+
+/**
+ * Shape-matched loading placeholders for the stat grid and data tables, so a
+ * page settles into its real layout instead of jumping from a centered
+ * spinner to a full table once data arrives.
+ */
+export function AdminStatSkeleton({ count = 4 }: { count?: number }) {
+  return (
+    <div className="admin-skeleton-stats" role="status" aria-label="Loading stats">
+      {Array.from({ length: count }).map((_, index) => (
+        <div className="admin-skeleton-stat" key={index}>
+          <span className="aa-skeleton" />
+          <span className="aa-skeleton" />
+          <span className="aa-skeleton" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function AdminTableSkeleton({ rows = 5 }: { rows?: number }) {
+  return (
+    <div className="admin-skeleton-table" role="status" aria-label="Loading">
+      {Array.from({ length: rows }).map((_, index) => (
+        <div className="admin-skeleton-row" key={index}>
+          <span className="aa-skeleton" />
+          <span className="aa-skeleton" />
+          <span className="aa-skeleton" />
+          <span className="aa-skeleton" />
+        </div>
+      ))}
+    </div>
+  );
+}

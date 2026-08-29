@@ -6,9 +6,8 @@ import { useAuth } from "@/providers/AuthProvider";
 import { listAdminUsers, updateAdminUser } from "@/lib/api/admin";
 import type { AdminUser } from "@/types/api";
 import { getErrorMessage } from "@/lib/api/client";
-import { Loader } from "@/components/ui/Loader";
 import { AdminRoute } from "@/components/auth/AdminRoute";
-import { AdminShell, AdminErrorState, AdminEmptyState } from "@/components/admin/AdminShell";
+import { AdminShell, AdminErrorState, AdminEmptyState, AdminTableSkeleton } from "@/components/admin/AdminShell";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
 import { IconSearch } from "@/components/admin/icons";
 
@@ -59,10 +58,13 @@ function AdminUsersContent() {
           <IconSearch />
           <input placeholder="Search by name or email…" value={search} onChange={(event) => setSearch(event.target.value)} aria-label="Search users" />
         </div>
+        {status === "ready" && (
+          <span className="admin-toolbar-count">{users.length} {users.length === 1 ? "user" : "users"}</span>
+        )}
       </div>
 
       {error && <p className="form-error">{error}</p>}
-      {status === "loading" && <Loader label="Loading users…" />}
+      {status === "loading" && <AdminTableSkeleton rows={6} />}
       {status === "error" && <AdminErrorState message={loadErrorMessage} onRetry={load} />}
       {status === "ready" && users.length === 0 && <AdminEmptyState message="No users match this search." />}
 

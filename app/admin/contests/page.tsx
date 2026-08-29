@@ -5,9 +5,8 @@ import { useCallback, useEffect, useState } from "react";
 import { listContests, createContest } from "@/lib/api/contests";
 import type { ContestSummary } from "@/types/api";
 import { getErrorMessage } from "@/lib/api/client";
-import { Loader } from "@/components/ui/Loader";
 import { AdminRoute } from "@/components/auth/AdminRoute";
-import { AdminShell, AdminErrorState, AdminEmptyState } from "@/components/admin/AdminShell";
+import { AdminShell, AdminErrorState, AdminEmptyState, AdminTableSkeleton } from "@/components/admin/AdminShell";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
 
 const statusLabel: Record<string, string> = { UPCOMING: "Upcoming", ONGOING: "Live now", ENDED: "Ended" };
@@ -107,7 +106,7 @@ function AdminContestsContent() {
 
       <div className="admin-card">
         <h2>All contests</h2>
-        {status === "loading" && <Loader label="Loading contests…" />}
+        {status === "loading" && <AdminTableSkeleton rows={4} />}
         {status === "error" && <AdminErrorState message={loadErrorMessage} onRetry={load} />}
         {status === "ready" && contests.length === 0 && <AdminEmptyState message="No contests yet — create the first one above." />}
         {status === "ready" && contests.length > 0 && (

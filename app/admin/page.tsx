@@ -4,9 +4,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { getAdminStats } from "@/lib/api/admin";
 import type { AdminStats } from "@/types/api";
-import { Loader } from "@/components/ui/Loader";
 import { AdminRoute } from "@/components/auth/AdminRoute";
-import { AdminShell, AdminErrorState } from "@/components/admin/AdminShell";
+import { AdminShell, AdminErrorState, AdminStatSkeleton } from "@/components/admin/AdminShell";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
 import { getErrorMessage } from "@/lib/api/client";
 import { IconUsers, IconCode, IconTrophy, IconGrid } from "@/components/admin/icons";
@@ -42,7 +41,7 @@ function AdminDashboardContent() {
         </Link>
       }
     >
-      {status === "loading" && <Loader label="Loading platform stats…" />}
+      {status === "loading" && <AdminStatSkeleton />}
       {status === "error" && <AdminErrorState message={errorMessage} onRetry={load} />}
 
       {status === "ready" && stats && (

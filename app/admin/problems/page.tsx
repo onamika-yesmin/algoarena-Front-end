@@ -4,9 +4,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { deleteAdminProblem, listAdminProblems, updateAdminProblem, type AdminProblemSummary } from "@/lib/api/admin";
 import { getErrorMessage } from "@/lib/api/client";
-import { Loader } from "@/components/ui/Loader";
 import { AdminRoute } from "@/components/auth/AdminRoute";
-import { AdminShell, AdminErrorState, AdminEmptyState } from "@/components/admin/AdminShell";
+import { AdminShell, AdminErrorState, AdminEmptyState, AdminTableSkeleton } from "@/components/admin/AdminShell";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
 import { IconSearch } from "@/components/admin/icons";
 
@@ -79,10 +78,13 @@ function AdminProblemsContent() {
           <IconSearch />
           <input placeholder="Search by title…" value={search} onChange={(event) => setSearch(event.target.value)} aria-label="Search problems" />
         </div>
+        {status === "ready" && (
+          <span className="admin-toolbar-count">{problems.length} {problems.length === 1 ? "problem" : "problems"}</span>
+        )}
       </div>
 
       {error && <p className="form-error">{error}</p>}
-      {status === "loading" && <Loader label="Loading problems…" />}
+      {status === "loading" && <AdminTableSkeleton rows={6} />}
       {status === "error" && <AdminErrorState message={loadErrorMessage} onRetry={load} />}
       {status === "ready" && problems.length === 0 && <AdminEmptyState message="No problems yet — create the first one." />}
 
