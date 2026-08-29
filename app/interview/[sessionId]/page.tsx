@@ -131,8 +131,8 @@ function InterviewRoomContent() {
             />
             {sendError && <p className={styles.formError}>{sendError}</p>}
             <div className={styles.composerActions}>
-              <button type="submit" className={styles.sendButton} disabled={isSending || !answer.trim()}>
-                {isSending ? "Sending…" : "Send answer"}
+              <button type="submit" className="button button-small" disabled={isSending || !answer.trim()}>
+                {isSending ? "Sending…" : "Send answer"} <span aria-hidden="true">→</span>
               </button>
             </div>
           </form>

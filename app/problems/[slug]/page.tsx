@@ -198,11 +198,11 @@ export default function ProblemDetailPage() {
               ))}
             </select>
             <div className="button-row">
-              <button type="button" className="button button-small" onClick={runSample} disabled={isRunning}>
+              <button type="button" className="button-outline button-small" onClick={runSample} disabled={isRunning}>
                 {isRunning ? "Running…" : "Run"}
               </button>
               <button type="button" className="button button-small" onClick={submit} disabled={isSubmitting}>
-                {isSubmitting ? "Submitting…" : "Submit"}
+                {isSubmitting ? "Submitting…" : "Submit"} <span aria-hidden="true">→</span>
               </button>
             </div>
           </div>
@@ -215,7 +215,16 @@ export default function ProblemDetailPage() {
           </div>
 
           {submitError && <p className="verdict-failed">{submitError}</p>}
-          {!user && <p className="problem-list-status">Sign in to submit and track your progress.</p>}
+          {!user && (
+            <div className="guest-cta">
+              <p>
+                <strong>Sign in</strong> to submit your solution, save it to your history, and climb the leaderboard.
+              </p>
+              <Link className="button button-small" href={`/signin?next=${encodeURIComponent(`/problems/${slug}`)}`}>
+                Sign in <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+          )}
 
           {submission && <VerdictPanel submission={submission} />}
 

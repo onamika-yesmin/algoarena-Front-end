@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { SiteHeader } from "../_components/home/SiteHeader";
 import { SiteFooter } from "../_components/home/SiteFooter";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { useAuth } from "@/providers/AuthProvider";
 import { Loader } from "@/components/ui/Loader";
 import { getErrorMessage } from "@/lib/api/client";
 import {
@@ -32,6 +32,7 @@ const DIFFICULTIES: { value: InterviewDifficulty; label: string }[] = [
 
 function InterviewContent() {
   const router = useRouter();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const [sessions, setSessions] = useState<InterviewSessionSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [listError, setListError] = useState<string | null>(null);
@@ -42,14 +43,27 @@ function InterviewContent() {
   const [startError, setStartError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Anyone can see the topic/difficulty picker and try it out — the past
+    // interview list is the only part that actually needs an account, so
+    // guests just skip this fetch instead of hitting a guaranteed 401.
+    if (isAuthLoading) return;
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
+    setIsLoading(true);
     listInterviewSessions()
       .then(setSessions)
       .catch((error) => setListError(getErrorMessage(error, "Could not load your past interviews.")))
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [user, isAuthLoading]);
 
   const handleStart = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (!user) {
+      setStartError("Sign in to start a mock interview — it only takes a second.");
+      return;
+    }
     setIsStarting(true);
     setStartError(null);
     try {
@@ -101,15 +115,31 @@ function InterviewContent() {
               ))}
             </select>
           </div>
-          <button type="submit" className={styles.startButton} disabled={isStarting}>
-            {isStarting ? "Starting…" : "Start interview"}
+          <button type="submit" className="button button-small" disabled={isStarting}>
+            {isStarting ? "Starting…" : "Start interview"} <span aria-hidden="true">→</span>
           </button>
         </form>
-        {startError && <p className={styles.formError}>{startError}</p>}
+        {startError && (
+          <div className={styles.guestPrompt}>
+            <p className={styles.formError}>{startError}</p>
+            {!user && (
+              <Link className="button button-small" href={`/signin?next=${encodeURIComponent("/interview")}`}>
+                Sign in <span aria-hidden="true">→</span>
+              </Link>
+            )}
+          </div>
+        )}
       </section>
 
       <h2 className={styles.sectionTitle}>Past interviews</h2>
-      {isLoading ? (
+      {!user ? (
+        <div className={styles.emptyPanel}>
+          <p>Sign in to save every mock interview and pick up your feedback later.</p>
+          <Link className="button button-small" href={`/signin?next=${encodeURIComponent("/interview")}`}>
+            Sign in <span aria-hidden="true">→</span>
+          </Link>
+        </div>
+      ) : isLoading ? (
         <Loader label="Loading your interviews…" />
       ) : listError ? (
         <p className={styles.formError}>{listError}</p>
@@ -142,10 +172,10 @@ function InterviewContent() {
 
 export default function InterviewPage() {
   return (
-    <ProtectedRoute>
+    <>
       <SiteHeader />
       <InterviewContent />
       <SiteFooter />
-    </ProtectedRoute>
+    </>
   );
 }

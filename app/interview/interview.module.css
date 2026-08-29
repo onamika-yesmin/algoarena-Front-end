@@ -5,9 +5,10 @@
 
 .startPanel {
   border: 1px solid #303854;
-  background: #171c34;
+  background: linear-gradient(160deg, #171c34, #141830);
   padding: 26px;
   margin: 32px 0;
+  border-radius: 12px;
 }
 
 .startPanelTitle {
@@ -48,39 +49,27 @@
   border: 1px solid #303854;
   color: #fff;
   padding: 12px 14px;
+  border-radius: 7px;
   font: 13px Manrope, Arial, sans-serif;
-}
-
-.startButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  background: #8067ff;
-  color: #fff;
-  border: 0;
-  border-radius: 5px;
-  padding: 13px 20px;
-  font-weight: 700;
-  font-size: 13px;
-  cursor: pointer;
-  transition: transform 0.2s, background 0.2s;
-}
-
-.startButton:hover:not(:disabled) {
-  transform: translateY(-2px);
-  background: #927dff;
-}
-
-.startButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .formError {
   color: #ff8c8c;
   font-size: 13px;
   margin: 12px 0 0;
+}
+
+.guestPrompt {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.guestPrompt .formError {
+  margin: 0;
 }
 
 .sectionTitle {
@@ -90,10 +79,20 @@
 }
 
 .emptyPanel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
   border: 1px solid #303854;
   background: #12172b;
-  padding: 28px;
+  padding: 24px 28px;
+  border-radius: 12px;
   color: #aeb4c9;
+}
+
+.emptyPanel p {
+  margin: 0;
 }
 
 .emptyPanel a {
@@ -115,12 +114,14 @@
   border: 1px solid #303854;
   background: #171c34;
   padding: 18px 20px;
-  transition: border-color 0.15s, transform 0.15s;
+  border-radius: 10px;
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 
 .sessionCard:hover {
   border-color: #8067ff;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 18px 40px -22px rgba(0,0,0,.55);
 }
 
 .sessionInfo {
@@ -202,6 +203,8 @@
 .chatShell {
   border: 1px solid #303854;
   background: #12172b;
+  border-radius: 12px;
+  overflow: hidden;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -280,9 +283,17 @@
   background: #0d1020;
   color: #d4d9ec;
   border: 1px solid #303854;
+  border-radius: 8px;
   padding: 14px;
   font: 13px/1.6 "DM Mono", monospace;
   resize: vertical;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.composer textarea:focus {
+  outline: none;
+  border-color: #55d8d2;
+  box-shadow: 0 0 0 3px rgba(85,216,210,.15);
 }
 
 .composer textarea:disabled {
@@ -294,37 +305,12 @@
   justify-content: flex-end;
 }
 
-.sendButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  background: #8067ff;
-  color: #fff;
-  border: 0;
-  border-radius: 5px;
-  padding: 12px 20px;
-  font-weight: 700;
-  font-size: 13px;
-  cursor: pointer;
-  transition: transform 0.2s, background 0.2s;
-}
-
-.sendButton:hover:not(:disabled) {
-  transform: translateY(-2px);
-  background: #927dff;
-}
-
-.sendButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 .feedbackPanel {
   margin-top: 20px;
   border: 1px solid #55d8d2;
   background: #12332f;
   padding: 24px;
+  border-radius: 12px;
 }
 
 .feedbackHead {
@@ -369,6 +355,7 @@
   border: 1px solid #303854;
   background: #171c34;
   padding: 32px;
+  border-radius: 12px;
   text-align: center;
   color: #aeb4c9;
   margin: 60px auto;
