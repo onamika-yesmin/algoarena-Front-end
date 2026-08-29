@@ -6,6 +6,8 @@ import { useEffect, useRef, useState } from "react";
 import { appConfig } from "@/lib/config";
 import { setTokens } from "@/lib/auth-storage";
 import { Spinner } from "@/components/ui/Loader";
+import { CountUp } from "@/components/ui/CountUp";
+import { IconCheck } from "@/app/_components/home/icons";
 
 declare global {
     interface Window {
@@ -18,6 +20,17 @@ declare global {
 
 const MAX_AVATAR_BYTES = 4 * 1024 * 1024;
 const ALLOWED_AVATAR_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
+
+// Where to send someone after they authenticate — honors a ?next=/path
+// query param (set by "Sign in" links from gated pages/actions) so they
+// land back where they started instead of always on /problems. Guarded
+// against open redirects: only an in-site path starting with a single "/"
+// is ever accepted.
+function getNextPath(): string {
+    if (typeof window === "undefined") return "/problems";
+    const next = new URLSearchParams(window.location.search).get("next");
+    return next && next.startsWith("/") && !next.startsWith("//") ? next : "/problems";
+}
 
 export default function SignInPage() {
     const googleButton = useRef<HTMLDivElement>(null);
@@ -38,6 +51,12 @@ export default function SignInPage() {
             if (avatarPreview) URL.revokeObjectURL(avatarPreview);
         };
     }, [avatarPreview]);
+
+    // Lets a "Create free account" link elsewhere on the site (?mode=register)
+    // land straight on the register tab instead of making people click twice.
+    useEffect(() => {
+        if (new URLSearchParams(window.location.search).get("mode") === "register") setMode("register");
+    }, []);
 
     const pickAvatar = (file: File | undefined) => {
         setAvatarError(null);
@@ -63,9 +82,10 @@ export default function SignInPage() {
         if (avatarInput.current) avatarInput.current.value = "";
     };
 
-    const switchMode = () => {
+    const switchMode = (target: "login" | "register") => {
+        if (target === mode) return;
         clearAvatar();
-        setMode(mode === "login" ? "register" : "login");
+        setMode(target);
     };
 
     const submitCredentials = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -103,7 +123,7 @@ export default function SignInPage() {
             if (result.data?.accessToken && result.data?.refreshToken) {
                 setTokens(result.data.accessToken, result.data.refreshToken);
             }
-            window.location.assign("/problems");
+            window.location.assign(getNextPath());
         } catch (error) {
             setMessage(error instanceof Error ? error.message : "Authentication failed.");
             setIsSubmitting(false);
@@ -139,7 +159,7 @@ export default function SignInPage() {
                                 if (result.data?.accessToken && result.data?.refreshToken) {
                                     setTokens(result.data.accessToken, result.data.refreshToken);
                                 }
-                                window.location.assign("/profile");
+                                window.location.assign(getNextPath());
                             } catch (error) {
                                 setMessage(error instanceof Error ? error.message : "Sign-in failed. Please try again.");
                                 setIsLoading(false);
@@ -158,58 +178,87 @@ export default function SignInPage() {
         setupGoogleSignIn();
     }, []);
 
-    return <main className="auth-page"><section className="auth-card">
-        <Link className="brand" href="/">Algo<span>Arena</span><i>{" //"}</i></Link>
-        <p className="eyebrow"><b />ACCOUNT ACCESS</p><h1>{mode === "login" ? "Welcome back." : "Create your account."}</h1>
-        <p className="auth-copy">{message}</p>
-        <form className="auth-form" onSubmit={submitCredentials}>
-          {mode === "register" && (
-            <div className="avatar-picker">
-              <button
-                type="button"
-                className="avatar-picker-circle"
-                onClick={() => avatarInput.current?.click()}
-                aria-label={avatarPreview ? "Change profile photo" : "Add a profile photo"}
-              >
-                {avatarPreview ? (
-                  <Image src={avatarPreview} alt="" width={84} height={84} unoptimized />
-                ) : (
-                  <span className="avatar-picker-placeholder">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <circle cx="12" cy="8" r="3.6" />
-                      <path d="M4.5 20c0-3.6 3-6 7.5-6s7.5 2.4 7.5 6" />
-                    </svg>
-                  </span>
-                )}
-                <span className="avatar-picker-badge">{avatarPreview ? "Change" : "Add photo"}</span>
+    return (
+      <main className="auth-page">
+        <section className="auth-visual" aria-hidden="true">
+          <div className="auth-visual-glow" />
+          <Link className="brand" href="/">Algo<span>Arena</span><i>{" //"}</i></Link>
+          <h2>Practice with purpose.<br />Compete with people who love it.</h2>
+          <ul className="spotlight-list">
+            <li><IconCheck /> Every submission, streak, and verdict saved to your profile</li>
+            <li><IconCheck /> Weekly contests with a live, global leaderboard</li>
+            <li><IconCheck /> Scored AI mock interviews with written feedback</li>
+          </ul>
+          <div className="auth-visual-stats">
+            <div><strong><CountUp value={10000} suffix="+" /></strong><span>solutions this week</span></div>
+            <div><strong><CountUp value={4.9} decimals={1} suffix="/5" /></strong><span>learner rating</span></div>
+          </div>
+        </section>
+
+        <section className="auth-form-side">
+          <div className="auth-card">
+            <Link className="brand auth-card-brand" href="/">Algo<span>Arena</span><i>{" //"}</i></Link>
+            <div className="auth-mode-toggle" role="tablist" aria-label="Sign in or create an account">
+              <button type="button" role="tab" aria-selected={mode === "login"} className={mode === "login" ? "is-active" : undefined} onClick={() => switchMode("login")}>
+                Sign in
               </button>
-              <input
-                ref={avatarInput}
-                type="file"
-                accept={ALLOWED_AVATAR_TYPES.join(",")}
-                hidden
-                onChange={(event) => pickAvatar(event.target.files?.[0])}
-              />
-              <div className="avatar-picker-copy">
-                <p>Profile photo <span>(optional)</span></p>
-                <p className="avatar-picker-hint">PNG, JPEG, WEBP or GIF, up to 4 MB.</p>
-                {avatarFile && (
-                  <button type="button" className="avatar-picker-remove" onClick={clearAvatar}>
-                    Remove photo
-                  </button>
-                )}
-                {avatarError && <p className="form-error">{avatarError}</p>}
-              </div>
+              <button type="button" role="tab" aria-selected={mode === "register"} className={mode === "register" ? "is-active" : undefined} onClick={() => switchMode("register")}>
+                Create account
+              </button>
             </div>
-          )}
-          {mode === "register" && <input name="name" required minLength={2} placeholder="Your name" />}
-          <input name="email" type="email" required placeholder="Email address" />
-          <input name="password" type="password" required minLength={8} placeholder="Password (8+ characters)" />
-          <button className="button" disabled={isSubmitting} type="submit">{isSubmitting ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}</button>
-        </form>
-        <button className="auth-switch" type="button" onClick={switchMode}>{mode === "login" ? "New here? Create an account" : "Already have an account? Sign in"}</button>
-        <p className="auth-divider">or continue with Google</p><div className="google-button" ref={googleButton} />
-        {isLoading && <p className="auth-status"><Spinner size="sm" /> Preparing Google sign-in…</p>}
-        <Link className="text-link" href="/">← Back to home</Link>
-    </section></main>;
+            <p className="eyebrow"><b />ACCOUNT ACCESS</p>
+            <h1>{mode === "login" ? "Welcome back." : "Create your account."}</h1>
+            <p className="auth-copy">{message}</p>
+            <form key={mode} className="auth-form auth-form-anim" onSubmit={submitCredentials}>
+              {mode === "register" && (
+                <div className="avatar-picker">
+                  <button
+                    type="button"
+                    className="avatar-picker-circle"
+                    onClick={() => avatarInput.current?.click()}
+                    aria-label={avatarPreview ? "Change profile photo" : "Add a profile photo"}
+                  >
+                    {avatarPreview ? (
+                      <Image src={avatarPreview} alt="" width={84} height={84} unoptimized />
+                    ) : (
+                      <span className="avatar-picker-placeholder">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <circle cx="12" cy="8" r="3.6" />
+                          <path d="M4.5 20c0-3.6 3-6 7.5-6s7.5 2.4 7.5 6" />
+                        </svg>
+                      </span>
+                    )}
+                    <span className="avatar-picker-badge">{avatarPreview ? "Change" : "Add photo"}</span>
+                  </button>
+                  <input
+                    ref={avatarInput}
+                    type="file"
+                    accept={ALLOWED_AVATAR_TYPES.join(",")}
+                    hidden
+                    onChange={(event) => pickAvatar(event.target.files?.[0])}
+                  />
+                  <div className="avatar-picker-copy">
+                    <p>Profile photo <span>(optional)</span></p>
+                    <p className="avatar-picker-hint">PNG, JPEG, WEBP or GIF, up to 4 MB.</p>
+                    {avatarFile && (
+                      <button type="button" className="avatar-picker-remove" onClick={clearAvatar}>
+                        Remove photo
+                      </button>
+                    )}
+                    {avatarError && <p className="form-error">{avatarError}</p>}
+                  </div>
+                </div>
+              )}
+              {mode === "register" && <input name="name" required minLength={2} placeholder="Your name" />}
+              <input name="email" type="email" required placeholder="Email address" />
+              <input name="password" type="password" required minLength={8} placeholder="Password (8+ characters)" />
+              <button className="button" disabled={isSubmitting} type="submit">{isSubmitting ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}</button>
+            </form>
+            <p className="auth-divider">or continue with Google</p><div className="google-button" ref={googleButton} />
+            {isLoading && <p className="auth-status"><Spinner size="sm" /> Preparing Google sign-in…</p>}
+            <Link className="text-link" href="/">← Back to home</Link>
+          </div>
+        </section>
+      </main>
+    );
 }
