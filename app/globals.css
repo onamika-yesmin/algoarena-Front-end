@@ -167,6 +167,22 @@
 .admin-form textarea { resize:vertical; min-height:90px; font-family:'DM Mono'; font-size:12px; }
 .admin-form-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:14px; }
 .admin-form-actions { display:flex; gap:14px; align-items:center; margin-top:6px; }
+
+/* Contest problem picker (app/admin/contests/page.tsx) — a scrollable
+   checklist of problems + a per-problem points input, used when scheduling
+   a contest so it isn't created with zero problems attached.
+   Selectors below are scoped under .admin-form so they out-specificity the
+   existing ".admin-form label" / ".admin-form input" rules above (both
+   (0,1,1)) — without that prefix those generic rules forced this nested
+   label back to display:grid and stretched the points input to width:100%,
+   collapsing the whole row into overlapping stacked lines. */
+.contest-problem-picker { max-height:260px; overflow-y:auto; border:1px solid #3d4673; border-radius:7px; background:#0d1020; padding:6px; display:flex; flex-direction:column; gap:2px; }
+.contest-problem-row { display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:5px; }
+.contest-problem-row:hover { background:rgba(128,103,255,.08); }
+.admin-form .contest-problem-checkbox { display:flex; align-items:center; gap:8px; flex:1; min-width:0; cursor:pointer; font:13px Manrope; color:#dfe1ee; text-transform:none; letter-spacing:normal; }
+.contest-problem-checkbox span:first-of-type { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.admin-form .contest-problem-checkbox input[type="checkbox"] { width:16px; height:16px; accent-color:var(--violet); flex-shrink:0; }
+.admin-form .contest-problem-points { width:68px; flex-shrink:0; border:1px solid #3d4673; background:#171c34; color:#fff; padding:6px 8px; font:12px 'DM Mono'; border-radius:5px; text-align:right; }
 .admin-toolbar { display:flex; justify-content:space-between; align-items:center; gap:16px; margin:28px 0 18px; flex-wrap:wrap; }
 .admin-toolbar input { border:1px solid #3d4673; background:#0d1020; color:#fff; padding:10px 13px; font:13px Manrope; border-radius:4px; min-width:240px; }
 .admin-table-wrap { overflow-x:auto; }
