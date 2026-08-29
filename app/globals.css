@@ -470,6 +470,16 @@
 .button-outline:hover { border-color: var(--cyan); background: rgba(85,216,210,.08); transform: translateY(-2px); }
 .button-outline span { display: inline-block; transition: transform .2s; }
 .button-outline:hover span { transform: translateX(3px); }
+
+/* Same native-button-chrome problem as .button-outline above, this time for
+   .text-link: every existing use is on an <a> (no UA default styling to
+   fight), but the profile page's "Change password" toggle and its two
+   "Cancel" buttons are real <button> elements, so without this reset they'd
+   show up as plain white boxes instead of the intended plain-text link. */
+button.text-link {
+  background: transparent; border: 0; padding: 0; cursor: pointer; font-family: inherit;
+}
+button.text-link:disabled { opacity: .5; cursor: not-allowed; }
 .button-row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
 
 /* AI interview chat mockup. */

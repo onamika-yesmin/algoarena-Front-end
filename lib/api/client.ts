@@ -36,6 +36,9 @@ export function getErrorMessage(error: unknown, fallback = "Something went wrong
 
 interface RequestOptions {
   method?: "GET" | "POST" | "PATCH" | "DELETE";
+  /** A FormData body (e.g. an avatar upload) is sent as-is, multipart, with
+   *  no Content-Type set — the browser fills in the boundary itself. Any
+   *  other value is JSON-stringified as before. */
   body?: unknown;
   signal?: AbortSignal;
   /** Internal: marks a request as already-retried, to avoid a refresh loop. */
@@ -86,15 +89,22 @@ const tryRefresh = async (): Promise<boolean> => {
 
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const accessToken = getAccessToken();
+  const isFormData = typeof FormData !== "undefined" && options.body instanceof FormData;
   const headers: Record<string, string> = {};
-  if (options.body) headers["Content-Type"] = "application/json";
+  // A multipart FormData body must NOT get a manual Content-Type — the
+  // browser needs to set it itself (it embeds a boundary string the server
+  // uses to split fields/files apart). Setting it here, or letting the JSON
+  // branch below stringify a FormData instance into "[object FormData]",
+  // would silently break every field the backend's multer middleware
+  // expects to parse.
+  if (options.body && !isFormData) headers["Content-Type"] = "application/json";
   if (accessToken) headers["Authorization"] = `Bearer ${accessToken}`;
 
   const response = await fetch(`${appConfig.apiUrl}${path}`, {
     method: options.method ?? "GET",
     credentials: "include",
     headers: Object.keys(headers).length ? headers : undefined,
-    body: options.body ? JSON.stringify(options.body) : undefined,
+    body: isFormData ? (options.body as FormData) : options.body ? JSON.stringify(options.body) : undefined,
     signal: options.signal,
   });
 

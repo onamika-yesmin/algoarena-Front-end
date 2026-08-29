@@ -184,6 +184,10 @@ export interface CurrentUser {
   role: "user" | "admin";
   status: "active" | "blocked";
   createdAt?: string;
+  /** True for an email/password account; false for a Google-only account,
+   *  which has nothing to check a "change password" form against. Only
+   *  present on the /api/auth/me response. */
+  hasPassword?: boolean;
 }
 
 export interface AdminStats {
