@@ -14,6 +14,7 @@ import { ApiError, getErrorMessage } from "@/lib/api/client";
 import { PageLoader, Loader } from "@/components/ui/Loader";
 import { SiteHeader } from "@/app/_components/home/SiteHeader";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import styles from "../community.module.css";
 
 const difficultyClass: Record<string, string> = {
@@ -164,7 +165,7 @@ export default function CommunitySubmissionPage() {
   }, [params.submissionId]);
 
   return (
-    <>
+    <ProtectedRoute>
       <SiteHeader />
       {status === "loading" && <PageLoader label="Loading submission…" />}
 
@@ -233,6 +234,6 @@ export default function CommunitySubmissionPage() {
         </main>
       )}
       <SiteFooter />
-    </>
+    </ProtectedRoute>
   );
 }

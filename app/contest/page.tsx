@@ -8,6 +8,7 @@ import { Loader } from "@/components/ui/Loader";
 import { getErrorMessage } from "@/lib/api/client";
 import { SiteHeader } from "@/app/_components/home/SiteHeader";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 const statusLabel: Record<string, string> = {
   UPCOMING: "Upcoming",
@@ -40,7 +41,7 @@ export default function ContestPage() {
   }, []);
 
   return (
-    <>
+    <ProtectedRoute>
       <SiteHeader />
       <main className="section-shell workspace">
       <p className="eyebrow">
@@ -73,6 +74,6 @@ export default function ContestPage() {
       )}
       </main>
       <SiteFooter />
-    </>
+    </ProtectedRoute>
   );
 }

@@ -14,6 +14,7 @@ import HintPanel from "@/components/hints/HintPanel";
 import { PageLoader } from "@/components/ui/Loader";
 import { SiteHeader } from "@/app/_components/home/SiteHeader";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 const languages: Language[] = ["python", "cpp", "javascript"];
 
@@ -111,17 +112,17 @@ export default function ProblemDetailPage() {
 
   if (status === "loading") {
     return (
-      <>
+      <ProtectedRoute>
         <SiteHeader />
         <PageLoader label="Loading problem…" />
         <SiteFooter />
-      </>
+      </ProtectedRoute>
     );
   }
 
   if (status === "error" || !problem) {
     return (
-      <>
+      <ProtectedRoute>
         <SiteHeader />
         <main className="section-shell problem-workspace">
           <p className="problem-list-status">{loadErrorMessage}</p>
@@ -130,12 +131,12 @@ export default function ProblemDetailPage() {
           </Link>
         </main>
         <SiteFooter />
-      </>
+      </ProtectedRoute>
     );
   }
 
   return (
-    <>
+    <ProtectedRoute>
       <SiteHeader />
       <main className="section-shell problem-workspace">
       <div className="problem-workspace-head">
@@ -215,16 +216,6 @@ export default function ProblemDetailPage() {
           </div>
 
           {submitError && <p className="verdict-failed">{submitError}</p>}
-          {!user && (
-            <div className="guest-cta">
-              <p>
-                <strong>Sign in</strong> to submit your solution, save it to your history, and climb the leaderboard.
-              </p>
-              <Link className="button button-small" href={`/signin?next=${encodeURIComponent(`/problems/${slug}`)}`}>
-                Sign in <span aria-hidden="true">→</span>
-              </Link>
-            </div>
-          )}
 
           {submission && <VerdictPanel submission={submission} />}
 
@@ -261,6 +252,6 @@ export default function ProblemDetailPage() {
       </div>
       </main>
       <SiteFooter />
-    </>
+    </ProtectedRoute>
   );
 }

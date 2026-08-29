@@ -60,18 +60,6 @@
   margin: 12px 0 0;
 }
 
-.guestPrompt {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-top: 12px;
-}
-
-.guestPrompt .formError {
-  margin: 0;
-}
-
 .sectionTitle {
   font: 700 22px "Space Grotesk", sans-serif;
   margin: 40px 0 16px;

@@ -10,6 +10,7 @@ import type { ContestDetail, ContestScoreboardEntry } from "@/types/api";
 import { PageLoader } from "@/components/ui/Loader";
 import { SiteHeader } from "@/app/_components/home/SiteHeader";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 const statusLabel: Record<string, string> = {
   UPCOMING: "Upcoming",
@@ -68,17 +69,17 @@ export default function ContestDetailPage() {
 
   if (status === "loading") {
     return (
-      <>
+      <ProtectedRoute>
         <SiteHeader />
         <PageLoader label="Loading contest…" />
         <SiteFooter />
-      </>
+      </ProtectedRoute>
     );
   }
 
   if (status === "error" || !contest) {
     return (
-      <>
+      <ProtectedRoute>
         <SiteHeader />
         <main className="section-shell workspace">
           <p className="problem-list-status">{loadErrorMessage}</p>
@@ -87,12 +88,12 @@ export default function ContestDetailPage() {
           </Link>
         </main>
         <SiteFooter />
-      </>
+      </ProtectedRoute>
     );
   }
 
   return (
-    <>
+    <ProtectedRoute>
       <SiteHeader />
       <main className="section-shell workspace">
       <p className="eyebrow">
@@ -177,6 +178,6 @@ export default function ContestDetailPage() {
       </Link>
       </main>
       <SiteFooter />
-    </>
+    </ProtectedRoute>
   );
 }

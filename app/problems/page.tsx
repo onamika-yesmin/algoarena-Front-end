@@ -1,10 +1,11 @@
 import ProblemList from "@/components/problems/ProblemList";
 import { SiteHeader } from "@/app/_components/home/SiteHeader";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 export default function ProblemsPage() {
   return (
-    <>
+    <ProtectedRoute>
       <SiteHeader />
       <main className="section-shell workspace">
         <section>
@@ -18,6 +19,6 @@ export default function ProblemsPage() {
         <ProblemList />
       </main>
       <SiteFooter />
-    </>
+    </ProtectedRoute>
   );
 }

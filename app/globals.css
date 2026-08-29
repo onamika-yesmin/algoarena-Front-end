@@ -84,10 +84,7 @@
 .problem-meta{display:flex;gap:10px;flex-wrap:wrap;color:#9da5bf;font:11px 'DM Mono';margin-bottom:22px}
 .problem-workspace-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start;margin-top:26px}
 @media (max-width:960px){.problem-workspace-grid{grid-template-columns:1fr}.problem-statement{max-height:none}}
-.guest-cta{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border:1px solid rgba(128,103,255,.35);background:linear-gradient(135deg,rgba(128,103,255,.14),rgba(85,216,210,.08));border-radius:10px;padding:16px 20px;margin:4px 0}
 .button-outline.button-small{padding:10px 13px}
-.guest-cta p{margin:0;color:#dfe1ee;font-size:13px}
-.guest-cta strong{color:#fff}
 .problem-statement{border:1px solid #303854;background:#12172b;padding:24px;max-height:78vh;overflow-y:auto}
 .problem-statement h2{font:700 18px 'Space Grotesk';margin:22px 0 8px}.problem-statement h2:first-child{margin-top:0}
 .problem-statement p,.problem-statement li{color:#c3c8dd;line-height:1.75;font-size:13.5px}

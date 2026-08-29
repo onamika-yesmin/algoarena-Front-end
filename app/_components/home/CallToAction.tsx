@@ -18,7 +18,7 @@ export function CallToAction() {
         {showGuestCta ? (
           <>
             <Link className="button" href="/signin?mode=register">Create a free account <span aria-hidden="true">→</span></Link>
-            <Link className="button-outline" href="/problems">Browse problems first</Link>
+            <Link className="button-outline" href="/signin">Sign in</Link>
           </>
         ) : (
           <Link className="button" href="/problems">Enter AlgoArena <span aria-hidden="true">→</span></Link>

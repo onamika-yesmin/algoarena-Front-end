@@ -8,6 +8,7 @@ import { Loader } from "@/components/ui/Loader";
 import { getErrorMessage } from "@/lib/api/client";
 import { SiteHeader } from "@/app/_components/home/SiteHeader";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 const PAGE_SIZE = 25;
 
@@ -54,7 +55,7 @@ export default function LeaderboardPage() {
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
-    <>
+    <ProtectedRoute>
       <SiteHeader />
       <main className="section-shell workspace">
       <p className="eyebrow">
@@ -120,6 +121,6 @@ export default function LeaderboardPage() {
       )}
       </main>
       <SiteFooter />
-    </>
+    </ProtectedRoute>
   );
 }
