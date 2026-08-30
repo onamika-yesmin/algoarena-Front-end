@@ -1,0 +1,193 @@
+/* Analytics dashboard visuals — bar lists and the 30-day activity strip.
+   Colors are copied from app/globals.css (not imported) so this module
+   stays self-contained: panel #171c34, border #303854, muted text #9da5bf,
+   violet #8067ff, cyan #55d8d2, orange #ffb254. */
+
+.panel {
+  border: 1px solid #303854;
+  background: #171c34;
+  padding: 26px;
+  margin-top: 22px;
+}
+
+.panelTitle {
+  font: 700 18px "Space Grotesk", sans-serif;
+  margin: 0 0 4px;
+  color: #fff;
+}
+
+.panelSubtitle {
+  color: #9da5bf;
+  font-size: 12px;
+  margin: 0 0 20px;
+}
+
+.barList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.barRow {
+  display: grid;
+  grid-template-columns: 130px 1fr 40px;
+  align-items: center;
+  gap: 12px;
+}
+
+@media (max-width: 480px) {
+  .barRow {
+    grid-template-columns: 88px 1fr 32px;
+    gap: 8px;
+  }
+}
+
+.barLabel {
+  font-size: 12px;
+  color: #cfd2df;
+  text-transform: capitalize;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.barTrack {
+  position: relative;
+  height: 10px;
+  border-radius: 6px;
+  background: #12172b;
+  border: 1px solid #303854;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 6px;
+  background: var(--violet, #8067ff);
+  transition: width 0.3s ease;
+}
+
+.barCount {
+  font: 12px "DM Mono", monospace;
+  color: #9da5bf;
+  text-align: right;
+}
+
+/* Verdict-specific fill colors */
+.fillAccepted { background: #55d8d2; }
+.fillWrong { background: #fc6c70; }
+.fillPending,
+.fillRunning { background: #ffb254; }
+.fillError { background: #c9bbff; }
+
+/* Difficulty-specific fill colors */
+.fillEasy { background: #55d8d2; }
+.fillMedium { background: #ffb254; }
+.fillHard { background: #fc6c70; }
+
+.activityStrip {
+  display: flex;
+  gap: 4px;
+  align-items: flex-end;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.activityCell {
+  flex: 1 0 10px;
+  min-width: 10px;
+  height: 34px;
+  border-radius: 3px;
+  background: #12172b;
+  border: 1px solid #303854;
+  position: relative;
+  cursor: default;
+}
+
+.activityFill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 2px;
+  background: var(--cyan, #55d8d2);
+}
+
+.activityLegend {
+  display: flex;
+  justify-content: space-between;
+  color: #6d748d;
+  font: 10px "DM Mono", monospace;
+  margin-top: 8px;
+}
+
+.emptyState {
+  color: #aeb4c9;
+  font-size: 13px;
+  line-height: 1.7;
+  padding: 6px 0;
+}
+
+.emptyState a {
+  color: #c9bbff;
+  font-weight: 700;
+}
+
+.legendRow {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #9da5bf;
+}
+
+.legendDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Progress history — one row per AnalyticsSnapshot day (see
+   lib/api/analytics.ts's getMyAnalyticsHistory). */
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.historyRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  padding: 10px 0;
+  border-bottom: 1px solid #232a45;
+}
+
+.historyRow:last-child {
+  border-bottom: none;
+}
+
+.historyDate {
+  min-width: 64px;
+  color: #fff;
+  font: 700 12px "DM Mono", monospace;
+}
+
+.historyMetric {
+  color: #9da5bf;
+  font-size: 12px;
+}
+
+.historyMetric b {
+  color: #cfd2df;
+  font-weight: 700;
+}
