@@ -22,7 +22,7 @@
 .auth-card .brand{display:inline-block;margin-bottom:28px}
 .auth-card h1{font:700 38px/1 'Space Grotesk';letter-spacing:-2px;margin:0 0 18px}
 .auth-copy{min-height:48px;color:#b3b8cb;font-size:14px;line-height:1.65;margin:0 0 26px}
-.google-button{min-height:44px;margin-bottom:18px}
+.google-button{min-height:44px;margin-bottom:18px;max-width:100%;overflow:hidden}
 .auth-status{color:#8d94ad;font:11px 'DM Mono';margin:0 0 18px;display:flex;align-items:center;gap:8px}
 .auth-mode-toggle{display:flex;background:#0d1020;border:1px solid #3d4673;border-radius:8px;padding:4px;gap:4px;margin-bottom:30px}
 .auth-mode-toggle button{flex:1;border:0;background:transparent;color:#9aa0ba;padding:10px 0;font:700 12.5px Manrope;border-radius:6px;cursor:pointer;transition:background .2s,color .2s}
@@ -33,6 +33,11 @@
 .auth-divider{color:#777e96;font:11px 'DM Mono';margin:10px 0 14px}
 @media (prefers-reduced-motion: reduce){.auth-visual-glow::before,.auth-visual-glow::after{animation:none}.auth-form-anim{animation:none}}
 @media (max-width:900px){.auth-page{grid-template-columns:1fr}.auth-visual{display:none}.auth-card-brand{display:inline-block;margin-bottom:32px}}
+/* Narrow phones: the fixed 44px auth-card padding on top of the Google
+   button's minimum supported width (200px) can still pinch the card
+   tighter than the button needs — trim the padding so there's enough
+   room left for the button to sit inside without overflowing. */
+@media (max-width:420px){.auth-card{padding:28px 20px}}
 
 /* Registration avatar picker (app/(auth)/signin/page.tsx). */
 .avatar-picker { display: flex; align-items: center; gap: 16px; margin-bottom: 4px; }

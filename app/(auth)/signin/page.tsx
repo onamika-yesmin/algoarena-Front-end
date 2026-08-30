@@ -131,6 +131,8 @@ export default function SignInPage() {
     };
 
     useEffect(() => {
+        let resizeHandler: (() => void) | null = null;
+
         const setupGoogleSignIn = async () => {
             try {
                 // apiUrl is intentionally "" by default (a same-origin relative
@@ -166,8 +168,34 @@ export default function SignInPage() {
                             }
                         },
                     });
-                    window.google.accounts.id.renderButton(googleButton.current, { theme: "outline", size: "large", width: 320, text: "continue_with" });
+
+                    // The GSI button renders at a fixed pixel width and never
+                    // resizes itself afterwards — a hardcoded width (previously
+                    // 320px) overflows the auth card on narrow phones, since the
+                    // card's own padding can leave less than that available.
+                    // Measure the actual container width each time instead, and
+                    // clamp to GSI's supported range (200–400px).
+                    const renderGoogleButton = () => {
+                        if (!window.google || !googleButton.current) return;
+                        googleButton.current.innerHTML = "";
+                        const available = googleButton.current.offsetWidth || 320;
+                        const width = Math.round(Math.max(200, Math.min(400, available)));
+                        window.google.accounts.id.renderButton(googleButton.current, { theme: "outline", size: "large", width, text: "continue_with" });
+                    };
+
+                    renderGoogleButton();
                     setIsLoading(false);
+
+                    // Re-measure on resize/orientation change (e.g. rotating a
+                    // phone, or resizing a desktop window) so the button keeps
+                    // matching the card instead of staying stuck at whatever
+                    // width it first mounted at.
+                    let resizeTimeout: ReturnType<typeof setTimeout>;
+                    resizeHandler = () => {
+                        clearTimeout(resizeTimeout);
+                        resizeTimeout = setTimeout(renderGoogleButton, 150);
+                    };
+                    window.addEventListener("resize", resizeHandler);
                 };
                 script.onerror = () => { setMessage("Google sign-in could not load. Please try again."); setIsLoading(false); };
                 document.head.appendChild(script);
@@ -176,6 +204,10 @@ export default function SignInPage() {
             }
         };
         setupGoogleSignIn();
+
+        return () => {
+            if (resizeHandler) window.removeEventListener("resize", resizeHandler);
+        };
     }, []);
 
     return (
