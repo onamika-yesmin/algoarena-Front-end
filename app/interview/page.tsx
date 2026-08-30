@@ -131,6 +131,7 @@ function InterviewContent() {
                   <span>{session.difficulty}</span>
                   <span>{new Date(session.createdAt).toLocaleDateString()}</span>
                 </span>
+                {session.reportSummary && <p className={styles.sessionSummary}>{session.reportSummary}</p>}
               </div>
               {typeof session.score === "number" && <span className={styles.scoreTag}>Score {session.score}/10</span>}
             </Link>

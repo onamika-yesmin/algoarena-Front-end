@@ -33,6 +33,10 @@ export interface InterviewSessionSummary {
   score?: number;
   createdAt: string;
   messageCount: number;
+  /** Short excerpt of the AI's closing feedback, only present once the
+   *  session is completed — backed by the AIReport collection so this
+   *  list doesn't have to load every session's full message transcript. */
+  reportSummary?: string;
 }
 
 export const listInterviewSessions = () => apiRequest<InterviewSessionSummary[]>("/api/interview");

@@ -154,3 +154,40 @@
   border-radius: 50%;
   display: inline-block;
 }
+
+/* Progress history — one row per AnalyticsSnapshot day (see
+   lib/api/analytics.ts's getMyAnalyticsHistory). */
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.historyRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  padding: 10px 0;
+  border-bottom: 1px solid #232a45;
+}
+
+.historyRow:last-child {
+  border-bottom: none;
+}
+
+.historyDate {
+  min-width: 64px;
+  color: #fff;
+  font: 700 12px "DM Mono", monospace;
+}
+
+.historyMetric {
+  color: #9da5bf;
+  font-size: 12px;
+}
+
+.historyMetric b {
+  color: #cfd2df;
+  font-weight: 700;
+}

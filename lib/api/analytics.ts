@@ -33,3 +33,15 @@ export interface AnalyticsResult {
 }
 
 export const getMyAnalytics = () => apiRequest<AnalyticsResult>("/api/analytics/me");
+
+export interface AnalyticsHistoryEntry {
+  date: string;
+  totalSubmissions: number;
+  acceptedSubmissions: number;
+  problemsSolved: number;
+  accuracyPercent: number;
+  currentStreakDays: number;
+}
+
+export const getMyAnalyticsHistory = (days = 30) =>
+  apiRequest<AnalyticsHistoryEntry[]>(`/api/analytics/history?days=${days}`);

@@ -6,8 +6,8 @@ import { SiteHeader } from "../_components/home/SiteHeader";
 import { SiteFooter } from "../_components/home/SiteFooter";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Loader } from "@/components/ui/Loader";
-import { getMyAnalytics } from "@/lib/api/analytics";
-import type { AnalyticsResult } from "@/lib/api/analytics";
+import { getMyAnalytics, getMyAnalyticsHistory } from "@/lib/api/analytics";
+import type { AnalyticsResult, AnalyticsHistoryEntry } from "@/lib/api/analytics";
 import { getErrorMessage } from "@/lib/api/client";
 import styles from "./analytics.module.css";
 
@@ -102,10 +102,40 @@ function ActivityStrip({ activity }: { activity: AnalyticsResult["activity"] }) 
   );
 }
 
+function ProgressHistory({ history }: { history: AnalyticsHistoryEntry[] }) {
+  if (history.length === 0) {
+    return (
+      <p className={styles.emptyState}>
+        Come back tomorrow to start seeing your progress charted day by day.
+      </p>
+    );
+  }
+
+  return (
+    <div className={styles.historyList}>
+      {[...history].reverse().map((day) => (
+        <div className={styles.historyRow} key={day.date}>
+          <span className={styles.historyDate}>{new Date(day.date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</span>
+          <span className={styles.historyMetric}>
+            <b>{day.problemsSolved}</b> solved
+          </span>
+          <span className={styles.historyMetric}>
+            <b>{day.accuracyPercent}%</b> accuracy
+          </span>
+          <span className={styles.historyMetric}>
+            <b>{day.currentStreakDays}</b> day streak
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function AnalyticsContent() {
   const [analytics, setAnalytics] = useState<AnalyticsResult | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState("");
+  const [history, setHistory] = useState<AnalyticsHistoryEntry[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -121,6 +151,17 @@ function AnalyticsContent() {
           setErrorMessage(getErrorMessage(error, "Could not load your analytics. Please try again later."));
           setStatus("error");
         }
+      });
+    // A snapshot is only written once getMyAnalytics() above has run at
+    // least once (it's the one that upserts "today"), but fetching history
+    // in parallel is safe either way — today's row just won't exist yet on
+    // someone's very first-ever analytics load this session.
+    getMyAnalyticsHistory(30)
+      .then((result) => {
+        if (!cancelled) setHistory(result);
+      })
+      .catch(() => {
+        // Non-critical — the live numbers above are already shown either way.
       });
     return () => {
       cancelled = true;
@@ -230,6 +271,12 @@ function AnalyticsContent() {
               </section>
             </>
           )}
+
+          <section className={styles.panel}>
+            <h2 className={styles.panelTitle}>Progress history</h2>
+            <p className={styles.panelSubtitle}>A daily snapshot of your standing, newest first — builds up day by day as you keep solving.</p>
+            <ProgressHistory history={history} />
+          </section>
         </>
       )}
     </main>
