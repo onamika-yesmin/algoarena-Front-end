@@ -662,13 +662,21 @@ html, body { overflow-x: hidden; }
 .hero-glow::before, .hero-glow::after, .cta-glow::before, .cta-glow::after { content: ""; position: absolute; border-radius: 50%; filter: blur(96px); }
 /* Both blobs sit behind the copy column only (left side) — kept well clear
    of the hero-visual card and the section's own bottom edge, so nothing
-   crops into a hard-edged patch the way an off-container blob would. */
-.hero-glow::before { width: 340px; height: 340px; background: var(--violet); top: -110px; left: -90px; opacity: .16; animation: aa-drift 17s ease-in-out infinite; }
-.hero-glow::after { width: 260px; height: 260px; background: var(--cyan); top: 190px; left: 60px; opacity: .1; animation: aa-drift 21s ease-in-out infinite reverse; }
+   crops into a hard-edged patch the way an off-container blob would.
+   Critically, top/left stay >=0 here (with enough margin for the aa-drift
+   animation's own +/-26px/22px translate to never go negative): a blob
+   positioned off-canvas gets clipped by this element's own overflow:hidden
+   *through its solid interior*, not its blurred edge, since blur(96px)
+   only softens a shape's own true edges — clipping partway through an
+   unblurred interior instead produces a sharp, unblurred straight line
+   exactly at the clip boundary, which is what previously showed up as a
+   stray vertical "line" cutting through the hero's left side. */
+.hero-glow::before { width: 340px; height: 340px; background: var(--violet); top: 24px; left: 24px; opacity: .14; animation: aa-drift 17s ease-in-out infinite; }
+.hero-glow::after { width: 260px; height: 260px; background: var(--cyan); top: 240px; left: 70px; opacity: .09; animation: aa-drift 21s ease-in-out infinite reverse; }
 .cta { position: relative; }
 .cta > *:not(.cta-glow) { position: relative; z-index: 1; }
-.cta-glow::before { width: 360px; height: 360px; background: var(--violet); top: -110px; left: 50%; margin-left: -260px; opacity: .22; animation: aa-drift 19s ease-in-out infinite; }
-.cta-glow::after { width: 300px; height: 300px; background: var(--cyan); bottom: -120px; left: 50%; margin-left: 60px; opacity: .16; animation: aa-drift 15s ease-in-out infinite reverse; }
+.cta-glow::before { width: 360px; height: 360px; background: var(--violet); top: 24px; left: 50%; margin-left: -260px; opacity: .2; animation: aa-drift 19s ease-in-out infinite; }
+.cta-glow::after { width: 300px; height: 300px; background: var(--cyan); bottom: 24px; left: 50%; margin-left: 60px; opacity: .14; animation: aa-drift 15s ease-in-out infinite reverse; }
 
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; transition: none; }
