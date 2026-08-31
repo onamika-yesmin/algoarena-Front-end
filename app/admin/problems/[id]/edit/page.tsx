@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { getAdminProblem, updateAdminProblem, type AdminProblemDetail } from "@/lib/api/admin";
 import { getErrorMessage } from "@/lib/api/client";
 import { ProblemForm, type ProblemFormValues } from "@/components/admin/ProblemForm";
+import { TestCaseManager } from "@/components/admin/TestCaseManager";
 import { Loader } from "@/components/ui/Loader";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import { AdminShell, AdminErrorState } from "@/components/admin/AdminShell";
@@ -56,6 +57,7 @@ function EditProblemContent() {
           .filter((testCase) => testCase.isSample && (testCase.input.trim() || testCase.expectedOutput.trim()))
           .map(({ input, expectedOutput, explanation }) => ({ input, expectedOutput, explanation })),
         starterCode: values.starterCode,
+        referenceSolution: values.referenceSolution.code.trim() ? values.referenceSolution : undefined,
       });
       router.push("/admin/problems");
     } catch (requestError) {
@@ -85,6 +87,7 @@ function EditProblemContent() {
       <div className="admin-card">
         <ProblemForm initial={problem} submitLabel="Save changes" isSubmitting={isSubmitting} error={error} onSubmit={submit} isEdit />
       </div>
+      <TestCaseManager problemId={problem.id} hasReferenceSolution={Boolean(problem.referenceSolution?.code?.trim())} />
     </AdminShell>
   );
 }

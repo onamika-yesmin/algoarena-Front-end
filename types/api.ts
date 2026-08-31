@@ -73,6 +73,28 @@ export interface FailedTest {
   isSample: boolean;
 }
 
+export interface ScalingDataPoint {
+  size: number;
+  runtimeMs: number;
+  memoryKb: number;
+}
+
+export interface ComplexityReport {
+  timeComplexity: string;
+  spaceComplexity: string;
+  confidence: "low" | "medium" | "high";
+  scalingData: ScalingDataPoint[];
+  explanation: string;
+  generatedAt: string;
+}
+
+export interface RefactorSuggestion {
+  title: string;
+  rationale: string;
+  refactoredCode: string;
+  isVerified: boolean;
+}
+
 export interface Submission {
   id: string;
   userId: string;
@@ -88,6 +110,8 @@ export interface Submission {
   score: number;
   errorMessage?: string;
   failedTest?: FailedTest;
+  complexityReport?: ComplexityReport;
+  refactorSuggestions?: RefactorSuggestion[];
   createdAt: string;
   updatedAt: string;
 }

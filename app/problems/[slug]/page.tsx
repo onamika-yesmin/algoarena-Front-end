@@ -11,6 +11,8 @@ import type { Language, ProblemDetail, Submission } from "@/types/api";
 import MonacoEditor from "@/components/editor/MonacoEditor";
 import VerdictPanel from "@/components/verdict/VerdictPanel";
 import HintPanel from "@/components/hints/HintPanel";
+import ComplexityAuditorPanel from "@/components/complexity/ComplexityAuditorPanel";
+import RefactorPanel from "@/components/refactor/RefactorPanel";
 import { PageLoader } from "@/components/ui/Loader";
 import { SiteHeader } from "@/app/_components/home/SiteHeader";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
@@ -224,6 +226,27 @@ export default function ProblemDetailPage() {
           {submitError && <p className="verdict-failed">{submitError}</p>}
 
           {submission && <VerdictPanel submission={submission} />}
+
+          {submission && <ComplexityAuditorPanel key={submission.id} submissionId={submission.id} initialReport={submission.complexityReport} />}
+
+          {submission && submission.verdict === "ACCEPTED" && (
+            <RefactorPanel
+              key={submission.id}
+              submissionId={submission.id}
+              language={submission.language}
+              originalCode={submission.code}
+              initialSuggestions={submission.refactorSuggestions}
+              onApply={(refactoredCode) => {
+                // The refactored code is in the submission's language, which
+                // may not be the editor's currently-selected tab (the user
+                // could have switched languages after submitting) — so
+                // switch to that language too, not just overwrite whatever
+                // tab happens to be open.
+                setLanguage(submission.language);
+                setCodeByLanguage((prev) => ({ ...prev, [submission.language]: refactoredCode }));
+              }}
+            />
+          )}
 
           {user && <HintPanel problemId={problem.id} code={code} />}
 

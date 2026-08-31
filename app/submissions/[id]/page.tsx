@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { getSubmissionById } from "@/lib/api/submissions";
 import type { Submission } from "@/types/api";
 import VerdictPanel from "@/components/verdict/VerdictPanel";
+import ComplexityAuditorPanel from "@/components/complexity/ComplexityAuditorPanel";
+import RefactorPanel from "@/components/refactor/RefactorPanel";
 import { PageLoader } from "@/components/ui/Loader";
 import { getErrorMessage } from "@/lib/api/client";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -67,6 +69,18 @@ function SubmissionDetailContent() {
       <div style={{ marginTop: 24 }}>
         <VerdictPanel submission={submission} />
       </div>
+
+      <ComplexityAuditorPanel key={submission.id} submissionId={submission.id} initialReport={submission.complexityReport} />
+
+      {submission.verdict === "ACCEPTED" && (
+        <RefactorPanel
+          key={submission.id}
+          submissionId={submission.id}
+          language={submission.language}
+          originalCode={submission.code}
+          initialSuggestions={submission.refactorSuggestions}
+        />
+      )}
 
       <div className="output-panel" style={{ marginTop: 18 }}>
         <h4>Code</h4>

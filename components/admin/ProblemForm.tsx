@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { Difficulty, Language } from "@/types/api";
-import type { AdminProblemDetail, AdminTestCaseInput } from "@/lib/api/admin";
+import type { AdminProblemDetail, AdminReferenceSolution, AdminTestCaseInput } from "@/lib/api/admin";
 
 export interface ProblemFormValues {
   slug: string;
@@ -19,6 +19,12 @@ export interface ProblemFormValues {
   isPublished: boolean;
   starterCode: Record<Language, string>;
   testCases: (AdminTestCaseInput & { isSample: boolean })[];
+  // Optional: not needed for a problem to be gradeable (the hidden test
+  // cases below are what the judge actually uses), but required if this
+  // problem should support AI test case generation (F10) — see
+  // testgen.service.ts, which runs generated inputs against this exact
+  // code to get their real expected output.
+  referenceSolution: AdminReferenceSolution;
 }
 
 const emptyTestCase = (): AdminTestCaseInput & { isSample: boolean } => ({ input: "", expectedOutput: "", explanation: "", isSample: true });
@@ -44,6 +50,10 @@ const fromDetail = (detail?: AdminProblemDetail): ProblemFormValues => ({
   testCases: detail?.sampleTests?.length
     ? detail.sampleTests.map((sample) => ({ ...sample, isSample: true }))
     : [emptyTestCase()],
+  referenceSolution: {
+    language: detail?.referenceSolution?.language ?? "python",
+    code: detail?.referenceSolution?.code ?? "",
+  },
 });
 
 interface ProblemFormProps {
@@ -166,11 +176,39 @@ export function ProblemForm({ initial, submitLabel, isSubmitting, error, onSubmi
         </label>
       </div>
 
+      <h3 style={{ margin: "8px 0 0" }}>Reference solution</h3>
+      <p className="problem-list-status" style={{ padding: 0 }}>
+        Optional, but required for the AI test case generator (below, on the problem&apos;s edit page): every AI-suggested input
+        is run against this exact code to compute its real expected output, so it must be a correct, complete solution.
+      </p>
+      <div className="admin-form-row">
+        <label>
+          Language
+          <select
+            value={values.referenceSolution.language}
+            onChange={(event) => update("referenceSolution", { ...values.referenceSolution, language: event.target.value as Language })}
+          >
+            <option value="python">Python</option>
+            <option value="cpp">C++</option>
+            <option value="javascript">JavaScript</option>
+          </select>
+        </label>
+      </div>
+      <label>
+        Solution code
+        <textarea
+          rows={8}
+          style={{ fontFamily: "'DM Mono', ui-monospace, monospace", fontSize: 12 }}
+          value={values.referenceSolution.code}
+          onChange={(event) => update("referenceSolution", { ...values.referenceSolution, code: event.target.value })}
+        />
+      </label>
+
       <h3 style={{ margin: "8px 0 0" }}>Test cases</h3>
       {isEdit && (
         <p className="problem-list-status" style={{ padding: 0 }}>
-          Editing here updates the sample tests shown on the problem page. The judge&apos;s hidden test cases were set when this
-          problem was created and aren&apos;t re-synced by editing — add more via the API if needed.
+          Editing here updates the sample tests shown on the problem page. Manage the judge&apos;s hidden test cases —
+          including generating new ones with AI — in the &quot;Test cases&quot; panel below.
         </p>
       )}
       {values.testCases.map((testCase, index) => (

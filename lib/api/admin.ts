@@ -42,6 +42,11 @@ export const listAdminProblems = (params: { page?: number; limit?: number; searc
   return apiRequest<AdminProblemListResult>(`/api/problems/admin/all${queryString ? `?${queryString}` : ""}`);
 };
 
+export interface AdminReferenceSolution {
+  language: Language;
+  code: string;
+}
+
 export interface AdminProblemDetail {
   id: string;
   slug: string;
@@ -58,6 +63,10 @@ export interface AdminProblemDetail {
   isPublished: boolean;
   sampleTests: { input: string; expectedOutput: string; explanation?: string }[];
   starterCode: Partial<Record<Language, string>>;
+  // Ground truth for the AI Test Case Generator (F10) — every generated
+  // input is actually run against this solution to compute its real
+  // expected output, rather than trusting a model-guessed one.
+  referenceSolution?: AdminReferenceSolution;
 }
 
 export const getAdminProblem = (id: string) => apiRequest<AdminProblemDetail>(`/api/problems/admin/${id}`);
@@ -77,6 +86,7 @@ export interface AdminProblemInput {
   isPublished?: boolean;
   sampleTests?: { input: string; expectedOutput: string; explanation?: string }[];
   starterCode?: Partial<Record<Language, string>>;
+  referenceSolution?: AdminReferenceSolution;
 }
 
 export const createAdminProblem = (payload: AdminProblemInput) => apiRequest<{ id: string }>("/api/problems", { method: "POST", body: payload });
@@ -96,3 +106,27 @@ export interface AdminTestCaseInput {
 
 export const addAdminTestCases = (problemId: string, testCases: AdminTestCaseInput[]) =>
   apiRequest<unknown>(`/api/problems/${problemId}/testcases`, { method: "POST", body: { testCases } });
+
+export type TestCaseSource = "manual" | "ai-generated";
+
+export interface AdminTestCaseRecord {
+  id: string;
+  problemId: string;
+  input: string;
+  expectedOutput: string;
+  isSample: boolean;
+  order: number;
+  source: TestCaseSource;
+  reviewed: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const listAdminTestCases = (problemId: string) => apiRequest<AdminTestCaseRecord[]>(`/api/problems/${problemId}/testcases`);
+
+export const updateAdminTestCase = (
+  testCaseId: string,
+  payload: Partial<{ input: string; expectedOutput: string; isSample: boolean; order: number; reviewed: boolean }>,
+) => apiRequest<AdminTestCaseRecord>(`/api/problems/testcases/${testCaseId}`, { method: "PATCH", body: payload });
+
+export const deleteAdminTestCase = (testCaseId: string) => apiRequest<null>(`/api/problems/testcases/${testCaseId}`, { method: "DELETE" });
