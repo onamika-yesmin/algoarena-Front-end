@@ -37,6 +37,7 @@ function NewProblemContent() {
         isPublished: values.isPublished,
         sampleTests: validTestCases.filter((testCase) => testCase.isSample).map(({ input, expectedOutput, explanation }) => ({ input, expectedOutput, explanation })),
         starterCode: values.starterCode,
+        referenceSolution: values.referenceSolution.code.trim() ? values.referenceSolution : undefined,
       });
 
       // The judge reads from the separate TestCase collection, not the

@@ -132,6 +132,42 @@
 .hint-entry-level{display:inline-block;font:10px 'DM Mono';color:#55d8d2;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
 .hint-entry p{margin:0;color:#c3c8dd;line-height:1.6}
 .hint-panel-note{margin:14px 0 0;color:#8a8fa2;font-size:12px}
+
+/* Complexity Auditor panel (components/complexity/ComplexityAuditorPanel.tsx) — F4.
+   Mirrors .hint-panel's shell so the two AI panels read as one family. */
+.complexity-panel{border:1px solid #303854;background:#171c34;padding:18px;margin-top:18px}
+.complexity-panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.complexity-panel-head h4{margin:0;font:11px 'DM Mono';color:#9da5bf;text-transform:uppercase;letter-spacing:.6px}
+.complexity-summary{display:flex;gap:22px;margin:16px 0 4px;flex-wrap:wrap}
+.complexity-stat{display:flex;flex-direction:column;gap:3px}
+.complexity-stat span{color:#8a8fa2;font:10px 'DM Mono';text-transform:uppercase;letter-spacing:.5px}
+.complexity-stat b{color:#fff;font:700 18px 'Space Grotesk'}
+.complexity-confidence{display:inline-flex;align-items:center;padding:3px 9px;border-radius:3px;font:10px 'DM Mono';text-transform:uppercase;letter-spacing:.5px;width:fit-content}
+.complexity-confidence-high{background:#16332b;color:#65dfad}
+.complexity-confidence-medium{background:#332a16;color:#ffb254}
+.complexity-confidence-low{background:#33201a;color:#ff8c6a}
+.complexity-explanation{color:#c3c8dd;line-height:1.65;font-size:13px;margin:14px 0 0;border-top:1px solid #303854;padding-top:14px}
+.complexity-charts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+@media (max-width:640px){.complexity-charts{grid-template-columns:1fr}}
+.complexity-chart{background:#12172b;border:1px solid #232a45;border-radius:8px;padding:12px}
+.complexity-chart-title{color:#9da5bf;font:10px 'DM Mono';text-transform:uppercase;letter-spacing:.5px;margin:0 0 8px}
+.complexity-chart-axis{display:flex;justify-content:space-between;color:#6d748d;font:10px 'DM Mono';margin-top:4px}
+.complexity-chart-empty{color:#6d748d;font-size:12px;padding:20px 0;text-align:center}
+
+/* Refactor Recommendations panel (components/refactor/RefactorPanel.tsx) — F5.
+   Same shell family as .hint-panel/.complexity-panel; each suggestion is its
+   own nested card since there can be up to 3 per submission. */
+.refactor-panel{border:1px solid #303854;background:#171c34;padding:18px;margin-top:18px}
+.refactor-panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.refactor-panel-head h4{margin:0;font:11px 'DM Mono';color:#9da5bf;text-transform:uppercase;letter-spacing:.6px}
+.refactor-panel-note{margin:14px 0 0;color:#8a8fa2;font-size:12px}
+.refactor-suggestion{border-top:1px solid #303854;margin-top:16px;padding-top:16px}
+.refactor-suggestion-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.refactor-suggestion-title{margin:0 0 4px;color:#fff;font:700 14px 'Space Grotesk'}
+.refactor-suggestion-rationale{margin:0;color:#c3c8dd;line-height:1.6;font-size:13px}
+.refactor-verified-badge{flex-shrink:0;background:#16332b;color:#65dfad;font:10px 'DM Mono';text-transform:uppercase;letter-spacing:.5px;padding:3px 9px;border-radius:3px}
+.refactor-suggestion-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.refactor-diff{margin-top:14px;border:1px solid #232a45;border-radius:8px;overflow:hidden}
 .pill-contest-upcoming{background:#1c2a4a;color:#8fc3ff}
 .pill-contest-ongoing{background:#123526;color:#65dfad}
 .pill-contest-ended{background:#242945;color:#9da5bf}
@@ -566,7 +602,7 @@ button.text-link:disabled { opacity: .5; cursor: not-allowed; }
 
 .problem-card, .profile-card, .admin-panel, .empty-panel, .metric-grid article,
 .profile-panel, .runner-panel, .problem-statement, .output-panel, .verdict-panel,
-.hint-panel, .auth-card, .hero-visual, .platform-card, .path-card, .contest-card,
+.hint-panel, .complexity-panel, .refactor-panel, .auth-card, .hero-visual, .platform-card, .path-card, .contest-card,
 .floating-card, .editor-shell {
   border-radius: 10px;
 }
