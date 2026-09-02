@@ -95,8 +95,27 @@
 .problem-workspace-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:8px}
 .problem-workspace-head h1{font:700 clamp(28px,4vw,42px)/1.1 'Space Grotesk';letter-spacing:-1.5px;margin:6px 0}
 .problem-meta{display:flex;gap:10px;flex-wrap:wrap;color:#9da5bf;font:11px 'DM Mono';margin-bottom:22px}
-.problem-workspace-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start;margin-top:26px}
-@media (max-width:960px){.problem-workspace-grid{grid-template-columns:1fr}.problem-statement{max-height:none}}
+.problem-workspace-grid{display:grid;grid-template-columns:.85fr 1.05fr .85fr;gap:18px;align-items:start;margin-top:26px}
+@media (max-width:1180px){.problem-workspace-grid{grid-template-columns:1fr 1fr}.ai-workspace-panel{grid-column:1 / -1}}
+@media (max-width:960px){.problem-workspace-grid{grid-template-columns:1fr}.problem-statement{max-height:none}.ai-workspace-panel{grid-column:auto}}
+
+/* AI panel tabs (components/workspace/AIPanelTabs.tsx) — Results / Hint /
+   Big-O / Refactor as one tabbed column instead of four panels always
+   stacked under the editor. Each tab's content is one of the existing
+   .verdict-panel/.hint-panel/.complexity-panel/.refactor-panel components,
+   unchanged — this only supplies the switcher shell and the empty states
+   shown before a tab has anything to show yet. */
+.ai-workspace-panel{display:flex;flex-direction:column;gap:0}
+.ai-tabs{display:flex;gap:3px;border:1px solid #303854;background:#12172b;padding:4px;position:sticky;top:94px;z-index:2}
+.ai-tab{flex:1;background:transparent;border:0;color:#9da5bf;font:700 10.5px 'DM Mono';text-transform:uppercase;letter-spacing:.5px;padding:11px 6px;cursor:pointer;border-radius:2px;transition:background .15s,color .15s}
+.ai-tab:hover{color:#e7e9f5}
+.ai-tab.is-active{background:#8067ff;color:#fff}
+.ai-tab-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#55d8d2;margin-left:6px;vertical-align:middle}
+.ai-tab-dot-ok{background:#65dfad}
+.ai-tab-dot-bad{background:#ff8080}
+.ai-tab-body{margin-top:14px}
+.ai-tab-empty{border:1px solid #303854;background:#171c34;padding:34px 22px;text-align:center;color:#8a8fa2;font-size:12.5px;line-height:1.75}
+.ai-tab-empty .ic{font-size:26px;color:#55d8d2;margin-bottom:10px}
 .button-outline.button-small{padding:10px 13px}
 .problem-statement{border:1px solid #303854;background:#12172b;padding:24px;max-height:78vh;overflow-y:auto}
 .problem-statement h2{font:700 18px 'Space Grotesk';margin:22px 0 8px}.problem-statement h2:first-child{margin-top:0}
