@@ -132,6 +132,13 @@
 .hint-entry-level{display:inline-block;font:10px 'DM Mono';color:#55d8d2;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
 .hint-entry p{margin:0;color:#c3c8dd;line-height:1.6}
 .hint-panel-note{margin:14px 0 0;color:#8a8fa2;font-size:12px}
+.hint-penalty-note{color:#ffb254}.hint-penalty-note b{color:#ffb254}
+.hint-modal-overlay{position:fixed;inset:0;background:rgba(9,11,22,.72);display:flex;align-items:center;justify-content:center;padding:24px;z-index:50}
+.hint-modal{border:1px solid #303854;background:#171c34;padding:26px;max-width:380px;width:100%;box-shadow:0 24px 60px -20px rgba(0,0,0,.6)}
+.hint-modal h3{margin:0 0 12px;font:700 19px 'Space Grotesk'}
+.hint-modal p{margin:0 0 20px;color:#c3c8dd;font-size:13px;line-height:1.7}
+.hint-modal p b{color:#ffb254}
+.hint-modal-actions{display:flex;justify-content:flex-end;gap:10px}
 
 /* Complexity Auditor panel (components/complexity/ComplexityAuditorPanel.tsx) — F4.
    Mirrors .hint-panel's shell so the two AI panels read as one family. */
