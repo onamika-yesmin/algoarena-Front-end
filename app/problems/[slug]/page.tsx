@@ -16,6 +16,7 @@ import { SiteFooter } from "@/app/_components/home/SiteFooter";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 const languages: Language[] = ["python", "cpp", "javascript"];
+const FILE_EXT: Record<Language, string> = { python: "py", cpp: "cpp", javascript: "js" };
 
 export default function ProblemDetailPage() {
   const params = useParams<{ slug: string }>();
@@ -164,38 +165,59 @@ export default function ProblemDetailPage() {
 
       <div className="problem-workspace-grid">
         <section className="problem-statement">
-          <h2>Statement</h2>
-          <p style={{ whiteSpace: "pre-wrap" }}>{problem.statement}</p>
-          {problem.inputFormat && (
-            <>
-              <h2>Input format</h2>
-              <p style={{ whiteSpace: "pre-wrap" }}>{problem.inputFormat}</p>
-            </>
-          )}
-          {problem.outputFormat && (
-            <>
-              <h2>Output format</h2>
-              <p style={{ whiteSpace: "pre-wrap" }}>{problem.outputFormat}</p>
-            </>
-          )}
-          {problem.constraints && (
-            <>
-              <h2>Constraints</h2>
-              <p style={{ whiteSpace: "pre-wrap" }}>{problem.constraints}</p>
-            </>
-          )}
-          <h2>Sample tests</h2>
-          {problem.sampleTests.map((sample, index) => (
-            <div key={index}>
-              <pre>Input:{"\n"}{sample.input}</pre>
-              <pre>Output:{"\n"}{sample.expectedOutput}</pre>
-              {sample.explanation && <p>{sample.explanation}</p>}
-            </div>
-          ))}
+          <div className="pane-head">
+            <span>Problem</span>
+            <span className={`pill pill-${problem.difficulty.toLowerCase()}`}>
+              {problem.difficulty} · {problem.basePoints} pts
+            </span>
+          </div>
+          <div className="problem-statement-body">
+            <h2>Statement</h2>
+            <p style={{ whiteSpace: "pre-wrap" }}>{problem.statement}</p>
+            {problem.inputFormat && (
+              <>
+                <h2>Input format</h2>
+                <p style={{ whiteSpace: "pre-wrap" }}>{problem.inputFormat}</p>
+              </>
+            )}
+            {problem.outputFormat && (
+              <>
+                <h2>Output format</h2>
+                <p style={{ whiteSpace: "pre-wrap" }}>{problem.outputFormat}</p>
+              </>
+            )}
+            {problem.constraints && (
+              <>
+                <h2>Constraints</h2>
+                <p style={{ whiteSpace: "pre-wrap" }}>{problem.constraints}</p>
+              </>
+            )}
+            <h2>Sample tests</h2>
+            {problem.sampleTests.map((sample, index) => (
+              <div key={index}>
+                <div className="iobox">
+                  <span className="lab">Input {index + 1}</span>
+                  {sample.input}
+                </div>
+                <div className="iobox">
+                  <span className="lab">Output {index + 1}</span>
+                  {sample.expectedOutput}
+                </div>
+                {sample.explanation && <p>{sample.explanation}</p>}
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="editor-column">
-          <div className="editor-toolbar">
+          <div className="pane-head">
+            <span>solution.{FILE_EXT[language]}</span>
+            <span className="pane-head-state">{isSubmitting ? "submitting…" : isRunning ? "running…" : "ready"}</span>
+          </div>
+
+          <MonacoEditor language={language} value={code} onChange={setCode} />
+
+          <div className="edbar">
             <select value={language} onChange={(event) => setLanguage(event.target.value as Language)} aria-label="Language">
               {languages.map((lang) => (
                 <option key={lang} value={lang}>
@@ -213,8 +235,6 @@ export default function ProblemDetailPage() {
             </div>
           </div>
 
-          <MonacoEditor language={language} value={code} onChange={setCode} />
-
           <div className="output-panel">
             <h4>Output</h4>
             <pre>{output}</pre>
@@ -223,30 +243,32 @@ export default function ProblemDetailPage() {
           {submitError && <p className="verdict-failed">{submitError}</p>}
 
           {history.length > 0 && (
-            <div className="submission-history">
+            <div className="workspace-history">
               <h4>Recent submissions</h4>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Verdict</th>
-                    <th>Tests</th>
-                    <th>Score</th>
-                    <th>Language</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {history.map((item) => (
-                    <tr key={item.id}>
-                      <td>{item.verdict}</td>
-                      <td>
-                        {item.passedTests}/{item.totalTests}
-                      </td>
-                      <td>{item.score}</td>
-                      <td>{item.language}</td>
+              <div className="submission-history">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Verdict</th>
+                      <th>Tests</th>
+                      <th>Score</th>
+                      <th>Language</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {history.map((item) => (
+                      <tr key={item.id}>
+                        <td>{item.verdict}</td>
+                        <td>
+                          {item.passedTests}/{item.totalTests}
+                        </td>
+                        <td>{item.score}</td>
+                        <td>{item.language}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </section>
