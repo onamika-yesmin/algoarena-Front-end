@@ -63,7 +63,7 @@ function AdminDashboardContent() {
             <span>Submissions today</span>
             <small>{stats.totalSubmissions} all-time</small>
           </article>
-          <article className="stat-card">
+          <article className="stat-card accent-green">
             <span className="stat-card-icon"><IconTrophy /></span>
             <b>{stats.activeContests}</b>
             <span>Active/upcoming contests</span>
@@ -73,7 +73,7 @@ function AdminDashboardContent() {
 
       <section className="admin-link-grid">
         <article className="admin-link-card">
-          <span className="panel-kicker"><IconUsers /> PEOPLE</span>
+          <span className="panel-kicker panel-kicker-violet"><IconUsers /> PEOPLE</span>
           <h2>User control</h2>
           <p>Review account status, promote moderators, and block bad actors.</p>
           <Link className="text-link" href="/admin/users">
@@ -81,7 +81,7 @@ function AdminDashboardContent() {
           </Link>
         </article>
         <article className="admin-link-card">
-          <span className="panel-kicker"><IconCode /> CONTENT</span>
+          <span className="panel-kicker panel-kicker-cyan"><IconCode /> CONTENT</span>
           <h2>Problem library</h2>
           <p>Create, edit, publish and remove challenge content.</p>
           <Link className="text-link" href="/admin/problems">
@@ -89,7 +89,7 @@ function AdminDashboardContent() {
           </Link>
         </article>
         <article className="admin-link-card">
-          <span className="panel-kicker"><IconTrophy /> COMPETITION</span>
+          <span className="panel-kicker panel-kicker-green"><IconTrophy /> COMPETITION</span>
           <h2>Contests</h2>
           <p>Schedule new contests and attach problems to them.</p>
           <Link className="text-link" href="/admin/contests">
@@ -97,7 +97,7 @@ function AdminDashboardContent() {
           </Link>
         </article>
         <article className="admin-link-card">
-          <span className="panel-kicker"><IconGrid /> QUALITY</span>
+          <span className="panel-kicker panel-kicker-orange"><IconGrid /> QUALITY</span>
           <h2>Judge health</h2>
           <p>
             {stats ? `${stats.acceptedSubmissions} of ${stats.totalSubmissions} submissions accepted.` : "Loading acceptance rate…"}

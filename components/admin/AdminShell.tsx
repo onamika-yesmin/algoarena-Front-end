@@ -12,11 +12,15 @@ import type { ReactNode } from "react";
 import { SiteHeader } from "@/app/_components/home/SiteHeader";
 import { IconGrid, IconCode, IconUsers, IconTrophy, IconAlert, IconInbox, IconRefresh } from "./icons";
 
+// Each section carries its own icon accent (see .admin-nav-item.accent-*
+// in globals.css) instead of every active item turning the same cyan —
+// same 4-color mapping reused by the overview stat cards and quick-link
+// cards so a section reads as the same color everywhere it appears.
 const NAV_ITEMS = [
-  { href: "/admin", label: "Overview", icon: IconGrid, exact: true },
-  { href: "/admin/problems", label: "Problems", icon: IconCode, exact: false },
-  { href: "/admin/users", label: "Users", icon: IconUsers, exact: false },
-  { href: "/admin/contests", label: "Contests", icon: IconTrophy, exact: false },
+  { href: "/admin", label: "Overview", icon: IconGrid, exact: true, accent: "orange" },
+  { href: "/admin/problems", label: "Problems", icon: IconCode, exact: false, accent: "cyan" },
+  { href: "/admin/users", label: "Users", icon: IconUsers, exact: false, accent: "violet" },
+  { href: "/admin/contests", label: "Contests", icon: IconTrophy, exact: false, accent: "green" },
 ];
 
 interface AdminShellProps {
@@ -41,7 +45,11 @@ export function AdminShell({ eyebrow, title, description, actions, children }: A
               const isActive = item.exact ? pathname === item.href : pathname?.startsWith(item.href);
               const Icon = item.icon;
               return (
-                <Link key={item.href} href={item.href} className={`admin-nav-item${isActive ? " is-active" : ""}`}>
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`admin-nav-item accent-${item.accent}${isActive ? " is-active" : ""}`}
+                >
                   <Icon />
                   {item.label}
                 </Link>

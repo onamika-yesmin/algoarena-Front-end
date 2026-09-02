@@ -114,6 +114,10 @@ export interface Submission {
   refactorSuggestions?: RefactorSuggestion[];
   createdAt: string;
   updatedAt: string;
+  /** Only present on the POST /api/submissions response, not on stored/
+   *  refetched submissions — the amount of Gems this exact call just
+   *  awarded (0 unless this was the first ACCEPTED on this problem). */
+  gemsAwarded?: number;
 }
 
 export interface SubmissionListResult {
@@ -212,6 +216,10 @@ export interface CurrentUser {
    *  which has nothing to check a "change password" form against. Only
    *  present on the /api/auth/me response. */
   hasPassword?: boolean;
+  /** Reward currency shown in the header — earned once per problem on
+   *  first ACCEPTED (see submission.controller.ts). Optional because
+   *  older cached responses/local types may predate the field. */
+  gems?: number;
 }
 
 export interface AdminStats {

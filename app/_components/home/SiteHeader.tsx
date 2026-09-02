@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/providers/AuthProvider";
+import { IconGem } from "./icons";
 
 const Arrow = () => <span aria-hidden="true">→</span>;
 
@@ -85,6 +86,11 @@ export function SiteHeader() {
       <div className="header-actions">
         {!isLoading && user ? (
           <div className="header-account">
+            {typeof user.gems === "number" && (
+              <span className="header-gems" title="Gems earned by solving problems">
+                <IconGem /> {user.gems}
+              </span>
+            )}
             <Link className="header-avatar-link" href="/profile" aria-label="Your profile">
               {user.profilePicUrl ? (
                 <Image
@@ -140,6 +146,11 @@ export function SiteHeader() {
                 )}
                 <span>{user.name}</span>
                 {user.role === "admin" && <span className="header-role-badge">Admin</span>}
+                {typeof user.gems === "number" && (
+                  <span className="header-gems">
+                    <IconGem /> {user.gems}
+                  </span>
+                )}
               </Link>
               <button className="button-outline" type="button" onClick={handleSignOut} disabled={isSigningOut}>
                 {isSigningOut ? "Signing out…" : "Sign out"}

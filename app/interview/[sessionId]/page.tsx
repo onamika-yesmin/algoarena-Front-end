@@ -83,12 +83,23 @@ function InterviewRoomContent() {
     );
   }
 
+  // Candidate turns already answered, out of the session's configured
+  // total — shown so the candidate always knows how far along they are,
+  // not just that the interview is "in progress" with no visible length.
+  const candidateTurns = session.messages.filter((m) => m.role === "candidate").length;
+  const totalQuestions = session.totalQuestions ?? 5;
+  const questionProgress = session.status === "completed" ? totalQuestions : Math.min(candidateTurns + 1, totalQuestions);
+
   return (
     <main className={styles.roomShell}>
       <div className={styles.roomHead}>
         <h1>{session.topic.replace(/-/g, " ")} interview</h1>
         <div className={styles.roomMeta}>
           <span>{session.difficulty}</span>
+          <span>·</span>
+          <span>
+            {session.status === "completed" ? `${totalQuestions} questions answered` : `Question ${questionProgress} of ${totalQuestions}`}
+          </span>
           <span>·</span>
           <span>{session.status === "completed" ? "Completed" : "In progress"}</span>
         </div>
