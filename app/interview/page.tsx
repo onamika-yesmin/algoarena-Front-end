@@ -30,6 +30,12 @@ const DIFFICULTIES: { value: InterviewDifficulty; label: string }[] = [
   { value: "HARD", label: "Hard" },
 ];
 
+// Kept in sync with the backend's MIN/MAX_TOTAL_QUESTIONS clamp in
+// interview.service.ts — offering only values the server will actually
+// honor as-is, rather than letting a pick get silently clamped.
+const QUESTION_COUNTS = [3, 5, 7, 10];
+const DEFAULT_QUESTION_COUNT = 5;
+
 function InterviewContent() {
   const router = useRouter();
   const [sessions, setSessions] = useState<InterviewSessionSummary[]>([]);
@@ -38,6 +44,7 @@ function InterviewContent() {
 
   const [topic, setTopic] = useState(TOPICS[0].value);
   const [difficulty, setDifficulty] = useState<InterviewDifficulty>("EASY");
+  const [totalQuestions, setTotalQuestions] = useState(DEFAULT_QUESTION_COUNT);
   const [isStarting, setIsStarting] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
 
@@ -54,7 +61,7 @@ function InterviewContent() {
     setIsStarting(true);
     setStartError(null);
     try {
-      const session = await startInterviewSession({ topic, difficulty });
+      const session = await startInterviewSession({ topic, difficulty, totalQuestions });
       router.push(`/interview/${session.id}`);
     } catch (error) {
       setStartError(getErrorMessage(error, "Could not start the interview. Try again."));
@@ -98,6 +105,21 @@ function InterviewContent() {
               {DIFFICULTIES.map((item) => (
                 <option key={item.value} value={item.value}>
                   {item.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className={styles.formField}>
+            <label htmlFor="interview-question-count">Questions</label>
+            <select
+              id="interview-question-count"
+              value={totalQuestions}
+              onChange={(event) => setTotalQuestions(Number(event.target.value))}
+              disabled={isStarting}
+            >
+              {QUESTION_COUNTS.map((count) => (
+                <option key={count} value={count}>
+                  {count} questions
                 </option>
               ))}
             </select>

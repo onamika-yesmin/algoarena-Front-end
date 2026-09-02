@@ -177,6 +177,7 @@
 .verdict-failed{background:#0d1020;border:1px solid #ff8080;border-radius:8px;padding:12px 14px;font:11px 'DM Mono';line-height:1.9}
 .verdict-failed h4{margin:0 0 8px;font-size:11px;color:#ff8080;text-transform:uppercase;letter-spacing:.5px;font-family:'DM Mono'}
 .verdict-failed pre{background:none;padding:0;margin:0;font:11px 'DM Mono';color:#c3c8dd;white-space:pre-wrap}
+.gems-earned-note{background:rgba(255,178,84,.1);border:1px solid rgba(255,178,84,.35);border-radius:8px;padding:10px 14px;font:700 12.5px 'DM Mono';color:var(--orange);margin:0}
 .submission-history{margin-top:18px;overflow-x:auto}
 .submission-history table{width:100%;border-collapse:collapse;font-size:12px}
 .submission-history th,.submission-history td{text-align:left;padding:9px 6px;border-bottom:1px solid #303854;color:#c3c8dd}
@@ -255,6 +256,18 @@
 .header-signout { background:transparent; border:1px solid #3d4673; border-radius:5px; padding:8px 14px; cursor:pointer; font:inherit; }
 .header-signout:hover { color:white; border-color:var(--cyan); }
 .header-signout:disabled { opacity:.6; cursor:default; }
+
+/* Gems balance badge — Reward currency earned by solving problems (see
+   submission.controller.ts), shown next to the avatar so it's visible on
+   every page right after signing in. Orange keeps it visually distinct
+   from the violet/cyan already used elsewhere in the header. */
+.header-gems {
+  display: flex; align-items: center; gap: 6px;
+  color: var(--orange); font: 700 12.5px 'DM Mono';
+  background: rgba(255,178,84,.12); border: 1px solid rgba(255,178,84,.32);
+  border-radius: 20px; padding: 6px 11px; flex-shrink: 0;
+}
+.mobile-nav-account .header-gems { margin-left: auto; }
 
 @media (max-width:760px) {
   .header-account-name { display:none; }
@@ -365,6 +378,21 @@
 .admin-nav-item:hover { background: rgba(128,103,255,.1); color: #fff; }
 .admin-nav-item.is-active { background: rgba(128,103,255,.18); color: #fff; }
 .admin-nav-item.is-active svg { color: var(--cyan); opacity: 1; }
+/* Each sidebar section gets its own icon accent (instead of every active
+   item turning the same cyan) so the control room reads as distinct rooms
+   at a glance, matching each section's stat-card color below. */
+.admin-nav-item.accent-orange svg { color: var(--orange); }
+.admin-nav-item.accent-cyan svg { color: var(--cyan); }
+.admin-nav-item.accent-violet svg { color: var(--violet); }
+.admin-nav-item.accent-green svg { color: #65dfad; }
+.admin-nav-item.is-active.accent-orange { background: rgba(255,178,84,.16); }
+.admin-nav-item.is-active.accent-cyan { background: rgba(85,216,210,.16); }
+.admin-nav-item.is-active.accent-violet { background: rgba(128,103,255,.18); }
+.admin-nav-item.is-active.accent-green { background: rgba(101,223,173,.16); }
+.admin-nav-item.is-active.accent-orange svg { color: var(--orange); opacity: 1; }
+.admin-nav-item.is-active.accent-cyan svg { color: var(--cyan); opacity: 1; }
+.admin-nav-item.is-active.accent-violet svg { color: var(--violet); opacity: 1; }
+.admin-nav-item.is-active.accent-green svg { color: #65dfad; opacity: 1; }
 
 .admin-sidebar-exit {
   border-top: 1px solid var(--line);
@@ -408,6 +436,7 @@
 }
 .stat-card.accent-cyan .stat-card-icon { background: rgba(85,216,210,.16); color: var(--cyan); }
 .stat-card.accent-orange .stat-card-icon { background: rgba(255,178,84,.16); color: var(--orange); }
+.stat-card.accent-green .stat-card-icon { background: rgba(101,223,173,.16); color: #65dfad; }
 .stat-card b { font: 700 30px "Space Grotesk"; color: #fff; letter-spacing: -.5px; }
 .stat-card span { color: #9da5bf; font-size: 12.5px; }
 .stat-card small { color: #6d748d; font: 10.5px "DM Mono"; }
@@ -431,6 +460,14 @@
 }
 .admin-link-card:hover { border-color: var(--violet); transform: translateY(-2px); }
 .admin-link-card .panel-kicker { display: flex; align-items: center; gap: 8px; }
+/* Give each overview quick-link card's icon+label its own accent instead of
+   every card reading the same uniform cyan — same 4-color mapping used by
+   the sidebar and stat cards above (People/violet, Content/cyan,
+   Competition/green, Quality/orange). */
+.panel-kicker-violet { color: var(--violet) !important; }
+.panel-kicker-cyan { color: var(--cyan) !important; }
+.panel-kicker-orange { color: var(--orange) !important; }
+.panel-kicker-green { color: #65dfad !important; }
 .admin-link-card h2 { font: 700 21px "Space Grotesk"; margin: 6px 0 2px; }
 .admin-link-card p { color: #9da5bf; font-size: 12.5px; line-height: 1.6; min-height: 36px; margin: 0; }
 .admin-link-card .text-link { margin-top: 6px; }

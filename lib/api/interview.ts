@@ -17,6 +17,11 @@ export interface InterviewSession {
   userId: string;
   topic: string;
   difficulty: InterviewDifficulty;
+  /** How many questions this session runs for before closing out — chosen
+   *  on the start form (3-10, default 5) and fixed for the life of the
+   *  session. Optional only for defensive typing against very old cached
+   *  sessions created before this field existed. */
+  totalQuestions?: number;
   status: InterviewStatus;
   messages: InterviewMessage[];
   feedback?: string;
@@ -29,6 +34,7 @@ export interface InterviewSessionSummary {
   id: string;
   topic: string;
   difficulty: InterviewDifficulty;
+  totalQuestions?: number;
   status: InterviewStatus;
   score?: number;
   createdAt: string;
@@ -41,7 +47,7 @@ export interface InterviewSessionSummary {
 
 export const listInterviewSessions = () => apiRequest<InterviewSessionSummary[]>("/api/interview");
 
-export const startInterviewSession = (payload: { topic: string; difficulty: InterviewDifficulty }) =>
+export const startInterviewSession = (payload: { topic: string; difficulty: InterviewDifficulty; totalQuestions: number }) =>
   apiRequest<InterviewSession>("/api/interview", { method: "POST", body: payload });
 
 export const getInterviewSession = (id: string) => apiRequest<InterviewSession>(`/api/interview/${id}`);

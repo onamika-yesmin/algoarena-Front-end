@@ -21,7 +21,7 @@ const FILE_EXT: Record<Language, string> = { python: "py", cpp: "cpp", javascrip
 export default function ProblemDetailPage() {
   const params = useParams<{ slug: string }>();
   const slug = params.slug;
-  const { user } = useAuth();
+  const { user, refresh: refreshUser } = useAuth();
   // Set when this problem was opened from a contest (contest/[id]/page.tsx
   // links here with ?contestId=...) so a submission made from within a
   // contest actually counts toward that contest's scoreboard — previously
@@ -40,6 +40,10 @@ export default function ProblemDetailPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [history, setHistory] = useState<Submission[]>([]);
+  // Set only when this exact submission just paid out (first-ever ACCEPTED
+  // on this problem) — briefly shown next to the verdict, and triggers a
+  // header refresh so the new balance shows up right away.
+  const [gemsEarned, setGemsEarned] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -105,10 +109,15 @@ export default function ProblemDetailPage() {
     }
     setIsSubmitting(true);
     setSubmitError(null);
+    setGemsEarned(null);
     try {
       const result = await submitSolution({ problemId: problem.id, code, language, contestId });
       setSubmission(result);
       refreshHistory(problem.id);
+      if (result.gemsAwarded) {
+        setGemsEarned(result.gemsAwarded);
+        void refreshUser(); // updates the header's gem balance right away
+      }
     } catch (error) {
       setSubmitError(error instanceof ApiError ? error.message : "Submission failed.");
     } finally {
@@ -241,6 +250,9 @@ export default function ProblemDetailPage() {
           </div>
 
           {submitError && <p className="verdict-failed">{submitError}</p>}
+          {gemsEarned !== null && gemsEarned > 0 && (
+            <p className="gems-earned-note">✦ First solve — +{gemsEarned} gems added to your balance!</p>
+          )}
 
           {history.length > 0 && (
             <div className="workspace-history">
