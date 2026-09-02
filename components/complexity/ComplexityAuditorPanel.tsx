@@ -123,6 +123,12 @@ export default function ComplexityAuditorPanel({ submissionId, initialReport }: 
             </div>
           </div>
 
+          <div
+            className={`complexity-confbar ${report.confidence === "high" ? "conf-high" : report.confidence === "low" ? "conf-low" : ""}`}
+          >
+            <i style={{ width: report.confidence === "high" ? "100%" : report.confidence === "low" ? "33%" : "66%" }} />
+          </div>
+
           <div className="complexity-charts">
             <ScalingChart
               title="Runtime vs input size"

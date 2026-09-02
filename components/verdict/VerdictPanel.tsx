@@ -11,27 +11,42 @@ const verdictLabel: Record<string, string> = {
   COMPILATION_ERROR: "Compilation Error",
 };
 
+// Which .verdict-box-* tone each verdict reads as — accepted is the only
+// "ok", limit/memory overruns are a softer "warn" (the code isn't wrong,
+// it's just too slow/heavy), everything else concrete-wrong is "bad", and
+// the in-flight states are neutral "info".
+const verdictTone: Record<string, "ok" | "bad" | "warn" | "info"> = {
+  PENDING: "info",
+  RUNNING: "info",
+  ACCEPTED: "ok",
+  WRONG_ANSWER: "bad",
+  TIME_LIMIT_EXCEEDED: "warn",
+  MEMORY_LIMIT_EXCEEDED: "warn",
+  RUNTIME_ERROR: "bad",
+  COMPILATION_ERROR: "bad",
+};
+
 export default function VerdictPanel({ submission }: { submission: Submission }) {
+  const tone = verdictTone[submission.verdict] ?? "info";
+
   return (
     <div className="verdict-panel">
-      <span className={`verdict-badge verdict-${submission.verdict}`}>{verdictLabel[submission.verdict] ?? submission.verdict}</span>
-
-      <div className="verdict-stats">
-        <div>
-          <b>
-            {submission.passedTests}/{submission.totalTests}
-          </b>
-          tests passed
-        </div>
-        <div>
-          <b>{submission.runtimeMs} ms</b>
-          runtime
-        </div>
-        <div>
-          <b>{submission.score}</b>
-          score
-        </div>
+      <div className={`verdict-box verdict-box-${tone}`}>
+        {verdictLabel[submission.verdict] ?? submission.verdict}
+        <small>
+          {submission.passedTests}/{submission.totalTests} tests · {submission.runtimeMs}ms · {submission.score} pts
+        </small>
       </div>
+
+      {submission.totalTests > 0 && (
+        <div className="verdict-tgrid">
+          {Array.from({ length: submission.totalTests }, (_, index) => (
+            <div key={index} className={`verdict-tcell ${index < submission.passedTests ? "pass" : "fail"}`}>
+              {index + 1}
+            </div>
+          ))}
+        </div>
+      )}
 
       {submission.errorMessage && (
         <div className="verdict-failed">

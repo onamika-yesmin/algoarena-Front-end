@@ -107,16 +107,16 @@ export default function RefactorPanel({
           const verifyError = verifyErrors[index];
 
           return (
-            <div key={index} className="refactor-suggestion">
-              <div className="refactor-suggestion-head">
+            <div key={index} className="refcard">
+              <div className="refcard-head">
                 <div>
-                  <p className="refactor-suggestion-title">{suggestion.title}</p>
-                  <p className="refactor-suggestion-rationale">{suggestion.rationale}</p>
+                  <p className="refcard-title">{suggestion.title}</p>
+                  <p className="refcard-rationale">{suggestion.rationale}</p>
                 </div>
                 {suggestion.isVerified && <span className="refactor-verified-badge">Verified</span>}
               </div>
 
-              <div className="refactor-suggestion-actions">
+              <div className="refcard-actions">
                 <button type="button" className="button-outline button-small" onClick={() => setExpandedIndex(isExpanded ? null : index)}>
                   {isExpanded ? "Hide diff" : "Show diff"}
                 </button>
@@ -132,7 +132,11 @@ export default function RefactorPanel({
                 )}
               </div>
 
-              {verifyError && <p className="verdict-failed">{verifyError}</p>}
+              {verifyError && (
+                <p className="verdict-failed" style={{ margin: "0 14px 14px" }}>
+                  {verifyError}
+                </p>
+              )}
 
               {isExpanded && (
                 <div className="refactor-diff">

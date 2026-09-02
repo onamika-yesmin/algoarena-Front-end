@@ -37,21 +37,30 @@ export default function HintPanel({ problemId, code }: { problemId: string; code
     <div className="hint-panel">
       <div className="hint-panel-head">
         <h4>Stuck? Get a hint</h4>
-        {!reachedMax && (
-          <button type="button" className="button button-small" onClick={() => setIsConfirmOpen(true)} disabled={isLoading}>
-            {isLoading ? "Thinking…" : hints.length === 0 ? `Get a hint · −${nextCost}%` : `Next hint (${nextLevel}/${maxLevel}) · −${nextCost}%`}
-          </button>
-        )}
       </div>
 
       {error && <p className="verdict-failed">{error}</p>}
 
       {hints.map((item, index) => (
-        <div key={index} className="hint-entry">
-          <span className="hint-entry-level">Hint {item.level}/{item.maxLevel}</span>
+        <div key={index} className="hintcard">
+          <div className="hintcard-lab">
+            Hint {item.level}/{item.maxLevel}
+          </div>
           <p>{item.hint}</p>
         </div>
       ))}
+
+      {!reachedMax && (
+        <div className="hint-locked">
+          <b>Tier {nextLevel} hint</b>
+          Costs −{nextCost}% of this problem&apos;s score, permanently — you&apos;ll see the cost before you spend it.
+          <div>
+            <button type="button" className="button button-small" onClick={() => setIsConfirmOpen(true)} disabled={isLoading}>
+              {isLoading ? "Thinking…" : `Unlock · −${nextCost}%`}
+            </button>
+          </div>
+        </div>
+      )}
 
       {totalPenalty > 0 && (
         <p className="hint-panel-note hint-penalty-note">

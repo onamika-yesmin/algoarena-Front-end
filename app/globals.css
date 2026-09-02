@@ -95,83 +95,127 @@
 .problem-workspace-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:8px}
 .problem-workspace-head h1{font:700 clamp(28px,4vw,42px)/1.1 'Space Grotesk';letter-spacing:-1.5px;margin:6px 0}
 .problem-meta{display:flex;gap:10px;flex-wrap:wrap;color:#9da5bf;font:11px 'DM Mono';margin-bottom:22px}
-.problem-workspace-grid{display:grid;grid-template-columns:.85fr 1.05fr .85fr;gap:18px;align-items:start;margin-top:26px}
+.problem-workspace-grid{display:grid;grid-template-columns:.85fr 1.05fr .85fr;gap:16px;align-items:start;margin-top:26px}
 @media (max-width:1180px){.problem-workspace-grid{grid-template-columns:1fr 1fr}.ai-workspace-panel{grid-column:1 / -1}}
 @media (max-width:960px){.problem-workspace-grid{grid-template-columns:1fr}.problem-statement{max-height:none}.ai-workspace-panel{grid-column:auto}}
 
+/* Shared "pane" chrome for the three workspace columns (problem statement /
+   editor / AI tabs) — a rounded, bordered card with a small uppercase-label
+   header bar (.pane-head) so each column reads as its own instrument panel,
+   matching the reference mockup's layout instead of three loose blocks. */
+.pane, .problem-statement, .editor-column, .ai-workspace-panel{
+  border:1px solid #303854;background:#12172b;border-radius:10px;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.pane-head{
+  padding:11px 16px;border-bottom:1px solid #303854;background:#171c34;flex:none;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.pane-head span:first-child{font:700 10.5px 'DM Mono';text-transform:uppercase;letter-spacing:.6px;color:#9da5bf}
+.pane-head-state{font:11px 'DM Mono';color:#65dfad;text-transform:lowercase}
+.pill{display:inline-block;font:10px 'DM Mono';padding:4px 9px;border-radius:100px;letter-spacing:.4px}
+
 /* AI panel tabs (components/workspace/AIPanelTabs.tsx) — Results / Hint /
-   Big-O / Refactor as one tabbed column instead of four panels always
+   Big-O / Refactor as one tabbed pane instead of four panels always
    stacked under the editor. Each tab's content is one of the existing
    .verdict-panel/.hint-panel/.complexity-panel/.refactor-panel components,
    unchanged — this only supplies the switcher shell and the empty states
    shown before a tab has anything to show yet. */
-.ai-workspace-panel{display:flex;flex-direction:column;gap:0}
-.ai-tabs{display:flex;gap:3px;border:1px solid #303854;background:#12172b;padding:4px;position:sticky;top:94px;z-index:2}
-.ai-tab{flex:1;background:transparent;border:0;color:#9da5bf;font:700 10.5px 'DM Mono';text-transform:uppercase;letter-spacing:.5px;padding:11px 6px;cursor:pointer;border-radius:2px;transition:background .15s,color .15s}
+.ai-tabs{display:flex;gap:3px;padding:8px;border-bottom:1px solid #303854;background:#171c34;overflow-x:auto;flex:none}
+.ai-tab{background:none;border:1px solid transparent;color:#8a8fa2;font:700 10.5px 'DM Mono';text-transform:uppercase;letter-spacing:.4px;padding:8px 12px;border-radius:6px;cursor:pointer;white-space:nowrap;position:relative;transition:background .15s,color .15s,border-color .15s}
 .ai-tab:hover{color:#e7e9f5}
-.ai-tab.is-active{background:#8067ff;color:#fff}
-.ai-tab-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#55d8d2;margin-left:6px;vertical-align:middle}
+.ai-tab.is-active{background:#1f1940;border-color:#3d3468;color:#c6b4ff}
+.ai-tab-dot{position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:50%;background:#8067ff}
 .ai-tab-dot-ok{background:#65dfad}
 .ai-tab-dot-bad{background:#ff8080}
-.ai-tab-body{margin-top:14px}
-.ai-tab-empty{border:1px solid #303854;background:#171c34;padding:34px 22px;text-align:center;color:#8a8fa2;font-size:12.5px;line-height:1.75}
-.ai-tab-empty .ic{font-size:26px;color:#55d8d2;margin-bottom:10px}
+.ai-tab-body{padding:16px;overflow-y:auto}
+.ai-tab-empty{text-align:center;padding:34px 14px;color:#8a8fa2;font-size:12.5px;line-height:1.75}
+.ai-tab-empty .ic{font-size:26px;color:#55d8d2;opacity:.75;margin-bottom:10px}
 .button-outline.button-small{padding:10px 13px}
-.problem-statement{border:1px solid #303854;background:#12172b;padding:24px;max-height:78vh;overflow-y:auto}
-.problem-statement h2{font:700 18px 'Space Grotesk';margin:22px 0 8px}.problem-statement h2:first-child{margin-top:0}
-.problem-statement p,.problem-statement li{color:#c3c8dd;line-height:1.75;font-size:13.5px}
-.problem-statement pre{background:#0d1020;border:1px solid #303854;padding:12px;font:12px 'DM Mono';overflow-x:auto;color:#8ff0c7}
-.editor-column{display:flex;flex-direction:column;gap:14px}
-.editor-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px}
-.editor-toolbar select{background:#0d1020;border:1px solid #3d4673;color:#fff;padding:9px 12px}
-.editor-toolbar .button-row{display:flex;gap:10px}
-.editor-shell{border:1px solid #303854;overflow:hidden}
-.output-panel{border:1px solid #303854;background:#12172b;padding:16px}
-.output-panel h4{margin:0 0 10px;font:11px 'DM Mono';color:#9da5bf;text-transform:uppercase;letter-spacing:.6px}
-.output-panel pre{margin:0;white-space:pre-wrap;font:12px/1.6 'DM Mono';color:#8ff0c7;max-height:220px;overflow-y:auto}
-.verdict-panel{border:1px solid #303854;background:#171c34;padding:20px}
-.verdict-badge{display:inline-flex;align-items:center;gap:8px;font:700 14px 'Space Grotesk';padding:10px 16px;border-radius:4px}
-.verdict-AC,.verdict-ACCEPTED{background:#123526;color:#65dfad}
-.verdict-WA,.verdict-WRONG_ANSWER,.verdict-RUNTIME_ERROR,.verdict-COMPILATION_ERROR{background:#3a1418;color:#ff8080}
-.verdict-TIME_LIMIT_EXCEEDED,.verdict-MEMORY_LIMIT_EXCEEDED{background:#3a2f10;color:#ffb254}
-.verdict-PENDING,.verdict-RUNNING{background:#1c2a4a;color:#8fc3ff}
-.verdict-stats{display:flex;gap:22px;margin:16px 0;color:#9da5bf;font:12px 'DM Mono'}
+
+/* Flatten the nested panel components' own card chrome when they sit inside
+   the AI tab body — the pane itself already supplies the border/background,
+   so a panel rendered standalone (app/submissions/[id]/page.tsx) keeps its
+   own card look via the un-scoped .verdict-panel/.hint-panel/etc rules
+   below, while the same component nested in a tab reads as one surface. */
+.ai-tab-body .verdict-panel, .ai-tab-body .hint-panel, .ai-tab-body .complexity-panel, .ai-tab-body .refactor-panel{
+  border:0;background:none;padding:0;margin-top:0;border-radius:0;
+}
+
+.problem-statement{max-height:78vh}
+.problem-statement-body{padding:20px 22px;overflow-y:auto}
+.problem-statement-body h2{font:700 13px 'Space Grotesk';margin:20px 0 8px;text-transform:uppercase;letter-spacing:.5px;color:#a08fff}
+.problem-statement-body h2:first-child{margin-top:0}
+.problem-statement-body p,.problem-statement-body li{color:#c3c8dd;line-height:1.75;font-size:13.5px}
+.iobox{background:#0d1020;border:1px solid #232a45;border-radius:7px;padding:10px 12px;font:11.5px 'DM Mono';white-space:pre-wrap;overflow-x:auto;color:#8ff0c7;margin-bottom:8px}
+.iobox .lab{color:#55d8d2;font-size:10px;display:block;margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px}
+
+.editor-shell{border:0;border-top:1px solid #303854;overflow:hidden;flex:1}
+.edbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid #303854;background:#171c34;flex:none}
+.edbar select{background:#0d1020;border:1px solid #3d4673;color:#fff;padding:9px 12px;border-radius:6px}
+.edbar .button-row{display:flex;gap:10px}
+.output-panel{border:0;border-top:1px solid #303854;background:#12172b;padding:14px 16px;flex:none}
+.output-panel h4{margin:0 0 8px;font:10.5px 'DM Mono';color:#9da5bf;text-transform:uppercase;letter-spacing:.6px}
+.output-panel pre{margin:0;white-space:pre-wrap;font:12px/1.6 'DM Mono';color:#8ff0c7;max-height:180px;overflow-y:auto}
+.workspace-history{padding:16px;border-top:1px solid #303854}
+.workspace-history h4{margin:0 0 12px;font:10.5px 'DM Mono';color:#9da5bf;text-transform:uppercase;letter-spacing:.6px}
+
+/* Verdict — a large, unmissable status box (color-coded per verdict) plus a
+   per-test grid, replacing the old small inline badge + stat row. */
+.verdict-box{font:700 17px 'Space Grotesk';padding:14px;border-radius:9px;text-align:center;border:1px solid;margin-bottom:14px}
+.verdict-box small{display:block;font:11px 'DM Mono';font-weight:400;color:#9da5bf;margin-top:5px}
+.verdict-box-ok{color:#65dfad;border-color:#65dfad;background:rgba(101,223,173,.09)}
+.verdict-box-bad{color:#ff8080;border-color:#ff8080;background:rgba(255,128,128,.09)}
+.verdict-box-warn{color:#ffb254;border-color:#ffb254;background:rgba(255,178,84,.09)}
+.verdict-box-info{color:#8fc3ff;border-color:#8fc3ff;background:rgba(143,195,255,.09)}
+.verdict-tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(30px,1fr));gap:5px;margin-bottom:14px}
+.verdict-tcell{aspect-ratio:1;border-radius:5px;background:#171c34;border:1px solid #303854;display:grid;place-items:center;font:10px 'DM Mono';color:#8a8fa2}
+.verdict-tcell.pass{background:rgba(101,223,173,.16);border-color:#65dfad;color:#65dfad}
+.verdict-tcell.fail{background:rgba(255,128,128,.16);border-color:#ff8080;color:#ff8080}
+.verdict-stats{display:flex;gap:22px;margin:0 0 14px;color:#9da5bf;font:12px 'DM Mono'}
 .verdict-stats b{color:#fff;font-size:16px;display:block;font-family:'Space Grotesk'}
-.verdict-failed{border-top:1px solid #303854;margin-top:14px;padding-top:14px}
-.verdict-failed h4{margin:0 0 8px;font-size:12px;color:#ff8080}
-.verdict-failed pre{background:#0d1020;padding:10px;font:11px 'DM Mono';color:#c3c8dd;white-space:pre-wrap;margin:6px 0}
+.verdict-failed{background:#0d1020;border:1px solid #ff8080;border-radius:8px;padding:12px 14px;font:11px 'DM Mono';line-height:1.9}
+.verdict-failed h4{margin:0 0 8px;font-size:11px;color:#ff8080;text-transform:uppercase;letter-spacing:.5px;font-family:'DM Mono'}
+.verdict-failed pre{background:none;padding:0;margin:0;font:11px 'DM Mono';color:#c3c8dd;white-space:pre-wrap}
 .submission-history{margin-top:18px;overflow-x:auto}
 .submission-history table{width:100%;border-collapse:collapse;font-size:12px}
 .submission-history th,.submission-history td{text-align:left;padding:9px 6px;border-bottom:1px solid #303854;color:#c3c8dd}
 .submission-history th{color:#8a8fa2;font:10px 'DM Mono';text-transform:uppercase}
+
+/* Hint (F1) — hintcard for each unlocked tier, a dashed "locked" preview
+   card for the next purchasable tier (cost shown before spending it). */
 .hint-panel{border:1px solid #303854;background:#171c34;padding:18px;margin-top:18px}
-.hint-panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-.hint-panel-head h4{margin:0;font:11px 'DM Mono';color:#9da5bf;text-transform:uppercase;letter-spacing:.6px}
-.hint-entry{border-top:1px solid #303854;margin-top:14px;padding-top:14px}
-.hint-entry-level{display:inline-block;font:10px 'DM Mono';color:#55d8d2;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
-.hint-entry p{margin:0;color:#c3c8dd;line-height:1.6}
+.hintcard{border:1px solid #5b45b8;background:#1a1636;border-radius:9px;padding:13px;margin-bottom:10px}
+.hintcard-lab{font:9.5px 'DM Mono';letter-spacing:.5px;text-transform:uppercase;color:#a08fff;margin-bottom:7px}
+.hintcard p{margin:0;font-size:13.5px;color:#e7e9f5;line-height:1.6}
+.hint-locked{border:1px dashed #3d4673;border-radius:9px;padding:16px;text-align:center;color:#9da5bf;font-size:12.5px;margin-bottom:10px}
+.hint-locked b{display:block;color:#fff;font:700 14px 'Space Grotesk';margin-bottom:4px}
+.hint-locked .button{margin-top:12px}
 .hint-panel-note{margin:14px 0 0;color:#8a8fa2;font-size:12px}
 .hint-penalty-note{color:#ffb254}.hint-penalty-note b{color:#ffb254}
 .hint-modal-overlay{position:fixed;inset:0;background:rgba(9,11,22,.72);display:flex;align-items:center;justify-content:center;padding:24px;z-index:50}
-.hint-modal{border:1px solid #303854;background:#171c34;padding:26px;max-width:380px;width:100%;box-shadow:0 24px 60px -20px rgba(0,0,0,.6)}
+.hint-modal{border:1px solid #303854;background:#171c34;padding:26px;max-width:380px;width:100%;box-shadow:0 24px 60px -20px rgba(0,0,0,.6);border-radius:10px}
 .hint-modal h3{margin:0 0 12px;font:700 19px 'Space Grotesk'}
 .hint-modal p{margin:0 0 20px;color:#c3c8dd;font-size:13px;line-height:1.7}
 .hint-modal p b{color:#ffb254}
 .hint-modal-actions{display:flex;justify-content:flex-end;gap:10px}
 
-/* Complexity Auditor panel (components/complexity/ComplexityAuditorPanel.tsx) — F4.
-   Mirrors .hint-panel's shell so the two AI panels read as one family. */
+/* Complexity Auditor panel (components/complexity/ComplexityAuditorPanel.tsx) — F4. */
 .complexity-panel{border:1px solid #303854;background:#171c34;padding:18px;margin-top:18px}
 .complexity-panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .complexity-panel-head h4{margin:0;font:11px 'DM Mono';color:#9da5bf;text-transform:uppercase;letter-spacing:.6px}
 .complexity-summary{display:flex;gap:22px;margin:16px 0 4px;flex-wrap:wrap}
 .complexity-stat{display:flex;flex-direction:column;gap:3px}
 .complexity-stat span{color:#8a8fa2;font:10px 'DM Mono';text-transform:uppercase;letter-spacing:.5px}
-.complexity-stat b{color:#fff;font:700 18px 'Space Grotesk'}
+.complexity-stat b{color:#fff;font:700 20px 'Space Grotesk'}
 .complexity-confidence{display:inline-flex;align-items:center;padding:3px 9px;border-radius:3px;font:10px 'DM Mono';text-transform:uppercase;letter-spacing:.5px;width:fit-content}
 .complexity-confidence-high{background:#16332b;color:#65dfad}
 .complexity-confidence-medium{background:#332a16;color:#ffb254}
 .complexity-confidence-low{background:#33201a;color:#ff8c6a}
+.complexity-confbar{height:5px;background:#0d1020;border-radius:3px;overflow:hidden;margin:10px 0 4px}
+.complexity-confbar i{display:block;height:100%;background:#ffb254}
+.complexity-confbar.conf-high i{background:#65dfad}
+.complexity-confbar.conf-low i{background:#ff8c6a}
 .complexity-explanation{color:#c3c8dd;line-height:1.65;font-size:13px;margin:14px 0 0;border-top:1px solid #303854;padding-top:14px}
 .complexity-charts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
 @media (max-width:640px){.complexity-charts{grid-template-columns:1fr}}
@@ -181,19 +225,20 @@
 .complexity-chart-empty{color:#6d748d;font-size:12px;padding:20px 0;text-align:center}
 
 /* Refactor Recommendations panel (components/refactor/RefactorPanel.tsx) — F5.
-   Same shell family as .hint-panel/.complexity-panel; each suggestion is its
-   own nested card since there can be up to 3 per submission. */
+   Each suggestion is its own bordered "refcard" — header bar (title +
+   Verified badge), body, footer action bar — instead of a plain divider. */
 .refactor-panel{border:1px solid #303854;background:#171c34;padding:18px;margin-top:18px}
 .refactor-panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .refactor-panel-head h4{margin:0;font:11px 'DM Mono';color:#9da5bf;text-transform:uppercase;letter-spacing:.6px}
 .refactor-panel-note{margin:14px 0 0;color:#8a8fa2;font-size:12px}
-.refactor-suggestion{border-top:1px solid #303854;margin-top:16px;padding-top:16px}
-.refactor-suggestion-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
-.refactor-suggestion-title{margin:0 0 4px;color:#fff;font:700 14px 'Space Grotesk'}
-.refactor-suggestion-rationale{margin:0;color:#c3c8dd;line-height:1.6;font-size:13px}
+.refcard{border:1px solid #303854;border-radius:9px;overflow:hidden;margin-top:14px;background:#0d1020}
+.refcard:first-of-type{margin-top:16px}
+.refcard-head{padding:11px 14px;border-bottom:1px solid #303854;background:#171c34;display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.refcard-title{margin:0 0 4px;color:#fff;font:700 14px 'Space Grotesk'}
+.refcard-rationale{margin:0;color:#c3c8dd;line-height:1.6;font-size:13px}
 .refactor-verified-badge{flex-shrink:0;background:#16332b;color:#65dfad;font:10px 'DM Mono';text-transform:uppercase;letter-spacing:.5px;padding:3px 9px;border-radius:3px}
-.refactor-suggestion-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-.refactor-diff{margin-top:14px;border:1px solid #232a45;border-radius:8px;overflow:hidden}
+.refcard-actions{display:flex;gap:10px;flex-wrap:wrap;padding:12px 14px}
+.refactor-diff{border-top:1px solid #232a45;overflow:hidden}
 .pill-contest-upcoming{background:#1c2a4a;color:#8fc3ff}
 .pill-contest-ongoing{background:#123526;color:#65dfad}
 .pill-contest-ended{background:#242945;color:#9da5bf}
