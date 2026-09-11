@@ -268,16 +268,29 @@ export default function ProblemDetailPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {history.map((item) => (
-                      <tr key={item.id}>
-                        <td>{item.verdict}</td>
-                        <td>
-                          {item.passedTests}/{item.totalTests}
-                        </td>
-                        <td>{item.score}</td>
-                        <td>{item.language}</td>
-                      </tr>
-                    ))}
+                    {history.map((item) => {
+                      const tone =
+                        item.verdict === "ACCEPTED"
+                          ? "ok"
+                          : item.verdict === "TIME_LIMIT_EXCEEDED" || item.verdict === "MEMORY_LIMIT_EXCEEDED"
+                            ? "warn"
+                            : "bad";
+
+                      return (
+                        <tr key={item.id}>
+                          <td>
+                            <span className={`verdict-box verdict-box-${tone}`} style={{ display: "inline-block", padding: "2px 8px", fontSize: "11px" }}>
+                              {item.verdict.replace(/_/g, " ")}
+                            </span>
+                          </td>
+                          <td>
+                            {item.passedTests}/{item.totalTests}
+                          </td>
+                          <td>{item.score}</td>
+                          <td>{item.language}</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
