@@ -15,8 +15,8 @@ import { SiteHeader } from "@/app/_components/home/SiteHeader";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
-const languages: Language[] = ["python", "cpp", "javascript"];
-const FILE_EXT: Record<Language, string> = { python: "py", cpp: "cpp", javascript: "js" };
+const languages: Language[] = ["python", "cpp", "javascript", "typescript"];
+const FILE_EXT: Record<Language, string> = { python: "py", cpp: "cpp", javascript: "js", typescript: "ts" };
 
 export default function ProblemDetailPage() {
   const params = useParams<{ slug: string }>();
@@ -154,167 +154,167 @@ export default function ProblemDetailPage() {
     <ProtectedRoute>
       <SiteHeader />
       <main className="section-shell problem-workspace">
-      <div className="problem-workspace-head">
-        <div>
-          <p className="eyebrow">
-            <b />
-            {problem.difficulty} · {problem.basePoints} PTS
-          </p>
-          <h1>{problem.title}</h1>
-          <div className="problem-meta">
-            <span>Time limit: {problem.timeLimitMs}ms</span>
-            <span>Memory: {problem.memoryLimitMb}MB</span>
-            {problem.myBestVerdict && <span>Your best: {problem.myBestVerdict}</span>}
+        <div className="problem-workspace-head">
+          <div>
+            <p className="eyebrow">
+              <b />
+              {problem.difficulty} · {problem.basePoints} PTS
+            </p>
+            <h1>{problem.title}</h1>
+            <div className="problem-meta">
+              <span>Time limit: {problem.timeLimitMs}ms</span>
+              <span>Memory: {problem.memoryLimitMb}MB</span>
+              {problem.myBestVerdict && <span>Your best: {problem.myBestVerdict}</span>}
+            </div>
           </div>
+          <Link className="text-link" href="/problems">
+            ← All problems
+          </Link>
         </div>
-        <Link className="text-link" href="/problems">
-          ← All problems
-        </Link>
-      </div>
 
-      <div className="problem-workspace-grid">
-        <section className="problem-statement">
-          <div className="pane-head">
-            <span>Problem</span>
-            <span className={`pill pill-${problem.difficulty.toLowerCase()}`}>
-              {problem.difficulty} · {problem.basePoints} pts
-            </span>
-          </div>
-          <div className="problem-statement-body">
-            <h2>Statement</h2>
-            <p style={{ whiteSpace: "pre-wrap" }}>{problem.statement}</p>
-            {problem.inputFormat && (
-              <>
-                <h2>Input format</h2>
-                <p style={{ whiteSpace: "pre-wrap" }}>{problem.inputFormat}</p>
-              </>
-            )}
-            {problem.outputFormat && (
-              <>
-                <h2>Output format</h2>
-                <p style={{ whiteSpace: "pre-wrap" }}>{problem.outputFormat}</p>
-              </>
-            )}
-            {problem.constraints && (
-              <>
-                <h2>Constraints</h2>
-                <p style={{ whiteSpace: "pre-wrap" }}>{problem.constraints}</p>
-              </>
-            )}
-            <h2>Sample tests</h2>
-            {problem.sampleTests.map((sample, index) => (
-              <div key={index}>
-                <div className="iobox">
-                  <span className="lab">Input {index + 1}</span>
-                  {sample.input}
+        <div className="problem-workspace-grid">
+          <section className="problem-statement">
+            <div className="pane-head">
+              <span>Problem</span>
+              <span className={`pill pill-${problem.difficulty.toLowerCase()}`}>
+                {problem.difficulty} · {problem.basePoints} pts
+              </span>
+            </div>
+            <div className="problem-statement-body">
+              <h2>Statement</h2>
+              <p style={{ whiteSpace: "pre-wrap" }}>{problem.statement}</p>
+              {problem.inputFormat && (
+                <>
+                  <h2>Input format</h2>
+                  <p style={{ whiteSpace: "pre-wrap" }}>{problem.inputFormat}</p>
+                </>
+              )}
+              {problem.outputFormat && (
+                <>
+                  <h2>Output format</h2>
+                  <p style={{ whiteSpace: "pre-wrap" }}>{problem.outputFormat}</p>
+                </>
+              )}
+              {problem.constraints && (
+                <>
+                  <h2>Constraints</h2>
+                  <p style={{ whiteSpace: "pre-wrap" }}>{problem.constraints}</p>
+                </>
+              )}
+              <h2>Sample tests</h2>
+              {problem.sampleTests.map((sample, index) => (
+                <div key={index}>
+                  <div className="iobox">
+                    <span className="lab">Input {index + 1}</span>
+                    {sample.input}
+                  </div>
+                  <div className="iobox">
+                    <span className="lab">Output {index + 1}</span>
+                    {sample.expectedOutput}
+                  </div>
+                  {sample.explanation && <p>{sample.explanation}</p>}
                 </div>
-                <div className="iobox">
-                  <span className="lab">Output {index + 1}</span>
-                  {sample.expectedOutput}
-                </div>
-                {sample.explanation && <p>{sample.explanation}</p>}
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="editor-column">
-          <div className="pane-head">
-            <span>solution.{FILE_EXT[language]}</span>
-            <span className="pane-head-state">{isSubmitting ? "submitting…" : isRunning ? "running…" : "ready"}</span>
-          </div>
-
-          <MonacoEditor language={language} value={code} onChange={setCode} />
-
-          <div className="edbar">
-            <select value={language} onChange={(event) => setLanguage(event.target.value as Language)} aria-label="Language">
-              {languages.map((lang) => (
-                <option key={lang} value={lang}>
-                  {lang === "cpp" ? "C++" : lang[0].toUpperCase() + lang.slice(1)}
-                </option>
               ))}
-            </select>
-            <div className="button-row">
-              <button type="button" className="button-outline button-small" onClick={runSample} disabled={isRunning}>
-                {isRunning ? "Running…" : "Run"}
-              </button>
-              <button type="button" className="button button-small" onClick={submit} disabled={isSubmitting}>
-                {isSubmitting ? "Submitting…" : "Submit"} <span aria-hidden="true">→</span>
-              </button>
             </div>
-          </div>
+          </section>
 
-          <div className="output-panel">
-            <h4>Output</h4>
-            <pre>{output}</pre>
-          </div>
+          <section className="editor-column">
+            <div className="pane-head">
+              <span>solution.{FILE_EXT[language]}</span>
+              <span className="pane-head-state">{isSubmitting ? "submitting…" : isRunning ? "running…" : "ready"}</span>
+            </div>
 
-          {submitError && <p className="verdict-failed">{submitError}</p>}
-          {gemsEarned !== null && gemsEarned > 0 && (
-            <p className="gems-earned-note">✦ First solve — +{gemsEarned} gems added to your balance!</p>
-          )}
+            <MonacoEditor language={language} value={code} onChange={setCode} />
 
-          {history.length > 0 && (
-            <div className="workspace-history">
-              <h4>Recent submissions</h4>
-              <div className="submission-history">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Verdict</th>
-                      <th>Tests</th>
-                      <th>Score</th>
-                      <th>Language</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {history.map((item) => {
-                      const tone =
-                        item.verdict === "ACCEPTED"
-                          ? "ok"
-                          : item.verdict === "TIME_LIMIT_EXCEEDED" || item.verdict === "MEMORY_LIMIT_EXCEEDED"
-                            ? "warn"
-                            : "bad";
-
-                      return (
-                        <tr key={item.id}>
-                          <td>
-                            <span className={`verdict-box verdict-box-${tone}`} style={{ display: "inline-block", padding: "2px 8px", fontSize: "11px" }}>
-                              {item.verdict.replace(/_/g, " ")}
-                            </span>
-                          </td>
-                          <td>
-                            {item.passedTests}/{item.totalTests}
-                          </td>
-                          <td>{item.score}</td>
-                          <td>{item.language}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+            <div className="edbar">
+              <select value={language} onChange={(event) => setLanguage(event.target.value as Language)} aria-label="Language">
+                {languages.map((lang) => (
+                  <option key={lang} value={lang}>
+                    {lang === "cpp" ? "C++" : lang === "typescript" ? "TypeScript" : lang[0].toUpperCase() + lang.slice(1)}
+                  </option>
+                ))}
+              </select>
+              <div className="button-row">
+                <button type="button" className="button-outline button-small" onClick={runSample} disabled={isRunning}>
+                  {isRunning ? "Running…" : "Run"}
+                </button>
+                <button type="button" className="button button-small" onClick={submit} disabled={isSubmitting}>
+                  {isSubmitting ? "Submitting…" : "Submit"} <span aria-hidden="true">→</span>
+                </button>
               </div>
             </div>
-          )}
-        </section>
 
-        <AIPanelTabs
-          problemId={problem.id}
-          code={code}
-          isSignedIn={Boolean(user)}
-          submission={submission}
-          onApplyRefactor={(refactoredCode) => {
-            // The refactored code is in the submission's language, which may
-            // not be the editor's currently-selected tab (the user could
-            // have switched languages after submitting) — so switch to that
-            // language too, not just overwrite whatever tab happens to be
-            // open.
-            if (!submission) return;
-            setLanguage(submission.language);
-            setCodeByLanguage((prev) => ({ ...prev, [submission.language]: refactoredCode }));
-          }}
-        />
-      </div>
+            <div className="output-panel">
+              <h4>Output</h4>
+              <pre>{output}</pre>
+            </div>
+
+            {submitError && <p className="verdict-failed">{submitError}</p>}
+            {gemsEarned !== null && gemsEarned > 0 && (
+              <p className="gems-earned-note">✦ First solve — +{gemsEarned} gems added to your balance!</p>
+            )}
+
+            {history.length > 0 && (
+              <div className="workspace-history">
+                <h4>Recent submissions</h4>
+                <div className="submission-history">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Verdict</th>
+                        <th>Tests</th>
+                        <th>Score</th>
+                        <th>Language</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {history.map((item) => {
+                        const tone =
+                          item.verdict === "ACCEPTED"
+                            ? "ok"
+                            : item.verdict === "TIME_LIMIT_EXCEEDED" || item.verdict === "MEMORY_LIMIT_EXCEEDED"
+                              ? "warn"
+                              : "bad";
+
+                        return (
+                          <tr key={item.id}>
+                            <td>
+                              <span className={`verdict-box verdict-box-${tone}`} style={{ display: "inline-block", padding: "2px 8px", fontSize: "11px" }}>
+                                {item.verdict.replace(/_/g, " ")}
+                              </span>
+                            </td>
+                            <td>
+                              {item.passedTests}/{item.totalTests}
+                            </td>
+                            <td>{item.score}</td>
+                            <td>{item.language}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </section>
+
+          <AIPanelTabs
+            problemId={problem.id}
+            code={code}
+            isSignedIn={Boolean(user)}
+            submission={submission}
+            onApplyRefactor={(refactoredCode) => {
+              // The refactored code is in the submission's language, which may
+              // not be the editor's currently-selected tab (the user could
+              // have switched languages after submitting) — so switch to that
+              // language too, not just overwrite whatever tab happens to be
+              // open.
+              if (!submission) return;
+              setLanguage(submission.language);
+              setCodeByLanguage((prev) => ({ ...prev, [submission.language]: refactoredCode }));
+            }}
+          />
+        </div>
       </main>
       <SiteFooter />
     </ProtectedRoute>

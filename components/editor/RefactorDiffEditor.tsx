@@ -17,6 +17,7 @@ const monacoLanguage: Record<Language, string> = {
   python: "python",
   cpp: "cpp",
   javascript: "javascript",
+  typescript: "typescript",
 };
 
 interface RefactorDiffEditorProps {
