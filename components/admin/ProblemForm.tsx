@@ -46,6 +46,7 @@ const fromDetail = (detail?: AdminProblemDetail): ProblemFormValues => ({
     python: detail?.starterCode?.python ?? "",
     cpp: detail?.starterCode?.cpp ?? "",
     javascript: detail?.starterCode?.javascript ?? "",
+    typescript: detail?.starterCode?.typescript ?? "",
   },
   testCases: detail?.sampleTests?.length
     ? detail.sampleTests.map((sample) => ({ ...sample, isSample: true }))
@@ -174,6 +175,10 @@ export function ProblemForm({ initial, submitLabel, isSubmitting, error, onSubmi
           JavaScript
           <textarea rows={5} value={values.starterCode.javascript} onChange={(event) => update("starterCode", { ...values.starterCode, javascript: event.target.value })} />
         </label>
+        <label>
+          TypeScript
+          <textarea rows={5} value={values.starterCode.typescript} onChange={(event) => update("starterCode", { ...values.starterCode, typescript: event.target.value })} />
+        </label>
       </div>
 
       <h3 style={{ margin: "8px 0 0" }}>Reference solution</h3>
@@ -191,6 +196,7 @@ export function ProblemForm({ initial, submitLabel, isSubmitting, error, onSubmi
             <option value="python">Python</option>
             <option value="cpp">C++</option>
             <option value="javascript">JavaScript</option>
+            <option value="typescript">TypeScript</option>
           </select>
         </label>
       </div>
