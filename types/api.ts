@@ -11,7 +11,7 @@ export interface ApiResponse<T> {
 
 export type Difficulty = "EASY" | "MEDIUM" | "HARD";
 
-export type Language = "python" | "cpp" | "javascript";
+export type Language = "python" | "cpp" | "javascript" | "typescript";
 
 export interface ProblemSummary {
   id: string;
