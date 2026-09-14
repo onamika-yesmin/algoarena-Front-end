@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { deleteAdminProblem, listAdminProblems, updateAdminProblem, type AdminProblemSummary } from "@/lib/api/admin";
 import { getErrorMessage } from "@/lib/api/client";
 import { AdminRoute } from "@/components/auth/AdminRoute";
@@ -17,14 +17,21 @@ function AdminProblemsContent() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Only the most recent load's response is applied, so a slower response
+  // for an older search can't overwrite newer results.
+  const latestRequestRef = useRef(0);
+
   const load = useCallback(() => {
+    const requestId = ++latestRequestRef.current;
     setStatus("loading");
     listAdminProblems({ search: search || undefined, limit: 100 })
       .then((result) => {
+        if (requestId !== latestRequestRef.current) return;
         setProblems(result.items);
         setStatus("ready");
       })
       .catch((requestError) => {
+        if (requestId !== latestRequestRef.current) return;
         setLoadErrorMessage(getErrorMessage(requestError, "Could not load problems."));
         setStatus("error");
       });

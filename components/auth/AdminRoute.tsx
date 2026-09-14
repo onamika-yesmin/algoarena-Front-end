@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/providers/AuthProvider";
 import { PageLoader } from "@/components/ui/Loader";
+import { SessionErrorState } from "@/components/auth/ProtectedRoute";
 
 /**
  * Client-side admin gate. A signed-in non-admin is bounced to /profile with
@@ -13,20 +14,27 @@ import { PageLoader } from "@/components/ui/Loader";
  * shows, it is not the security boundary.
  */
 export function AdminRoute({ children }: { children: React.ReactNode }) {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, sessionError, retry } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (isLoading) return;
     if (!user) {
-      const next = typeof window !== "undefined" ? window.location.pathname : "/";
+      // Couldn't verify the session (not the same as signed out) — the
+      // retry state below handles it instead of a redirect.
+      if (sessionError) return;
+      const next = typeof window !== "undefined" ? `${window.location.pathname}${window.location.search}` : "/";
       router.replace(`/signin?next=${encodeURIComponent(next)}`);
       return;
     }
     if (user.role !== "admin") {
       router.replace("/profile");
     }
-  }, [isLoading, user, router]);
+  }, [isLoading, user, sessionError, router]);
+
+  if (!isLoading && !user && sessionError) {
+    return <SessionErrorState message={sessionError} onRetry={retry} />;
+  }
 
   if (isLoading || !user || user.role !== "admin") {
     return <PageLoader label="Checking access…" />;

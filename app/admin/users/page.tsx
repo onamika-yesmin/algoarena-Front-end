@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "@/providers/AuthProvider";
 import { listAdminUsers, updateAdminUser } from "@/lib/api/admin";
 import type { AdminUser } from "@/types/api";
@@ -20,14 +20,21 @@ function AdminUsersContent() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Only the most recent load's response is applied, so a slower response
+  // for an older search can't overwrite newer results.
+  const latestRequestRef = useRef(0);
+
   const load = useCallback(() => {
+    const requestId = ++latestRequestRef.current;
     setStatus("loading");
     listAdminUsers({ search: search || undefined, limit: 100 })
       .then((result) => {
+        if (requestId !== latestRequestRef.current) return;
         setUsers(result.items);
         setStatus("ready");
       })
       .catch((requestError) => {
+        if (requestId !== latestRequestRef.current) return;
         setLoadErrorMessage(getErrorMessage(requestError, "Could not load users."));
         setStatus("error");
       });

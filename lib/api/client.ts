@@ -53,6 +53,21 @@ interface RequestOptions {
 // transparently re-authenticating them.
 const REFRESH_PATH = "/api/auth/refresh-token";
 
+// Status codes with which the refresh endpoint definitively rejects the
+// token itself — a malformed request (400), an invalid/expired token (401),
+// a blocked account (403) or a user that no longer exists (404). Only these
+// mean the stored session is really over.
+const REFRESH_REJECTED_STATUSES = new Set([400, 401, 403, 404]);
+
+/** Fired on `window` once a token refresh has been definitively rejected and
+ *  the stored tokens wiped — AuthProvider listens for it and signs out. */
+export const AUTH_EXPIRED_EVENT = "auth:expired";
+
+const expireSession = () => {
+  clearTokens();
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(AUTH_EXPIRED_EVENT));
+};
+
 // Concurrent 401s share one in-flight refresh instead of each firing their
 // own — otherwise several failed requests on the same page (e.g. /me plus a
 // couple of data calls) would each race to refresh the token.
@@ -74,10 +89,18 @@ const tryRefresh = async (): Promise<boolean> => {
         const payload = (await response.json().catch(() => undefined)) as
           | ApiResponse<{ accessToken: string; refreshToken: string }>
           | undefined;
-        if (!response.ok || !payload?.success || !payload.data) return false;
-        setTokens(payload.data.accessToken, payload.data.refreshToken);
-        return true;
+        if (response.ok && payload?.success && payload.data) {
+          setTokens(payload.data.accessToken, payload.data.refreshToken);
+          return true;
+        }
+        // Only wipe the tokens when the server actually rejected them. A 5xx
+        // (e.g. a 503 while the database cold-starts) says nothing about the
+        // token — clearing it would log out a user whose session is still
+        // perfectly valid, so keep it for the next attempt.
+        if (REFRESH_REJECTED_STATUSES.has(response.status)) expireSession();
+        return false;
       } catch {
+        // Network error — same as a 5xx: keep the tokens.
         return false;
       } finally {
         refreshInFlight = null;
@@ -118,7 +141,8 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   if (response.status === 401 && !options._isRetry && path !== REFRESH_PATH) {
     const refreshed = await tryRefresh();
     if (refreshed) return apiRequest<T>(path, { ...options, _isRetry: true });
-    clearTokens();
+    // Not refreshed: tryRefresh() already cleared the tokens if the server
+    // rejected them; otherwise they're kept and the original error surfaces.
   }
 
   if (!response.ok || !payload?.success) {

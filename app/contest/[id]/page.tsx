@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/providers/AuthProvider";
 import { getContestByIdentifier, getContestScoreboard, registerForContest } from "@/lib/api/contests";
 import { ApiError, getErrorMessage } from "@/lib/api/client";
-import type { ContestDetail, ContestScoreboardEntry } from "@/types/api";
+import type { ContestDetail, ContestScoreboardEntry, ContestStatus } from "@/types/api";
 import { PageLoader } from "@/components/ui/Loader";
 import { SiteHeader } from "@/app/_components/home/SiteHeader";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
@@ -16,6 +16,23 @@ const statusLabel: Record<string, string> = {
   UPCOMING: "Upcoming",
   ONGOING: "Live now",
   ENDED: "Ended",
+};
+
+// How often the displayed status is re-derived from the clock, and how often
+// a live contest's scoreboard is re-fetched.
+const STATUS_TICK_MS = 15_000;
+const SCOREBOARD_POLL_MS = 30_000;
+
+// Mirrors the backend's getContestStatus() (contest.service.ts), so the page
+// moves from Upcoming → Live → Ended on its own instead of staying frozen on
+// whatever status it happened to load with.
+const deriveStatus = (contest: ContestDetail, now: number): ContestStatus => {
+  const start = new Date(contest.startTime).getTime();
+  const end = new Date(contest.endTime).getTime();
+  if (Number.isNaN(start) || Number.isNaN(end)) return contest.status;
+  if (now < start) return "UPCOMING";
+  if (now > end) return "ENDED";
+  return "ONGOING";
 };
 
 export default function ContestDetailPage() {
@@ -28,6 +45,7 @@ export default function ContestDetailPage() {
   const [scoreboard, setScoreboard] = useState<ContestScoreboardEntry[]>([]);
   const [isRegistering, setIsRegistering] = useState(false);
   const [registerError, setRegisterError] = useState<string | null>(null);
+  const [now, setNow] = useState(() => Date.now());
 
   const load = () => {
     setStatus("loading");
@@ -44,11 +62,38 @@ export default function ContestDetailPage() {
 
   useEffect(() => {
     load();
-    getContestScoreboard(params.id)
-      .then((result) => setScoreboard(result.entries))
-      .catch(() => setScoreboard([]));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
+
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), STATUS_TICK_MS);
+    return () => clearInterval(interval);
+  }, []);
+
+  const contestStatus = contest ? deriveStatus(contest, now) : null;
+
+  // Loads the scoreboard once the contest's status is known, again whenever
+  // that status changes (so the final standings show up once it ends), and
+  // every SCOREBOARD_POLL_MS while it's live.
+  useEffect(() => {
+    if (!contestStatus) return;
+    let cancelled = false;
+    const fetchScoreboard = () => {
+      getContestScoreboard(params.id)
+        .then((result) => {
+          if (!cancelled) setScoreboard(result.entries);
+        })
+        .catch(() => {
+          // Keep whatever scoreboard is already showing.
+        });
+    };
+    fetchScoreboard();
+    const interval = contestStatus === "ONGOING" ? setInterval(fetchScoreboard, SCOREBOARD_POLL_MS) : undefined;
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [params.id, contestStatus]);
 
   const register = async () => {
     if (!user) {
@@ -92,13 +137,24 @@ export default function ContestDetailPage() {
     );
   }
 
+  const liveStatus = contestStatus ?? contest.status;
+
+  // Problems open in contest mode (?contestId=…, which scores submissions
+  // for this contest) only while it's live and the user is registered.
+  // Before it starts the titles are listed without links (no spoilers);
+  // otherwise they're plain practice links.
+  const problemHref = (slug: string) => {
+    if (liveStatus === "UPCOMING") return null;
+    return liveStatus === "ONGOING" && contest.isRegistered ? `/problems/${slug}?contestId=${contest.id}` : `/problems/${slug}`;
+  };
+
   return (
     <ProtectedRoute>
       <SiteHeader />
       <main className="section-shell workspace">
       <p className="eyebrow">
         <b />
-        {statusLabel[contest.status] ?? contest.status}
+        {statusLabel[liveStatus] ?? liveStatus}
       </p>
       <h1>{contest.title}</h1>
       <p>{contest.description}</p>
@@ -107,7 +163,7 @@ export default function ContestDetailPage() {
         <span>Ends: {new Date(contest.endTime).toLocaleString()}</span>
       </div>
 
-      {contest.status !== "ENDED" && (
+      {liveStatus !== "ENDED" && (
         <div style={{ marginTop: 18 }}>
           {contest.isRegistered ? (
             <p className="problem-list-status">You&apos;re registered for this contest.</p>
@@ -124,27 +180,32 @@ export default function ContestDetailPage() {
         <section className="problem-statement">
           <h2>Problems</h2>
           {contest.problems.length === 0 && <p>No problems have been added to this contest yet.</p>}
-          {contest.problems.map((entry) =>
-            entry.slug ? (
-              <Link
-                key={entry.problemId}
-                href={`/problems/${entry.slug}?contestId=${contest.id}`}
-                className="problem-card"
-                style={{ marginBottom: 12 }}
-              >
+          {liveStatus === "UPCOMING" && contest.problems.length > 0 && <p>Problems open once the contest starts.</p>}
+          {contest.problems.map((entry) => {
+            if (!entry.slug) return <p key={entry.problemId}>{entry.title} (unavailable)</p>;
+            const href = problemHref(entry.slug);
+            const card = (
+              <>
                 <div className="problem-card-top">
                   <span className={`pill pill-${(entry.difficulty ?? "easy").toLowerCase()}`}>{entry.difficulty}</span>
                 </div>
                 <h3>{entry.title}</h3>
                 <div className="problem-card-foot">
                   <span>{entry.points} pts</span>
-                  <span aria-hidden="true">→</span>
+                  {href && <span aria-hidden="true">→</span>}
                 </div>
+              </>
+            );
+            return href ? (
+              <Link key={entry.problemId} href={href} className="problem-card" style={{ marginBottom: 12 }}>
+                {card}
               </Link>
             ) : (
-              <p key={entry.problemId}>{entry.title} (unavailable)</p>
-            ),
-          )}
+              <div key={entry.problemId} className="problem-card" style={{ marginBottom: 12 }}>
+                {card}
+              </div>
+            );
+          })}
         </section>
 
         <section>

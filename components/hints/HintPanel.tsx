@@ -4,8 +4,25 @@ import { useState } from "react";
 import { getHint, HINT_TIER_COSTS, type HintResult } from "@/lib/api/ai";
 import { ApiError } from "@/lib/api/client";
 
-export default function HintPanel({ problemId, code }: { problemId: string; code: string }) {
+export default function HintPanel({
+  problemId,
+  code,
+  initialHintTier = 0,
+  initialHintPenaltyPercent = 0,
+}: {
+  problemId: string;
+  code: string;
+  /** Highest tier this user already unlocked on this problem (0 if none). */
+  initialHintTier?: number;
+  /** Their hint penalty on this problem so far, as a percentage. */
+  initialHintPenaltyPercent?: number;
+}) {
   const [hints, setHints] = useState<HintResult[]>([]);
+  // Seeded from the problem payload, so tiers already paid for on an earlier
+  // visit are never offered again as if they cost a fresh penalty — then kept
+  // current from each hint response.
+  const [unlockedTier, setUnlockedTier] = useState(initialHintTier);
+  const [totalPenalty, setTotalPenalty] = useState(initialHintPenaltyPercent);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Whether the "unlock this tier?" confirmation modal is open — negative
@@ -13,24 +30,34 @@ export default function HintPanel({ problemId, code }: { problemId: string; code
   // side effect of just clicking "Get a hint" once.
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
-  const nextLevel = hints.length + 1;
   const maxLevel = hints[hints.length - 1]?.maxLevel ?? HINT_TIER_COSTS.length;
-  const reachedMax = hints.length > 0 && nextLevel > maxLevel;
+  const nextLevel = unlockedTier + 1;
+  const reachedMax = nextLevel > maxLevel;
   const nextCost = HINT_TIER_COSTS[nextLevel - 1] ?? HINT_TIER_COSTS[HINT_TIER_COSTS.length - 1];
-  const totalPenalty = hints[hints.length - 1]?.penaltyPercent ?? 0;
+  // Tiers already paid for whose text isn't on screen (unlocked on an earlier
+  // visit) — the backend replays those for free.
+  const replayableLevels = Array.from({ length: Math.min(unlockedTier, maxLevel) }, (_, index) => index + 1).filter(
+    (level) => !hints.some((item) => item.level === level),
+  );
 
-  const requestHint = async () => {
-    setIsConfirmOpen(false);
+  const fetchHint = async (level: number) => {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await getHint({ problemId, level: nextLevel, code });
-      setHints((previous) => [...previous, result]);
+      const result = await getHint({ problemId, level, code });
+      setHints((previous) => [...previous.filter((item) => item.level !== result.level), result].sort((a, b) => a.level - b.level));
+      setUnlockedTier((previous) => Math.max(previous, result.level));
+      setTotalPenalty(result.penaltyPercent);
     } catch (requestError) {
       setError(requestError instanceof ApiError ? requestError.message : "Could not get a hint right now.");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const requestHint = async () => {
+    setIsConfirmOpen(false);
+    await fetchHint(nextLevel);
   };
 
   return (
@@ -41,14 +68,38 @@ export default function HintPanel({ problemId, code }: { problemId: string; code
 
       {error && <p className="verdict-failed">{error}</p>}
 
-      {hints.map((item, index) => (
-        <div key={index} className="hintcard">
+      {hints.map((item) => (
+        <div key={item.level} className="hintcard">
           <div className="hintcard-lab">
             Hint {item.level}/{item.maxLevel}
           </div>
           <p>{item.hint}</p>
         </div>
       ))}
+
+      {replayableLevels.length > 0 && (
+        <div className="hint-locked">
+          <b>
+            {replayableLevels.length === 1 ? `Tier ${replayableLevels[0]}` : `Tiers ${replayableLevels.join(", ")}`} already unlocked
+          </b>
+          You&apos;ve already paid for {replayableLevels.length === 1 ? "this hint" : "these hints"} on this problem — viewing{" "}
+          {replayableLevels.length === 1 ? "it" : "them"} again is free.
+          <div>
+            {replayableLevels.map((level) => (
+              <button
+                key={level}
+                type="button"
+                className="button-outline button-small"
+                style={{ margin: "12px 4px 0" }}
+                onClick={() => fetchHint(level)}
+                disabled={isLoading}
+              >
+                Show tier {level} · free
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {!reachedMax && (
         <div className="hint-locked">

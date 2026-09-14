@@ -21,18 +21,26 @@ const TABS: { key: TabKey; label: string }[] = [
 // on top of each other under the editor. Each panel component below is
 // unchanged and still owns its own request/loading/error state; this is
 // just the shell that shows one of them at a time and fills the rest with
-// an honest empty state explaining what unlocks it.
+// an honest empty state explaining what unlocks it. Every tab body stays
+// mounted (inactive ones are only `hidden`), so switching tabs never throws
+// away a panel's state — unlocked hints, a complexity report, suggestions.
 export default function AIPanelTabs({
   problemId,
   code,
   isSignedIn,
   submission,
+  initialHintTier = 0,
+  initialHintPenaltyPercent = 0,
   onApplyRefactor,
 }: {
   problemId: string;
   code: string;
   isSignedIn: boolean;
   submission: Submission | null;
+  /** Highest hint tier already unlocked on this problem, and the penalty
+   *  accrued so far — from the problem payload, passed through to HintPanel. */
+  initialHintTier?: number;
+  initialHintPenaltyPercent?: number;
   onApplyRefactor: (code: string) => void;
 }) {
   const [activeTab, setActiveTab] = useState<TabKey>("results");
@@ -58,40 +66,43 @@ export default function AIPanelTabs({
       </div>
 
       <div className="ai-tab-body">
-        {activeTab === "results" &&
-          (submission ? (
+        <div role="tabpanel" hidden={activeTab !== "results"}>
+          {submission ? (
             <VerdictPanel submission={submission} />
           ) : (
             <div className="ai-tab-empty">
               <div className="ic">✷</div>
-              Run or submit your code to see results here.
+              Submit your code to see the full verdict here.
               <br />
-              <span style={{ fontSize: 12 }}>Run only checks the first sample and costs nothing.</span>
+              <span style={{ fontSize: 12 }}>Run (under the editor) checks the sample tests and costs nothing.</span>
             </div>
-          ))}
+          )}
+        </div>
 
-        {activeTab === "hint" &&
-          (isSignedIn ? (
-            <HintPanel problemId={problemId} code={code} />
+        <div role="tabpanel" hidden={activeTab !== "hint"}>
+          {isSignedIn ? (
+            <HintPanel problemId={problemId} code={code} initialHintTier={initialHintTier} initialHintPenaltyPercent={initialHintPenaltyPercent} />
           ) : (
             <div className="ai-tab-empty">
               <div className="ic">✷</div>
               Sign in to get hints on this problem.
             </div>
-          ))}
+          )}
+        </div>
 
-        {activeTab === "bigO" &&
-          (submission ? (
+        <div role="tabpanel" hidden={activeTab !== "bigO"}>
+          {submission ? (
             <ComplexityAuditorPanel key={submission.id} submissionId={submission.id} initialReport={submission.complexityReport} />
           ) : (
             <div className="ai-tab-empty">
               <div className="ic">✷</div>
               Submit your code to unlock a time/space complexity estimate.
             </div>
-          ))}
+          )}
+        </div>
 
-        {activeTab === "refactor" &&
-          (submission && submission.verdict === "ACCEPTED" ? (
+        <div role="tabpanel" hidden={activeTab !== "refactor"}>
+          {submission && submission.verdict === "ACCEPTED" ? (
             <RefactorPanel
               key={submission.id}
               submissionId={submission.id}
@@ -105,7 +116,8 @@ export default function AIPanelTabs({
               <div className="ic">✷</div>
               Refactor suggestions unlock once you have an Accepted submission on this problem.
             </div>
-          ))}
+          )}
+        </div>
       </div>
     </div>
   );

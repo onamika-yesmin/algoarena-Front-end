@@ -53,6 +53,10 @@ export interface ProblemDetail {
   starterCode: Partial<Record<Language, string>>;
   mySubmissionsCount: number;
   myBestVerdict: string | null;
+  /** Highest hint tier this user has already unlocked on the problem (0 if
+   *  none), and the score penalty those hints cost, as a percentage. */
+  myHintTier?: number;
+  myHintPenaltyPercent?: number;
 }
 
 export type Verdict =

@@ -57,7 +57,9 @@ function EditProblemContent() {
           .filter((testCase) => testCase.isSample && (testCase.input.trim() || testCase.expectedOutput.trim()))
           .map(({ input, expectedOutput, explanation }) => ({ input, expectedOutput, explanation })),
         starterCode: values.starterCode,
-        referenceSolution: values.referenceSolution.code.trim() ? values.referenceSolution : undefined,
+        // null, not undefined (which JSON drops): clearing the code has to
+        // actually remove the saved reference solution.
+        referenceSolution: values.referenceSolution.code.trim() ? values.referenceSolution : null,
       });
       router.push("/admin/problems");
     } catch (requestError) {

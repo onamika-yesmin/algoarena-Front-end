@@ -91,7 +91,12 @@ export interface AdminProblemInput {
 
 export const createAdminProblem = (payload: AdminProblemInput) => apiRequest<{ id: string }>("/api/problems", { method: "POST", body: payload });
 
-export const updateAdminProblem = (id: string, payload: Partial<AdminProblemInput>) =>
+// `referenceSolution: null` clears a saved solution — `undefined` would just
+// be dropped by JSON.stringify and leave the old one in place.
+export const updateAdminProblem = (
+  id: string,
+  payload: Partial<Omit<AdminProblemInput, "referenceSolution">> & { referenceSolution?: AdminReferenceSolution | null },
+) =>
   apiRequest<{ id: string }>(`/api/problems/${id}`, { method: "PATCH", body: payload });
 
 export const deleteAdminProblem = (id: string) => apiRequest<null>(`/api/problems/admin/${id}`, { method: "DELETE" });
