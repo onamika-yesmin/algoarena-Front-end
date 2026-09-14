@@ -22,15 +22,50 @@ export const listSubmissions = (params: { problemId?: string; page?: number; lim
 };
 
 export interface RunPayload {
-  language: string;
+  language: Language;
   source: string;
+  /** Run against this problem's sample tests and compare the output. */
+  problemId?: string;
+  /** Custom input instead of the sample tests (output is not compared). */
   stdin?: string;
 }
 
-// Ad-hoc "Run" against sample input only (no persisted Submission record).
-// Backed by POST /api/submissions/execute.
-export const runCode = (payload: RunPayload) =>
-  apiRequest<{ run?: { output?: string; stderr?: string }; compile?: { output?: string; stderr?: string } }>("/api/submissions/execute", {
-    method: "POST",
-    body: payload,
-  });
+/**
+ * How one sample run ended. PASSED / WRONG_ANSWER compare against the sample's
+ * expected output; NO_EXPECTED means it ran cleanly on custom input (nothing
+ * to compare against); SKIPPED cases never ran because the code didn't compile.
+ */
+export type RunOutcome =
+  | "PASSED"
+  | "WRONG_ANSWER"
+  | "NO_EXPECTED"
+  | "COMPILATION_ERROR"
+  | "RUNTIME_ERROR"
+  | "TIME_LIMIT_EXCEEDED"
+  | "MEMORY_LIMIT_EXCEEDED"
+  | "SKIPPED";
+
+export interface RunCaseResult {
+  index: number;
+  input: string;
+  expectedOutput: string | null;
+  outcome: RunOutcome;
+  stdout: string;
+  stderr: string;
+  compileOutput: string;
+  exitCode: number | null;
+  timeMs: number | null;
+  memoryKb: number | null;
+}
+
+export interface RunResult {
+  /** The first failing case's outcome, or PASSED / NO_EXPECTED when nothing failed. */
+  outcome: RunOutcome;
+  passed: number;
+  total: number;
+  cases: RunCaseResult[];
+}
+
+// Ad-hoc "Run" — executes against the problem's sample tests (no persisted
+// Submission record). Backed by POST /api/submissions/execute.
+export const runCode = (payload: RunPayload) => apiRequest<RunResult>("/api/submissions/execute", { method: "POST", body: payload });

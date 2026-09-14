@@ -159,6 +159,9 @@
 .iobox .lab{color:#55d8d2;font-size:10px;display:block;margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px}
 
 .editor-shell{border:0;border-top:1px solid #303854;overflow:hidden;flex:1}
+/* Error marker from the last Run (MonacoEditor decorations): tinted line + red gutter bar. */
+.editor-error-line{background:rgba(255,128,128,.13)}
+.editor-error-gutter{background:#ff8080;width:3px !important;margin-left:4px}
 .edbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid #303854;background:#171c34;flex:none}
 .edbar select{background:#0d1020;border:1px solid #3d4673;color:#fff;padding:9px 12px;border-radius:6px}
 .edbar .button-row{display:flex;gap:10px}
@@ -185,6 +188,13 @@
 .verdict-failed{background:#0d1020;border:1px solid #ff8080;border-radius:8px;padding:12px 14px;font:11px 'DM Mono';line-height:1.9}
 .verdict-failed h4{margin:0 0 8px;font-size:11px;color:#ff8080;text-transform:uppercase;letter-spacing:.5px;font-family:'DM Mono'}
 .verdict-failed pre{background:none;padding:0;margin:0;font:11px 'DM Mono';color:#c3c8dd;white-space:pre-wrap}
+/* Plain-language diagnosis of a failed verdict (same wording as the Run panel). */
+.verdict-diagnosis{border:1px solid #303854;border-left:3px solid #8fc3ff;border-radius:8px;padding:10px 12px;margin-bottom:14px;background:#0d1020}
+.verdict-diagnosis-bad{border-left-color:#ff8080}
+.verdict-diagnosis-warn{border-left-color:#ffb254}
+.verdict-diagnosis b{font:700 13px 'Space Grotesk';color:#fff}
+.verdict-diagnosis code{display:block;margin-top:6px;font:11.5px/1.5 'DM Mono';color:#ffb3b3;white-space:pre-wrap;overflow-wrap:anywhere}
+.verdict-diagnosis p{margin:6px 0 0;font-size:12.5px;line-height:1.6;color:#c3c8dd}
 .gems-earned-note{background:rgba(255,178,84,.1);border:1px solid rgba(255,178,84,.35);border-radius:8px;padding:10px 14px;font:700 12.5px 'DM Mono';color:var(--orange);margin:0}
 .submission-history{margin-top:18px;overflow-x:auto}
 .submission-history table{width:100%;border-collapse:collapse;font-size:12px}

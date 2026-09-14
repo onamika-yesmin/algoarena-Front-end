@@ -2,14 +2,16 @@
 
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/providers/AuthProvider";
 import { getProblemBySlug } from "@/lib/api/problems";
 import { listSubmissions, runCode, submitSolution } from "@/lib/api/submissions";
 import { ApiError, getErrorMessage } from "@/lib/api/client";
+import { diagnoseCase, primaryCaseIndex, type RunLimits } from "@/lib/runDiagnostics";
 import type { Language, ProblemDetail, Submission } from "@/types/api";
-import MonacoEditor from "@/components/editor/MonacoEditor";
+import MonacoEditor, { type EditorMarker } from "@/components/editor/MonacoEditor";
 import AIPanelTabs from "@/components/workspace/AIPanelTabs";
+import RunResultPanel, { type RunState } from "@/components/workspace/RunResultPanel";
 import { PageLoader } from "@/components/ui/Loader";
 import { SiteHeader } from "@/app/_components/home/SiteHeader";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
@@ -17,6 +19,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 const languages: Language[] = ["python", "cpp", "javascript", "typescript"];
 const FILE_EXT: Record<Language, string> = { python: "py", cpp: "cpp", javascript: "js", typescript: "ts" };
+const DEFAULT_LIMITS: RunLimits = { timeLimitMs: 2000, memoryLimitMb: 256 };
 
 export default function ProblemDetailPage() {
   const params = useParams<{ slug: string }>();
@@ -34,7 +37,13 @@ export default function ProblemDetailPage() {
   const [loadErrorMessage, setLoadErrorMessage] = useState("");
   const [language, setLanguage] = useState<Language>("python");
   const [codeByLanguage, setCodeByLanguage] = useState<Partial<Record<Language, string>>>({});
-  const [output, setOutput] = useState("Run your code against the first sample test to see output here.");
+  const [runState, setRunState] = useState<RunState>({ status: "idle" });
+  // The language + exact code the last finished run used. The editor only
+  // marks that run's error line while the code is unchanged, because any edit
+  // can move the line the error pointed at.
+  const [runSnapshot, setRunSnapshot] = useState<{ language: Language; code: string } | null>(null);
+  const [runCount, setRunCount] = useState(0);
+  const [revealRequest, setRevealRequest] = useState<{ line: number; nonce: number } | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [submission, setSubmission] = useState<Submission | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,18 +53,35 @@ export default function ProblemDetailPage() {
   // on this problem) — briefly shown next to the verdict, and triggers a
   // header refresh so the new balance shows up right away.
   const [gemsEarned, setGemsEarned] = useState<number | null>(null);
+  // The problem currently on screen. Next.js keeps this page mounted when
+  // navigating between problems, so requests started for a previous problem
+  // check this before writing state — otherwise a slow run, submission or
+  // history response could show up on the next problem.
+  const activeProblemIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+    activeProblemIdRef.current = null;
     setStatus("loading");
+    setProblem(null);
+    setSubmission(null);
+    setSubmitError(null);
+    setGemsEarned(null);
+    setHistory([]);
+    setRunState({ status: "idle" });
+    setRunSnapshot(null);
     getProblemBySlug(slug)
       .then((data) => {
         if (cancelled) return;
+        activeProblemIdRef.current = data.id;
         setProblem(data);
         setCodeByLanguage({
           python: data.starterCode.python ?? "",
           cpp: data.starterCode.cpp ?? "",
           javascript: data.starterCode.javascript ?? "",
+          // Problems don't ship TypeScript starter code; the JavaScript one is
+          // valid TypeScript as-is (the judge declares `require`/`process`).
+          typescript: data.starterCode.typescript || data.starterCode.javascript || "",
         });
         setStatus("ready");
       })
@@ -72,7 +98,9 @@ export default function ProblemDetailPage() {
 
   const refreshHistory = (problemId: string) => {
     listSubmissions({ problemId, limit: 10 })
-      .then((result) => setHistory(result.items))
+      .then((result) => {
+        if (activeProblemIdRef.current === problemId) setHistory(result.items);
+      })
       .catch(() => {
         // Not signed in, or request failed — history sidebar just stays empty.
       });
@@ -85,19 +113,48 @@ export default function ProblemDetailPage() {
   const code = codeByLanguage[language] ?? "";
   const setCode = (value: string) => setCodeByLanguage((prev) => ({ ...prev, [language]: value }));
 
+  const limits = useMemo<RunLimits>(
+    () => (problem ? { timeLimitMs: problem.timeLimitMs, memoryLimitMb: problem.memoryLimitMb } : DEFAULT_LIMITS),
+    [problem],
+  );
+
+  const editorMarkers = useMemo<EditorMarker[]>(() => {
+    if (runState.status !== "done" || !runSnapshot || runSnapshot.language !== language || runSnapshot.code !== code) return [];
+    const primary = runState.result.cases[primaryCaseIndex(runState.result)];
+    if (!primary) return [];
+    const diagnostic = diagnoseCase(runSnapshot.language, primary, limits);
+    if (diagnostic.line === undefined) return [];
+    return [{ line: diagnostic.line, column: diagnostic.column, message: [diagnostic.title, diagnostic.message].filter(Boolean).join(": ") }];
+  }, [runState, runSnapshot, language, code, limits]);
+
+  const jumpToLine = (line: number) => setRevealRequest((previous) => ({ line, nonce: (previous?.nonce ?? 0) + 1 }));
+
   const runSample = async () => {
-    if (!problem) return;
+    if (!problem || isRunning) return;
+    if (!code.trim()) {
+      setRunSnapshot(null);
+      setRunState({ status: "error", message: "The editor is empty — write some code first." });
+      return;
+    }
+    const problemId = problem.id;
+    const snapshot = { language, code };
     setIsRunning(true);
-    setOutput("Running…");
+    setRunState({ status: "running", sampleCount: Math.min(Math.max(problem.sampleTests.length, 1), 5) });
     try {
-      const sample = problem.sampleTests[0];
-      const result = await runCode({ language, source: code, stdin: sample?.input ?? "" });
-      const stage = result.run ?? result.compile;
-      setOutput(stage?.output || stage?.stderr || "Finished with no output.");
+      const result = await runCode({ language, source: code, problemId });
+      if (activeProblemIdRef.current !== problemId) return;
+      // A back end from before per-sample results (e.g. mid-deploy) has no
+      // `cases` — show a retryable message instead of crashing the panel.
+      if (!Array.isArray(result?.cases)) throw new Error("The code runner sent an unexpected response. Please try again in a moment.");
+      setRunSnapshot(snapshot);
+      setRunState({ status: "done", result });
     } catch (error) {
-      setOutput(error instanceof ApiError ? error.message : "Execution failed.");
+      if (activeProblemIdRef.current !== problemId) return;
+      setRunSnapshot(null);
+      setRunState({ status: "error", message: getErrorMessage(error, "Couldn't reach the code runner. Please try again.") });
     } finally {
       setIsRunning(false);
+      setRunCount((count) => count + 1);
     }
   };
 
@@ -107,18 +164,25 @@ export default function ProblemDetailPage() {
       setSubmitError("Sign in to submit your solution.");
       return;
     }
+    if (!code.trim()) {
+      setSubmitError("The editor is empty — write your solution before submitting.");
+      return;
+    }
+    const problemId = problem.id;
     setIsSubmitting(true);
     setSubmitError(null);
     setGemsEarned(null);
     try {
-      const result = await submitSolution({ problemId: problem.id, code, language, contestId });
+      const result = await submitSolution({ problemId, code, language, contestId });
+      if (activeProblemIdRef.current !== problemId) return;
       setSubmission(result);
-      refreshHistory(problem.id);
+      refreshHistory(problemId);
       if (result.gemsAwarded) {
         setGemsEarned(result.gemsAwarded);
         void refreshUser(); // updates the header's gem balance right away
       }
     } catch (error) {
+      if (activeProblemIdRef.current !== problemId) return;
       setSubmitError(error instanceof ApiError ? error.message : "Submission failed.");
     } finally {
       setIsSubmitting(false);
@@ -224,7 +288,7 @@ export default function ProblemDetailPage() {
               <span className="pane-head-state">{isSubmitting ? "submitting…" : isRunning ? "running…" : "ready"}</span>
             </div>
 
-            <MonacoEditor language={language} value={code} onChange={setCode} />
+            <MonacoEditor language={language} value={code} onChange={setCode} markers={editorMarkers} revealRequest={revealRequest} />
 
             <div className="edbar">
               <select value={language} onChange={(event) => setLanguage(event.target.value as Language)} aria-label="Language">
@@ -244,10 +308,7 @@ export default function ProblemDetailPage() {
               </div>
             </div>
 
-            <div className="output-panel">
-              <h4>Output</h4>
-              <pre>{output}</pre>
-            </div>
+            <RunResultPanel key={runCount} state={runState} language={runSnapshot?.language ?? language} limits={limits} onJumpToLine={jumpToLine} />
 
             {submitError && <p className="verdict-failed">{submitError}</p>}
             {gemsEarned !== null && gemsEarned > 0 && (
@@ -303,6 +364,8 @@ export default function ProblemDetailPage() {
             code={code}
             isSignedIn={Boolean(user)}
             submission={submission}
+            initialHintTier={problem.myHintTier ?? 0}
+            initialHintPenaltyPercent={problem.myHintPenaltyPercent ?? 0}
             onApplyRefactor={(refactoredCode) => {
               // The refactored code is in the submission's language, which may
               // not be the editor's currently-selected tab (the user could
