@@ -3,17 +3,21 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { getAdminStats } from "@/lib/api/admin";
+import { listHostRequests } from "@/lib/api/hosts";
 import type { AdminStats } from "@/types/api";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import { AdminShell, AdminErrorState, AdminStatSkeleton } from "@/components/admin/AdminShell";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
 import { getErrorMessage } from "@/lib/api/client";
-import { IconUsers, IconCode, IconTrophy, IconGrid } from "@/components/admin/icons";
+import { IconUsers, IconCode, IconTrophy, IconGrid, IconInbox } from "@/components/admin/icons";
 
 function AdminDashboardContent() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState("");
+  // Pending host requests for the "Host requests" card — loaded on its own so
+  // a failure there never breaks the rest of the dashboard.
+  const [pendingHostRequests, setPendingHostRequests] = useState<number | null>(null);
 
   const load = useCallback(() => {
     setStatus("loading");
@@ -29,6 +33,20 @@ function AdminDashboardContent() {
   }, []);
 
   useEffect(load, [load]);
+
+  useEffect(() => {
+    let cancelled = false;
+    listHostRequests({ status: "pending", limit: 1 })
+      .then((result) => {
+        if (!cancelled) setPendingHostRequests(result.pendingCount);
+      })
+      .catch(() => {
+        // The card just shows no count.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <AdminShell
@@ -94,6 +112,27 @@ function AdminDashboardContent() {
           <p>Schedule new contests and attach problems to them.</p>
           <Link className="text-link" href="/admin/contests">
             Open contest manager →
+          </Link>
+        </article>
+        <article className="admin-link-card">
+          <span className="panel-kicker panel-kicker-orange"><IconInbox /> HOSTING</span>
+          <h2>
+            Host requests
+            {pendingHostRequests !== null && pendingHostRequests > 0 && (
+              <span className="badge badge-draft" style={{ marginLeft: 10, verticalAlign: "middle" }}>
+                {pendingHostRequests} pending
+              </span>
+            )}
+          </h2>
+          <p>
+            {pendingHostRequests === null
+              ? "Review who can run their own contests on AlgoArena."
+              : pendingHostRequests === 0
+                ? "No requests waiting — you're all caught up."
+                : `${pendingHostRequests} ${pendingHostRequests === 1 ? "request is" : "requests are"} waiting for review.`}
+          </p>
+          <Link className="text-link" href="/admin/host-requests">
+            Review host requests →
           </Link>
         </article>
         <article className="admin-link-card">
