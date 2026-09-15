@@ -6,7 +6,9 @@ import { ApiError, getErrorMessage } from "@/lib/api/client";
 import {
   getProposal,
   listProposals,
+  PROPOSAL_COST_GEMS,
   PROPOSAL_LIMITS,
+  PROPOSAL_REJECT_REFUND_GEMS,
   reviewProposal,
   slugifyTitle,
   type ProposalDetail,
@@ -160,7 +162,9 @@ function ProposalsContent() {
         return;
       }
       payload = { ...payload, slug: slug || undefined, basePoints: Number(points), publish: review.publish };
-    } else if (!window.confirm(`Reject "${proposal.title}"${proposal.user ? ` by ${proposal.user.name}` : ""}?`)) {
+    } else if (
+      !window.confirm(`Reject "${proposal.title}"${proposal.user ? ` by ${proposal.user.name}` : ""}? The author gets ${PROPOSAL_REJECT_REFUND_GEMS} gems back.`)
+    ) {
       return;
     }
 
@@ -176,7 +180,10 @@ function ProposalsContent() {
               text: `Accepted — "${reviewed.title}" was added to the problem library${reviewed.problem?.isPublished ? " and published" : " as a draft"}.`,
               problemId: reviewed.problem?.id,
             }
-          : { tone: "success", text: `Rejected "${reviewed.title}". ${reviewed.user?.name ?? "The author"} can edit it and send it again.` },
+          : {
+              tone: "success",
+              text: `Rejected "${reviewed.title}". ${reviewed.user?.name ?? "The author"} got ${PROPOSAL_REJECT_REFUND_GEMS} gems back and can edit it and send it again.`,
+            },
       );
       setReview(null);
       load();
@@ -202,7 +209,7 @@ function ProposalsContent() {
     <AdminShell
       eyebrow="CONTENT / PROPOSALS"
       title="Problem proposals"
-      description="Problems suggested by learners with 50 or more gems. Accepting one adds it to the problem library with all its test cases — as a draft, unless you publish it right away."
+      description={`Problems suggested by learners — sending one costs its author ${PROPOSAL_COST_GEMS} gems. Accepting adds it to the problem library with all its test cases (as a draft, unless you publish it right away) and keeps the full cost; rejecting gives the author ${PROPOSAL_REJECT_REFUND_GEMS} gems back.`}
     >
       <div className={styles.toolbar}>
         <div className={styles.tabs} role="group" aria-label="Filter proposals by status">
@@ -297,6 +304,12 @@ function ProposalsContent() {
                       <dt>Submitted</dt>
                       <dd>{formatDateTime(proposal.submittedAt) ?? "—"}</dd>
                     </div>
+                    <div>
+                      <dt>Gems</dt>
+                      <dd>
+                        {proposal.gemsSpent} spent{proposal.gemsRefunded ? ` · ${proposal.gemsRefunded} refunded` : ""}
+                      </dd>
+                    </div>
                     {reviewed && (
                       <div>
                         <dt>Reviewed</dt>
@@ -384,7 +397,7 @@ function ProposalsContent() {
                         <>
                           <p className={styles.reviewHint}>
                             Creates the problem with all {proposal.testCaseCount} test cases ({proposal.sampleCount} shown as {proposal.sampleCount === 1 ? "a sample" : "samples"}).
-                            You can still change anything in the problem manager afterwards.
+                            You can still change anything in the problem manager afterwards. The author&apos;s {PROPOSAL_COST_GEMS} gems are not refunded.
                           </p>
                           <div className={styles.reviewRow}>
                             <label htmlFor={fieldId("slug")} className={styles.field}>
@@ -418,6 +431,11 @@ function ProposalsContent() {
                             Publish right away (otherwise it&apos;s added as a draft)
                           </label>
                         </>
+                      )}
+                      {review.action === "reject" && (
+                        <p className={styles.reviewHint}>
+                          The author gets {PROPOSAL_REJECT_REFUND_GEMS} of their {PROPOSAL_COST_GEMS} gems back and can edit the proposal and send it again.
+                        </p>
                       )}
                       <label htmlFor={fieldId("note")} className={styles.noteLabel}>
                         <span>Note to the author (optional)</span>
