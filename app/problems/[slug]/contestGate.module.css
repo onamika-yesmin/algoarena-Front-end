@@ -1,0 +1,126 @@
+/* Contest-mode banner on the problem workspace (?contestId=…). */
+
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+  margin-top: 16px;
+  padding: 12px 16px;
+  border: 1px solid #303854;
+  border-left-width: 3px;
+  border-radius: 10px;
+  background: #12172b;
+}
+
+.body {
+  flex: 1 1 300px;
+  min-width: 0;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font: 700 14px/1.4 'Space Grotesk', system-ui, sans-serif;
+  color: #fff;
+  overflow-wrap: anywhere;
+}
+
+.detail {
+  margin: 3px 0 0;
+  color: #aeb4c9;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+}
+
+.registerError {
+  flex-basis: 100%;
+  margin: 0;
+  color: #ff8080;
+  font-size: 12.5px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.pulse {
+  animation: gate-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes gate-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse {
+    animation: none;
+  }
+}
+
+.live {
+  border-color: rgba(101, 223, 173, 0.35);
+  border-left-color: #65dfad;
+  background: rgba(18, 53, 38, 0.35);
+}
+
+.live .dot {
+  color: #65dfad;
+}
+
+.locked {
+  border-color: rgba(255, 178, 84, 0.4);
+  border-left-color: #ffb254;
+  background: rgba(58, 47, 16, 0.3);
+}
+
+.locked .dot {
+  color: #ffb254;
+}
+
+.upcoming {
+  border-color: rgba(143, 195, 255, 0.35);
+  border-left-color: #8fc3ff;
+  background: rgba(28, 42, 74, 0.35);
+}
+
+.upcoming .dot {
+  color: #8fc3ff;
+}
+
+.neutral {
+  border-left-color: #8a8fa2;
+}
+
+.neutral .dot {
+  color: #8a8fa2;
+}
+
+.error {
+  border-color: rgba(255, 128, 128, 0.35);
+  border-left-color: #ff8080;
+  background: rgba(58, 20, 24, 0.3);
+}
+
+.error .dot {
+  color: #ff8080;
+}
