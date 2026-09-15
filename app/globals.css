@@ -367,6 +367,12 @@
 .icon-button:hover { border-color:var(--cyan); color:white; }
 .icon-button-danger:hover { border-color:#ff8080; color:#ff8080; }
 .icon-button:disabled { opacity:.5; cursor:not-allowed; }
+/* .button and .button-outline had no disabled look, so a locked Run/Submit
+   (contest not registered yet) still looked clickable. */
+.button:disabled, .button-outline:disabled { opacity:.5; cursor:not-allowed; }
+.button:disabled:hover { transform:none; background:var(--violet); box-shadow:none; }
+.button-outline:disabled:hover { transform:none; }
+.button:disabled::before { display:none; }
 .form-error { color:#ff8080; font-size:13px; margin:0; }
 .form-success { color:#65dfad; font-size:13px; margin:0; }
 
