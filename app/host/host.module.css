@@ -1,0 +1,274 @@
+.page h1 {
+  overflow-wrap: anywhere;
+}
+
+.lead {
+  color: #adb5ce;
+  max-width: 640px;
+  line-height: 1.75;
+  margin: 0;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
+  gap: 24px;
+  align-items: start;
+  margin-top: 32px;
+}
+
+.perks {
+  border: 1px solid #303854;
+  border-radius: 12px;
+  background: #12172b;
+  padding: 22px;
+  position: sticky;
+  top: 100px;
+}
+
+.perks h2 {
+  font: 700 15px 'Space Grotesk', system-ui, sans-serif;
+  color: #fff;
+  margin: 0 0 12px;
+}
+
+.perks h2:not(:first-child) {
+  margin-top: 22px;
+}
+
+.perks ul,
+.perks ol {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 8px;
+  color: #c3c8dd;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.perks ul li::marker {
+  color: var(--cyan, #55d8d2);
+}
+
+.perks ol li::marker {
+  color: var(--violet, #8067ff);
+  font-family: 'DM Mono', ui-monospace, monospace;
+}
+
+.panel {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.card {
+  border: 1px solid #303854;
+  border-radius: 12px;
+  background: #12172b;
+  padding: 24px;
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+  min-width: 0;
+}
+
+.card > * {
+  max-width: 100%;
+}
+
+.card h2 {
+  font: 700 21px/1.25 'Space Grotesk', system-ui, sans-serif;
+  color: #fff;
+  margin: 0;
+}
+
+.card > p {
+  margin: 0;
+  color: #aeb4c9;
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+.card > .cardHint {
+  color: #9da5bf;
+  font-size: 12.5px;
+}
+
+.cardInfo {
+  border-left: 3px solid var(--violet, #8067ff);
+}
+
+.cardSuccess {
+  border-left: 3px solid #65dfad;
+}
+
+.cardPending {
+  border-left: 3px solid var(--orange, #ffb254);
+}
+
+.cardRejected {
+  border-left: 3px solid #ff8080;
+}
+
+.cardError {
+  border-color: rgba(255, 128, 128, 0.35);
+}
+
+.statusTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #242a4a;
+  color: #c3c8dd;
+  font: 10px 'DM Mono', ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cardSuccess .statusTag {
+  background: #123526;
+  color: #65dfad;
+}
+
+.cardPending .statusTag {
+  background: #3a2f10;
+  color: #ffb254;
+}
+
+.cardRejected .statusTag {
+  background: #3a1418;
+  color: #ff8080;
+}
+
+.cardInfo .statusTag {
+  background: rgba(128, 103, 255, 0.18);
+  color: #c6b4ff;
+}
+
+.card > .reviewNote,
+.reviewNote {
+  width: 100%;
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #0d1020;
+  color: #c3c8dd;
+  font-size: 13px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.reviewNote b {
+  color: #fff;
+}
+
+.softNote {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid #303854;
+  border-radius: 10px;
+  background: #0d1020;
+  color: #c3c8dd;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.summary {
+  width: 100%;
+  margin: 6px 0 0;
+  padding: 16px;
+  border: 1px solid #303854;
+  border-radius: 10px;
+  background: #0d1020;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px 20px;
+}
+
+.summaryWide {
+  grid-column: 1 / -1;
+}
+
+.summary dt {
+  font: 10px 'DM Mono', ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6d748d;
+  margin-bottom: 4px;
+}
+
+.summary dd {
+  margin: 0;
+  color: #dfe1ee;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.summaryTitle {
+  font: 700 16px 'Space Grotesk', system-ui, sans-serif;
+  color: #fff;
+}
+
+.prewrap {
+  white-space: pre-wrap;
+}
+
+.form {
+  width: 100%;
+  max-width: none;
+}
+
+.fieldHint,
+.fieldError {
+  text-transform: none;
+  letter-spacing: normal;
+  font: 12px/1.55 Manrope, system-ui, sans-serif;
+}
+
+.fieldHint {
+  color: #8a8fa2;
+}
+
+.fieldError {
+  color: #ff8080;
+}
+
+.labelRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.counter {
+  color: #6d748d;
+}
+
+.form input[aria-invalid="true"],
+.form textarea[aria-invalid="true"] {
+  border-color: #ff8080;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .perks {
+    position: static;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 18px 16px;
+  }
+
+  .perks {
+    padding: 18px 16px;
+  }
+}
