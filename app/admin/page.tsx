@@ -4,20 +4,23 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { getAdminStats } from "@/lib/api/admin";
 import { listHostRequests } from "@/lib/api/hosts";
+import { listProposals } from "@/lib/api/proposals";
 import type { AdminStats } from "@/types/api";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import { AdminShell, AdminErrorState, AdminStatSkeleton } from "@/components/admin/AdminShell";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
 import { getErrorMessage } from "@/lib/api/client";
-import { IconUsers, IconCode, IconTrophy, IconGrid, IconInbox } from "@/components/admin/icons";
+import { IconUsers, IconCode, IconTrophy, IconGrid, IconInbox, IconBulb } from "@/components/admin/icons";
 
 function AdminDashboardContent() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState("");
-  // Pending host requests for the "Host requests" card — loaded on its own so
-  // a failure there never breaks the rest of the dashboard.
+  // Pending counts for the "Host requests" and "Problem proposals" cards —
+  // loaded on their own so a failure there never breaks the rest of the
+  // dashboard.
   const [pendingHostRequests, setPendingHostRequests] = useState<number | null>(null);
+  const [pendingProposals, setPendingProposals] = useState<number | null>(null);
 
   const load = useCallback(() => {
     setStatus("loading");
@@ -39,6 +42,13 @@ function AdminDashboardContent() {
     listHostRequests({ status: "pending", limit: 1 })
       .then((result) => {
         if (!cancelled) setPendingHostRequests(result.pendingCount);
+      })
+      .catch(() => {
+        // The card just shows no count.
+      });
+    listProposals({ status: "pending", limit: 1 })
+      .then((result) => {
+        if (!cancelled) setPendingProposals(result.pendingCount);
       })
       .catch(() => {
         // The card just shows no count.
@@ -133,6 +143,27 @@ function AdminDashboardContent() {
           </p>
           <Link className="text-link" href="/admin/host-requests">
             Review host requests →
+          </Link>
+        </article>
+        <article className="admin-link-card">
+          <span className="panel-kicker panel-kicker-cyan"><IconBulb /> CONTRIBUTIONS</span>
+          <h2>
+            Problem proposals
+            {pendingProposals !== null && pendingProposals > 0 && (
+              <span className="badge badge-draft" style={{ marginLeft: 10, verticalAlign: "middle" }}>
+                {pendingProposals} pending
+              </span>
+            )}
+          </h2>
+          <p>
+            {pendingProposals === null
+              ? "Problems suggested by learners who earned 50 or more gems."
+              : pendingProposals === 0
+                ? "No proposals waiting — you're all caught up."
+                : `${pendingProposals} ${pendingProposals === 1 ? "proposal is" : "proposals are"} waiting for review.`}
+          </p>
+          <Link className="text-link" href="/admin/proposals">
+            Review proposals →
           </Link>
         </article>
         <article className="admin-link-card">
