@@ -1,0 +1,397 @@
+.editor {
+  display: grid;
+  gap: 16px;
+}
+
+.tone_move {
+  --tone: #16a34a;
+  --tone-bg: #dcfce7;
+  --tone-ink: #14532d;
+}
+
+.tone_turn {
+  --tone: #2563eb;
+  --tone-bg: #dbeafe;
+  --tone-ink: #1e3a8a;
+}
+
+.tone_gem {
+  --tone: #db2777;
+  --tone-bg: #fce7f3;
+  --tone-ink: #831843;
+}
+
+.tone_loop {
+  --tone: #ea580c;
+  --tone-bg: #ffedd5;
+  --tone-ink: #7c2d12;
+}
+
+.tone_logic {
+  --tone: #7c3aed;
+  --tone-bg: #ede9fe;
+  --tone-ink: #4c1d95;
+}
+
+/* ---------- Palette ---------- */
+
+.palette h2,
+.programCard h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.paletteHead,
+.programHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin-bottom: 12px;
+}
+
+.target {
+  margin: 0;
+  color: var(--kq-ink-soft);
+  font-size: 15px;
+}
+
+.target b {
+  color: var(--kq-ink);
+}
+
+.paletteGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.paletteButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 58px;
+  padding: 8px 12px;
+  border: 2.5px solid var(--tone);
+  border-bottom-width: 6px;
+  border-radius: 16px;
+  background: var(--tone-bg);
+  color: var(--tone-ink);
+  font: 600 16px/1.2 var(--kq-display);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.1s ease, border-bottom-width 0.1s ease;
+  touch-action: manipulation;
+}
+
+.paletteButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.paletteButton:active:not(:disabled) {
+  transform: translateY(3px);
+  border-bottom-width: 3px;
+}
+
+.paletteButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.blockIcon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--tone);
+  color: #fff;
+}
+
+.newTag {
+  position: absolute;
+  top: -10px;
+  right: 8px;
+  padding: 1px 8px;
+  border: 2px solid #1b2240;
+  border-radius: 999px;
+  background: #c9184a;
+  color: #fff;
+  font: 700 12px/1.4 var(--kq-display);
+  font-style: normal;
+  letter-spacing: 0.5px;
+}
+
+.fullNote {
+  margin: 12px 0 0;
+  font-weight: 700;
+  color: var(--kq-warn);
+}
+
+/* ---------- Program ---------- */
+
+.count {
+  padding: 2px 12px;
+  border-radius: 999px;
+  background: #1b2240;
+  color: #fff;
+  font: 600 15px/1.6 var(--kq-display);
+}
+
+.starGoal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -4px 0 12px;
+  color: var(--kq-ink-soft);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.root {
+  padding: 10px;
+  border: 2.5px dashed rgba(27, 34, 64, 0.22);
+  border-radius: 18px;
+  background: #f7f9ff;
+}
+
+.emptyProgram {
+  margin: 0;
+  padding: 18px 8px;
+  text-align: center;
+  color: var(--kq-ink-soft);
+  font: 600 18px var(--kq-display);
+}
+
+.list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.block {
+  border: 2.5px solid var(--tone);
+  border-left-width: 10px;
+  border-radius: 16px;
+  background: var(--tone-bg);
+  color: var(--tone-ink);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.blockBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-height: 54px;
+  padding: 6px 6px 6px 8px;
+}
+
+.blockLabel {
+  flex: 1 1 auto;
+  min-width: 0;
+  font: 600 17px/1.2 var(--kq-display);
+}
+
+.active {
+  box-shadow: 0 0 0 4px #ffc83d, 0 0 0 7px #1b2240;
+  transform: scale(1.015);
+}
+
+.failed {
+  background: #ffe1e6;
+  box-shadow: 0 0 0 4px #ff6b81;
+}
+
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px;
+  border: 2px solid var(--tone);
+  border-radius: 999px;
+  background: #fff;
+}
+
+.stepButton {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--tone-bg);
+  color: var(--tone-ink);
+  font: 700 22px/1 var(--kq-display);
+  cursor: pointer;
+}
+
+.stepButton:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.times {
+  min-width: 22px;
+  text-align: center;
+  font: 700 19px var(--kq-display);
+}
+
+.timesWord {
+  padding-right: 8px;
+  font: 600 15px var(--kq-display);
+}
+
+.sensed {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #1b2240;
+  color: #fff;
+  font: 600 14px/1.5 var(--kq-display);
+}
+
+.sensedYes {
+  background: #15803d;
+}
+
+.tools {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.tool {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 2px solid rgba(27, 34, 64, 0.2);
+  border-radius: 12px;
+  background: #fff;
+  color: #1b2240;
+  font: 700 18px/1 var(--kq-body);
+  cursor: pointer;
+}
+
+.tool:hover:not(:disabled) {
+  border-color: #1b2240;
+}
+
+.tool:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.toolDelete:hover:not(:disabled) {
+  border-color: #b4233f;
+  background: #ffe4e8;
+  color: #b4233f;
+}
+
+.branch {
+  margin: 0 8px 8px 14px;
+  padding: 8px;
+  border: 2px dashed rgba(27, 34, 64, 0.22);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.branchCaption {
+  display: inline-block;
+  margin: 0 0 6px 2px;
+  font: 600 14px var(--kq-display);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.branchSelected {
+  border-style: solid;
+  border-color: #1d4ed8;
+  background: #fff;
+}
+
+.slot {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 8px;
+  border: 2px dashed rgba(27, 34, 64, 0.3);
+  border-radius: 12px;
+  background: transparent;
+  color: #28325a;
+  font: 600 15px var(--kq-display);
+  cursor: pointer;
+}
+
+.slot:hover:not(:disabled) {
+  border-color: #1d4ed8;
+  color: #1d3ea8;
+}
+
+.slot[aria-pressed="true"] {
+  border-style: solid;
+  border-color: #1d4ed8;
+  background: #e8f0ff;
+  color: #1d3ea8;
+}
+
+.slot:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.branch > .list + .slot,
+.root > .list + .slot {
+  margin-top: 8px;
+}
+
+.clear {
+  margin-top: 14px;
+}
+
+@media (max-width: 480px) {
+  .paletteGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .paletteButton {
+    font-size: 15px;
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .blockIcon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .tool {
+    width: 38px;
+    height: 38px;
+  }
+
+  .branch {
+    margin: 0 4px 6px 6px;
+    padding: 6px;
+  }
+
+  .root {
+    padding: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paletteButton,
+  .block {
+    transition: none;
+  }
+
+  .active,
+  .paletteButton:hover:not(:disabled),
+  .paletteButton:active:not(:disabled) {
+    transform: none;
+  }
+}
