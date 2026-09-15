@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { useAuth } from "@/providers/AuthProvider";
 import { ApiError, getErrorMessage } from "@/lib/api/client";
 import { createProposal, getMyProposals, type MyProposalsResult, type ProposalInput } from "@/lib/api/proposals";
 import { ProposalForm } from "@/components/proposals/ProposalForm";
@@ -16,6 +17,7 @@ type LoadState = { status: "loading" } | { status: "error"; message: string } | 
 
 function NewProposalContent() {
   const router = useRouter();
+  const { refresh } = useAuth();
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [error, setError] = useState<string | null>(null);
 
@@ -29,9 +31,14 @@ function NewProposalContent() {
   useEffect(load, [load]);
 
   const submit = async (input: ProposalInput) => {
+    if (state.status !== "ready") return;
+    const { gems, cost, rejectRefund } = state.data;
+    if (!window.confirm(`Send this proposal for ${cost} gems? You have ${gems}. If it's rejected, ${rejectRefund} gems come back to you.`)) return;
     setError(null);
     try {
       const created = await createProposal(input);
+      // The site header shows the gem balance.
+      void refresh();
       router.push(`/profile/proposals/${created.id}?sent=1`);
     } catch (requestError) {
       setError(requestError instanceof ApiError ? requestError.message : getErrorMessage(requestError, "Could not send your proposal. Please try again."));
@@ -59,13 +66,13 @@ function NewProposalContent() {
       </div>
     );
   } else if (!state.data.canPropose) {
-    const { gems, requiredGems, pendingCount, maxPending } = state.data;
+    const { gems, cost, pendingCount, maxPending } = state.data;
     body = (
       <div className={`${styles.card} ${styles.pending}`}>
         {error && <p className="form-error">{error}</p>}
-        {gems < requiredGems ? (
+        {gems < cost ? (
           <>
-            <h2>You need {requiredGems} gems to propose a problem</h2>
+            <h2>Sending a proposal costs {cost} gems</h2>
             <p>
               You have {gems} {gems === 1 ? "gem" : "gems"}. You earn gems the first time you get an Accepted solution on a problem — Easy 10, Medium 20, Hard 30.
             </p>
@@ -87,8 +94,13 @@ function NewProposalContent() {
       </div>
     );
   } else {
+    const { gems, cost, rejectRefund } = state.data;
     body = (
       <div className={`${styles.card} ${styles.formCard}`}>
+        <p className={styles.reviewNote}>
+          <b>Cost: {cost} gems.</b> You have {gems}. The gems are taken when you send the proposal. If it&apos;s rejected you get {rejectRefund} back, if you
+          delete it before it&apos;s reviewed you get all {cost} back, and an accepted proposal keeps the full cost.
+        </p>
         <ProposalForm submitLabel="Send proposal" submittingLabel="Sending proposal…" cancelHref="/profile#proposals" error={error} onSubmit={submit} />
       </div>
     );
@@ -105,8 +117,7 @@ function NewProposalContent() {
       </p>
       <h1>Propose a problem</h1>
       <p className={styles.lead}>
-        Write the problem the way learners will see it, add test cases, and send it to the admins. If they accept it, it joins the AlgoArena problem library. Your
-        gems stay yours — proposing doesn&apos;t use any up.
+        Write the problem the way learners will see it, add test cases, and send it to the admins. If they accept it, it joins the AlgoArena problem library.
       </p>
       <div className={styles.stack}>{body}</div>
     </main>

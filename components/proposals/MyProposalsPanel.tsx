@@ -1,10 +1,11 @@
 "use client";
 
-// Profile section for problem proposals: how close the learner is to the gem
-// threshold, the way in to propose a problem, and the proposals they've sent.
+// Profile section for problem proposals: what sending one costs, the learner's
+// gem balance, the way in to propose a problem, and the proposals they've sent.
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { useAuth } from "@/providers/AuthProvider";
 import { ApiError, getErrorMessage } from "@/lib/api/client";
 import { deleteProposal, getMyProposals, type MyProposalsResult, type ProposalSummary } from "@/lib/api/proposals";
 import { DifficultyTag, ProposalStatusBadge } from "./ProposalBadges";
@@ -25,7 +26,8 @@ function ProposalRow({ proposal, isDeleting, onDelete }: { proposal: ProposalSum
           <DifficultyTag difficulty={proposal.difficulty} />
           <ProposalStatusBadge status={proposal.status} />
           <span className={styles.muted}>
-            Sent {formatDate(proposal.submittedAt)} · {proposal.testCaseCount} {proposal.testCaseCount === 1 ? "test case" : "test cases"}
+            Sent {formatDate(proposal.submittedAt)} · {proposal.testCaseCount} {proposal.testCaseCount === 1 ? "test case" : "test cases"} ·{" "}
+            {proposal.gemsSpent} gems spent{proposal.gemsRefunded ? `, ${proposal.gemsRefunded} refunded` : ""}
           </span>
         </div>
         {proposal.reviewNote && (
@@ -67,6 +69,7 @@ function ProposalRow({ proposal, isDeleting, onDelete }: { proposal: ProposalSum
 }
 
 export function MyProposalsPanel({ isAdmin }: { isAdmin: boolean }) {
+  const { refresh } = useAuth();
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ tone: "success" | "error"; text: string } | null>(null);
@@ -80,12 +83,18 @@ export function MyProposalsPanel({ isAdmin }: { isAdmin: boolean }) {
   useEffect(load, [load]);
 
   const remove = async (proposal: ProposalSummary) => {
-    if (!window.confirm(`Delete your proposal "${proposal.title}"? This can't be undone.`)) return;
+    const refundNote = proposal.status === "pending" ? " It hasn't been reviewed yet, so the gems it cost come back to you." : "";
+    if (!window.confirm(`Delete your proposal "${proposal.title}"?${refundNote} This can't be undone.`)) return;
     setDeletingId(proposal.id);
     setFeedback(null);
     try {
-      await deleteProposal(proposal.id);
-      setFeedback({ tone: "success", text: `Deleted "${proposal.title}".` });
+      const result = await deleteProposal(proposal.id);
+      setFeedback({
+        tone: "success",
+        text: `Deleted "${proposal.title}".${result.gemsRefunded ? ` ${result.gemsRefunded} gems were returned to you.` : ""}`,
+      });
+      // The site header shows the gem balance.
+      if (result.gemsRefunded) void refresh();
     } catch (requestError) {
       setFeedback({
         tone: "error",
@@ -110,25 +119,30 @@ export function MyProposalsPanel({ isAdmin }: { isAdmin: boolean }) {
       </div>
     );
   } else {
-    const { gems, requiredGems, maxPending, pendingCount, canPropose, items } = state.data;
-    const unlocked = gems >= requiredGems;
-    const progress = Math.min(100, Math.round((gems / requiredGems) * 100));
+    const { gems, cost, rejectRefund, maxPending, pendingCount, canPropose, items } = state.data;
+    const enough = gems >= cost;
+    const progress = Math.min(100, Math.round((gems / cost) * 100));
     body = (
       <>
+        <p className={styles.locked}>
+          Sending a proposal costs <b>{cost} gems</b>. If it&apos;s rejected, {rejectRefund} come back. If you delete it before it&apos;s reviewed, all {cost}{" "}
+          come back. An accepted proposal keeps the full cost.
+        </p>
+
         <div className={styles.meter}>
           <div className={styles.meterRow}>
             <span>
-              <span className={styles.gems}>✦ {gems}</span> / {requiredGems} gems
+              <span className={styles.gems}>✦ {gems}</span> / {cost} gems
             </span>
-            <span>{unlocked ? "Unlocked" : `${requiredGems - gems} more to go`}</span>
+            <span>{enough ? "Enough to send a proposal" : `${cost - gems} more to go`}</span>
           </div>
           <div
-            className={`${styles.bar}${unlocked ? ` ${styles.barDone}` : ""}`}
+            className={`${styles.bar}${enough ? ` ${styles.barDone}` : ""}`}
             role="progressbar"
-            aria-label="Gems toward proposing a problem"
+            aria-label="Gems toward sending a proposal"
             aria-valuemin={0}
-            aria-valuemax={requiredGems}
-            aria-valuenow={Math.min(gems, requiredGems)}
+            aria-valuemax={cost}
+            aria-valuenow={Math.min(gems, cost)}
           >
             <span style={{ width: `${progress}%` }} />
           </div>
@@ -139,15 +153,15 @@ export function MyProposalsPanel({ isAdmin }: { isAdmin: boolean }) {
             <Link className="button button-small" href="/profile/proposals/new">
               Propose a problem <span aria-hidden="true">→</span>
             </Link>
-          ) : unlocked ? (
+          ) : enough ? (
             <p className={styles.locked}>
               You have {pendingCount} proposals waiting for review — the most you can have at once is {maxPending}. You can send another once one is reviewed.
             </p>
           ) : (
             <>
               <p className={styles.locked}>
-                Earn {requiredGems - gems} more {requiredGems - gems === 1 ? "gem" : "gems"} to unlock this. You get gems for your first Accepted solution on each problem:
-                Easy 10, Medium 20, Hard 30.
+                Earn {cost - gems} more {cost - gems === 1 ? "gem" : "gems"} to send a proposal. You get gems for your first Accepted solution on each problem: Easy 10,
+                Medium 20, Hard 30.
               </p>
               <Link className="text-link" href="/problems">
                 Solve problems →
@@ -192,8 +206,7 @@ export function MyProposalsPanel({ isAdmin }: { isAdmin: boolean }) {
           Propose a problem for the library
         </h2>
         <p className={styles.lead}>
-          With 50 or more gems you can send the admins a problem of your own — statement, limits and test cases. If they accept it, it joins the AlgoArena
-          problem library. Proposing doesn&apos;t use up any gems.
+          Send the admins a problem of your own — statement, limits and test cases. If they accept it, it joins the AlgoArena problem library.
         </p>
       </div>
       {body}

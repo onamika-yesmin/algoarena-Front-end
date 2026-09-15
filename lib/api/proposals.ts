@@ -1,13 +1,18 @@
 import { apiRequest } from "./client";
 import type { Difficulty, Language, UserRole } from "@/types/api";
 
-// Problem proposals: a learner with enough gems proposes a problem from their
-// profile (/profile/proposals), and an admin accepts it into the problem
-// library or rejects it (/admin/proposals). Gems are only a threshold here —
-// proposing never deducts any.
+// Problem proposals: a learner proposes a problem from their profile
+// (/profile/proposals), and an admin accepts it into the problem library or
+// rejects it (/admin/proposals). Sending a proposal costs gems — a rejected
+// one refunds half, an accepted one keeps the full cost, and deleting one
+// before it's reviewed refunds it all.
 
 export type ProposalStatus = "pending" | "accepted" | "rejected";
 export type ProposalStatusFilter = ProposalStatus | "all";
+
+/** Mirrors utils/gems.ts on the back end (GET /api/proposals/me also returns both). */
+export const PROPOSAL_COST_GEMS = 50;
+export const PROPOSAL_REJECT_REFUND_GEMS = 25;
 
 /** Mirrors the back end's validation (modules/proposal/proposal.service.ts). */
 export const PROPOSAL_LIMITS = {
@@ -57,6 +62,9 @@ export interface ProposalSummary {
   updatedAt: string;
   /** The problem created when the proposal was accepted. */
   problem: { id: string; slug: string; isPublished: boolean } | null;
+  /** Gems this proposal has cost its author in total, and how many came back. */
+  gemsSpent: number;
+  gemsRefunded: number;
   /** Only on the admin endpoints. */
   user?: { id: string; name: string; email: string; role: UserRole };
 }
@@ -75,7 +83,10 @@ export interface ProposalDetail extends ProposalSummary {
 
 export interface MyProposalsResult {
   gems: number;
-  requiredGems: number;
+  /** Gems taken when a proposal is sent for review. */
+  cost: number;
+  /** Gems given back when a proposal is rejected. */
+  rejectRefund: number;
   maxPending: number;
   pendingCount: number;
   canPropose: boolean;
@@ -129,7 +140,9 @@ export const createProposal = (payload: ProposalInput) => apiRequest<ProposalDet
 export const updateProposal = (id: string, payload: ProposalInput) =>
   apiRequest<ProposalDetail>(`/api/proposals/${encodeURIComponent(id)}`, { method: "PATCH", body: payload });
 
-export const deleteProposal = (id: string) => apiRequest<{ deleted: boolean }>(`/api/proposals/${encodeURIComponent(id)}`, { method: "DELETE" });
+/** A proposal still waiting for review gives its cost back; `gemsRefunded` says how many. */
+export const deleteProposal = (id: string) =>
+  apiRequest<{ deleted: boolean; gemsRefunded: number }>(`/api/proposals/${encodeURIComponent(id)}`, { method: "DELETE" });
 
 export const listProposals = (params: { status?: ProposalStatusFilter; page?: number; limit?: number } = {}) => {
   const query = new URLSearchParams();
