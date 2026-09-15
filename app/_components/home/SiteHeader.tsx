@@ -19,6 +19,7 @@ const PRIMARY_LINKS: NavLink[] = [
   { href: "/contest", label: "Contests" },
   { href: "/leaderboard", label: "Leaderboard" },
   { href: "/community", label: "Community" },
+  { href: "/kids", label: "Kids" },
 ];
 
 export function SiteHeader() {

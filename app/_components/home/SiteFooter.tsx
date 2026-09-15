@@ -20,6 +20,7 @@ export function SiteFooter() {
           <Link href="/contest">Contests</Link>
           <Link href="/leaderboard">Leaderboard</Link>
           <Link href="/community">Community</Link>
+          <Link href="/kids">Kids zone</Link>
         </div>
         <div>
           <h4>Practice</h4>
