@@ -1,228 +1,295 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
-import { listContests, createContest } from "@/lib/api/contests";
-import { listAdminProblems, type AdminProblemSummary } from "@/lib/api/admin";
-import type { ContestSummary } from "@/types/api";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useAuth } from "@/providers/AuthProvider";
+import { createContest, deleteManagedContest, deriveContestStatus, listManagedContests, type CreateContestPayload } from "@/lib/api/contests";
+import type { ManagedContestSummary, UserRole } from "@/types/api";
 import { getErrorMessage } from "@/lib/api/client";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import { AdminShell, AdminErrorState, AdminEmptyState, AdminTableSkeleton } from "@/components/admin/AdminShell";
+import { ContestForm, takeContestManagerFlash } from "@/components/admin/ContestForm";
+import { Pagination } from "@/components/ui/Pagination";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
+import { IconSearch } from "@/components/admin/icons";
+import styles from "@/components/admin/ContestForm.module.css";
+
+const PAGE_SIZE = 20;
+const STATUS_TICK_MS = 30_000;
+const MANAGER_ROLES: readonly UserRole[] = ["admin", "guest"];
 
 const statusLabel: Record<string, string> = { UPCOMING: "Upcoming", ONGOING: "Live now", ENDED: "Ended" };
 
-const emptyForm = { title: "", slug: "", description: "", startTime: "", endTime: "" };
+const formatDateTime = (iso: string) => {
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? "—" : date.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+};
+
+const roleBadgeClass = (role: UserRole) => (role === "admin" ? "badge badge-admin" : role === "guest" ? `badge ${styles.badgeGuest}` : "badge badge-user");
 
 function AdminContestsContent() {
-  const [contests, setContests] = useState<ContestSummary[]>([]);
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+
+  const [contests, setContests] = useState<ManagedContestSummary[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [query, setQuery] = useState("");
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [loadErrorMessage, setLoadErrorMessage] = useState("");
-  const [form, setForm] = useState(emptyForm);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [listMessage, setListMessage] = useState<{ tone: "success" | "error"; text: string } | null>(null);
+  const [now, setNow] = useState(() => Date.now());
 
-  // Problem picker for the "Schedule a new contest" form. createContest()
-  // has always accepted a `problems` array (contest.service.ts), but until
-  // now nothing in the admin UI ever populated it — a contest could be
-  // created but had no way to actually attach problems to it, so every new
-  // contest stayed permanently empty ("No problems have been added to this
-  // contest yet.") no matter how many times you filled out the form above.
-  const [problems, setProblems] = useState<AdminProblemSummary[]>([]);
-  const [problemsStatus, setProblemsStatus] = useState<"loading" | "ready" | "error">("loading");
-  const [selectedPoints, setSelectedPoints] = useState<Record<string, number>>({});
+  const [formKey, setFormKey] = useState(0);
+  const [isCreating, setIsCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [created, setCreated] = useState<{ title: string; slug: string } | null>(null);
+  const creatingRef = useRef(false);
+
+  // Only the most recent load's response is applied, so a slower response
+  // for an older search/page can't overwrite newer results.
+  const latestRequestRef = useRef(0);
+
+  // "Saved changes to …" handed over by the edit page.
+  useEffect(() => {
+    const flash = takeContestManagerFlash();
+    if (flash) setListMessage({ tone: "success", text: flash });
+  }, []);
+
+  // Keeps the Upcoming → Live → Ended pills moving without a reload.
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), STATUS_TICK_MS);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const next = search.trim();
+    if (next === query) return;
+    const timeout = setTimeout(() => {
+      setQuery(next);
+      setPage(1);
+    }, 250);
+    return () => clearTimeout(timeout);
+  }, [search, query]);
 
   const load = useCallback(() => {
+    const requestId = ++latestRequestRef.current;
     setStatus("loading");
-    listContests({ limit: 50 })
+    listManagedContests({ page, limit: PAGE_SIZE, search: query || undefined })
       .then((result) => {
+        if (requestId !== latestRequestRef.current) return;
+        const lastPage = Math.max(1, Math.ceil(result.total / PAGE_SIZE));
+        // e.g. the only contest on the last page was just deleted.
+        if (result.items.length === 0 && page > lastPage) {
+          setPage(lastPage);
+          return;
+        }
         setContests(result.items);
+        setTotal(result.total);
+        setNow(Date.now());
         setStatus("ready");
       })
       .catch((requestError) => {
+        if (requestId !== latestRequestRef.current) return;
         setLoadErrorMessage(getErrorMessage(requestError, "Could not load contests."));
         setStatus("error");
       });
-  }, []);
+  }, [page, query]);
 
   useEffect(load, [load]);
 
-  useEffect(() => {
-    listAdminProblems({ limit: 100 })
-      .then((result) => {
-        setProblems(result.items);
-        setProblemsStatus("ready");
-      })
-      .catch(() => setProblemsStatus("error"));
-  }, []);
-
-  const toggleProblem = (problem: AdminProblemSummary) => {
-    setSelectedPoints((current) => {
-      const next = { ...current };
-      if (problem.id in next) {
-        delete next[problem.id];
-      } else {
-        next[problem.id] = problem.basePoints || 100;
-      }
-      return next;
-    });
-  };
-
-  const setProblemPoints = (problemId: string, points: number) => {
-    setSelectedPoints((current) => ({ ...current, [problemId]: Number.isFinite(points) ? points : 0 }));
-  };
-
-  const submit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setIsSubmitting(true);
-    setError(null);
-    setSuccess(null);
+  const handleCreate = async (payload: CreateContestPayload) => {
+    if (creatingRef.current) return;
+    creatingRef.current = true;
+    setIsCreating(true);
+    setCreateError(null);
+    setCreated(null);
     try {
-      const selectedProblems = Object.entries(selectedPoints).map(([problemId, points]) => ({ problemId, points }));
-      await createContest({
-        title: form.title.trim(),
-        slug: form.slug.trim().toLowerCase(),
-        description: form.description,
-        startTime: new Date(form.startTime).toISOString(),
-        endTime: new Date(form.endTime).toISOString(),
-        problems: selectedProblems.length ? selectedProblems : undefined,
-      });
-      setForm(emptyForm);
-      setSelectedPoints({});
-      setSuccess(`Contest created${selectedProblems.length ? ` with ${selectedProblems.length} problem${selectedProblems.length === 1 ? "" : "s"}` : ""}.`);
+      await createContest(payload);
+      setCreated({ title: payload.title, slug: payload.slug });
+      setFormKey((key) => key + 1); // remounts the form empty
       load();
     } catch (requestError) {
-      setError(getErrorMessage(requestError, "Could not create the contest."));
+      setCreateError(getErrorMessage(requestError, "Could not create the contest."));
     } finally {
-      setIsSubmitting(false);
+      creatingRef.current = false;
+      setIsCreating(false);
     }
   };
 
+  const remove = async (contest: ManagedContestSummary) => {
+    const registrations =
+      contest.participantCount === 0
+        ? "its registrations (none so far)"
+        : contest.participantCount === 1
+          ? "its 1 registration"
+          : `all ${contest.participantCount} of its registrations`;
+    if (!window.confirm(`Delete "${contest.title}"?\n\nThis permanently deletes the contest and removes ${registrations}. This can't be undone.`)) return;
+    setBusyId(contest.id);
+    setListMessage(null);
+    try {
+      await deleteManagedContest(contest.id);
+      setListMessage({ tone: "success", text: `Deleted "${contest.title}".` });
+      load();
+    } catch (requestError) {
+      setListMessage({ tone: "error", text: getErrorMessage(requestError, "Could not delete the contest.") });
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const showTable = contests.length > 0 && status !== "error";
+
   return (
     <AdminShell
-      eyebrow="COMPETITION / CONTESTS"
-      title="Contest manager"
-      description="Schedule a new contest and pick which problems belong to it — everything in one step."
+      eyebrow={isAdmin ? "COMPETITION / CONTESTS" : "HOST PANEL / CONTESTS"}
+      title={isAdmin ? "Contest manager" : "Your contests"}
+      description={
+        isAdmin
+          ? "Schedule contests, pick their problems, and manage every contest on the platform — including the ones hosts run."
+          : "Create and manage your own contests: set the window, pick problems from the library, and keep an eye on registrations."
+      }
     >
       <div className="admin-card">
         <h2>Schedule a new contest</h2>
-        <p className="admin-card-hint">Set the window and select problems now — you can still register/view it right after creating.</p>
-        <form className="admin-form" onSubmit={submit}>
-          {error && <p className="form-error">{error}</p>}
-          {success && <p className="form-success">{success}</p>}
-          <div className="admin-form-row">
-            <label>
-              Title
-              <input required value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} />
-            </label>
-            <label>
-              Slug
-              <input required value={form.slug} onChange={(event) => setForm({ ...form, slug: event.target.value })} placeholder="weekly-challenge-1" />
-            </label>
-          </div>
-          <label>
-            Description
-            <textarea rows={3} value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} />
-          </label>
-          <div className="admin-form-row">
-            <label>
-              Starts
-              <input required type="datetime-local" value={form.startTime} onChange={(event) => setForm({ ...form, startTime: event.target.value })} />
-            </label>
-            <label>
-              Ends
-              <input required type="datetime-local" value={form.endTime} onChange={(event) => setForm({ ...form, endTime: event.target.value })} />
-            </label>
-          </div>
-
-          <label>
-            Problems ({Object.keys(selectedPoints).length} selected)
-            {problemsStatus === "loading" && <span className="admin-cell-sub">Loading problems…</span>}
-            {problemsStatus === "error" && <span className="form-error">Could not load the problem list.</span>}
-            {problemsStatus === "ready" && problems.length === 0 && (
-              <span className="admin-cell-sub">
-                No problems yet — create some in <Link className="text-link" href="/admin/problems/new">Problem manager</Link> first.
-              </span>
-            )}
-            {problemsStatus === "ready" && problems.length > 0 && (
-              <div className="contest-problem-picker">
-                {problems.map((problem) => {
-                  const isSelected = problem.id in selectedPoints;
-                  return (
-                    <div key={problem.id} className="contest-problem-row">
-                      <label className="contest-problem-checkbox">
-                        <input type="checkbox" checked={isSelected} onChange={() => toggleProblem(problem)} />
-                        <span>{problem.title}</span>
-                        <span className={`pill pill-${problem.difficulty.toLowerCase()}`}>{problem.difficulty}</span>
-                        <span className={`badge ${problem.isPublished ? "badge-published" : "badge-draft"}`}>
-                          {problem.isPublished ? "Published" : "Draft"}
-                        </span>
-                      </label>
-                      {isSelected && (
-                        <input
-                          type="number"
-                          min={1}
-                          className="contest-problem-points"
-                          value={selectedPoints[problem.id]}
-                          onChange={(event) => setProblemPoints(problem.id, Number(event.target.value))}
-                          aria-label={`Points for ${problem.title}`}
-                        />
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </label>
-          <p className="admin-card-hint" style={{ marginTop: -8 }}>
-            A draft (unpublished) problem can be attached now and published right when the contest starts, so it isn&apos;t solvable early.
+        <p className="admin-card-hint">Set the window and pick the problems now — you can edit everything later.</p>
+        {created && (
+          <p className={`form-success ${styles.flash}`} role="status">
+            Contest &ldquo;{created.title}&rdquo; created.
+            <Link className="text-link" href={`/contest/${created.slug}`}>
+              View it <span aria-hidden="true">→</span>
+            </Link>
           </p>
-
-          <div className="admin-form-actions">
-            <button type="submit" className="button button-small" disabled={isSubmitting}>
-              {isSubmitting ? "Creating…" : "Create contest"}
-            </button>
-          </div>
-        </form>
+        )}
+        <ContestForm
+          key={formKey}
+          isAdmin={isAdmin}
+          submitLabel="Create contest"
+          submittingLabel="Creating…"
+          isSubmitting={isCreating}
+          error={createError}
+          onSubmit={handleCreate}
+        />
       </div>
 
       <div className="admin-card">
-        <h2>All contests</h2>
-        {status === "loading" && <AdminTableSkeleton rows={4} />}
-        {status === "error" && <AdminErrorState message={loadErrorMessage} onRetry={load} />}
-        {status === "ready" && contests.length === 0 && <AdminEmptyState message="No contests yet — create the first one above." />}
-        {status === "ready" && contests.length > 0 && (
-          <div className="admin-table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Status</th>
-                  <th>Problems</th>
-                  <th>Starts</th>
-                  <th />
-                </tr>
-              </thead>
-              <tbody>
-                {contests.map((contest) => (
-                  <tr key={contest.id}>
-                    <td className="admin-cell-name">{contest.title}</td>
-                    <td data-label="Status">
-                      <span className={`pill pill-contest-${contest.status.toLowerCase()}`}>{statusLabel[contest.status] ?? contest.status}</span>
-                    </td>
-                    <td data-label="Problems">{contest.problemCount}</td>
-                    <td data-label="Starts">{new Date(contest.startTime).toLocaleString()}</td>
-                    <td className="admin-cell-actions">
-                      <Link className="icon-button" href={`/contest/${contest.slug}`}>
-                        View →
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <h2>{isAdmin ? "All contests" : "Contests you host"}</h2>
+        <div className="admin-toolbar" style={{ marginTop: 12 }}>
+          <div className="admin-toolbar-search">
+            <IconSearch />
+            <input type="search" placeholder="Search contests…" value={search} onChange={(event) => setSearch(event.target.value)} aria-label="Search contests" />
           </div>
+          {status === "ready" && (
+            <span className="admin-toolbar-count">
+              {total} {total === 1 ? "contest" : "contests"}
+            </span>
+          )}
+        </div>
+
+        <div aria-live="polite">
+          {listMessage && (
+            <p className={`${listMessage.tone === "success" ? "form-success" : "form-error"} ${styles.flash}`} role={listMessage.tone === "error" ? "alert" : "status"}>
+              {listMessage.text}
+            </p>
+          )}
+        </div>
+
+        {status === "loading" && contests.length === 0 && <AdminTableSkeleton rows={4} />}
+        {status === "error" && <AdminErrorState message={loadErrorMessage} onRetry={load} />}
+        {status === "ready" && contests.length === 0 && (
+          <AdminEmptyState
+            message={
+              query
+                ? `No contests match "${query}".`
+                : isAdmin
+                  ? "No contests yet — create the first one above."
+                  : "You haven't created any contests yet — schedule your first one above."
+            }
+          />
+        )}
+
+        {showTable && (
+          <>
+            <div className="admin-table-wrap" aria-busy={status === "loading"} style={{ opacity: status === "loading" ? 0.6 : 1, transition: "opacity .15s" }}>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Window</th>
+                    <th>Problems</th>
+                    <th>Participants</th>
+                    {isAdmin && <th>Host</th>}
+                    <th>
+                      <span className={styles.srOnly}>Actions</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {contests.map((contest) => {
+                    const liveStatus = deriveContestStatus(contest, now);
+                    const isBusy = busyId === contest.id;
+                    return (
+                      <tr key={contest.id}>
+                        <td className="admin-cell-name">
+                          {contest.title}
+                          {!contest.isPublished && <span className={`badge badge-draft ${styles.titleBadge}`}>Draft</span>}
+                          <span className="admin-cell-sub">/{contest.slug}</span>
+                        </td>
+                        <td data-label="Status">
+                          <span className={`pill pill-contest-${liveStatus.toLowerCase()}`}>{statusLabel[liveStatus] ?? liveStatus}</span>
+                        </td>
+                        <td data-label="Window">
+                          {formatDateTime(contest.startTime)}
+                          <span className="admin-cell-sub">to {formatDateTime(contest.endTime)}</span>
+                        </td>
+                        <td data-label="Problems">{contest.problemCount}</td>
+                        <td data-label="Participants">{contest.participantCount}</td>
+                        {isAdmin && (
+                          <td data-label="Host">
+                            {contest.createdBy ? (
+                              <>
+                                {contest.createdBy.name}{" "}
+                                <span className={`${roleBadgeClass(contest.createdBy.role)} ${styles.titleBadge}`}>
+                                  {contest.createdBy.role === "guest" ? "host" : contest.createdBy.role}
+                                </span>
+                              </>
+                            ) : (
+                              <span className="admin-cell-sub">—</span>
+                            )}
+                          </td>
+                        )}
+                        <td className="admin-cell-actions">
+                          <Link className="icon-button" href={`/contest/${contest.slug}`} aria-label={`View ${contest.title}`}>
+                            View
+                          </Link>
+                          {contest.canEdit && (
+                            <>
+                              <Link className="icon-button" href={`/admin/contests/${contest.id}/edit`} aria-label={`Edit ${contest.title}`}>
+                                Edit
+                              </Link>
+                              <button
+                                type="button"
+                                className="icon-button icon-button-danger"
+                                disabled={isBusy}
+                                onClick={() => remove(contest)}
+                                aria-label={`Delete ${contest.title}`}
+                              >
+                                {isBusy ? "Deleting…" : "Delete"}
+                              </button>
+                            </>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <Pagination page={page} pageSize={PAGE_SIZE} total={total} onPageChange={setPage} itemLabel="contests" disabled={status === "loading"} />
+          </>
         )}
       </div>
     </AdminShell>
@@ -231,7 +298,7 @@ function AdminContestsContent() {
 
 export default function AdminContestsPage() {
   return (
-    <AdminRoute>
+    <AdminRoute allowRoles={MANAGER_ROLES}>
       <AdminContestsContent />
       <SiteFooter />
     </AdminRoute>
