@@ -3,8 +3,16 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { useAuth } from "@/providers/AuthProvider";
 import { ApiError, getErrorMessage } from "@/lib/api/client";
-import { getProposal, updateProposal, type ProposalDetail, type ProposalInput } from "@/lib/api/proposals";
+import {
+  getProposal,
+  PROPOSAL_COST_GEMS,
+  PROPOSAL_REJECT_REFUND_GEMS,
+  updateProposal,
+  type ProposalDetail,
+  type ProposalInput,
+} from "@/lib/api/proposals";
 import { ProposalForm } from "@/components/proposals/ProposalForm";
 import { Loader } from "@/components/ui/Loader";
 import { SiteHeader } from "@/app/_components/home/SiteHeader";
@@ -18,6 +26,7 @@ function EditProposalContent() {
   const params = useParams<{ id: string }>();
   const id = String(params?.id ?? "");
   const router = useRouter();
+  const { user, refresh } = useAuth();
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [error, setError] = useState<string | null>(null);
 
@@ -33,9 +42,18 @@ function EditProposalContent() {
   useEffect(load, [load]);
 
   const submit = async (input: ProposalInput) => {
+    // Sending a rejected proposal back for review costs the gems again.
+    const resubmit = state.status === "ready" && state.proposal.status === "rejected";
+    if (
+      resubmit &&
+      !window.confirm(`Send it back for review for ${PROPOSAL_COST_GEMS} gems? If it's rejected again, ${PROPOSAL_REJECT_REFUND_GEMS} gems come back to you.`)
+    ) {
+      return;
+    }
     setError(null);
     try {
       await updateProposal(id, input);
+      if (resubmit) void refresh();
       router.push(`/profile/proposals/${id}?saved=1`);
     } catch (requestError) {
       setError(requestError instanceof ApiError ? requestError.message : getErrorMessage(requestError, "Could not save your changes. Please try again."));
@@ -87,7 +105,10 @@ function EditProposalContent() {
         {proposal.status === "rejected" && (
           <div className={`${styles.card} ${styles.rejected}`}>
             <h2>Saving sends it back for review</h2>
-            <p>This proposal wasn&apos;t accepted last time. Improve it below — when you save, it goes back into the review queue.</p>
+            <p>
+              This proposal wasn&apos;t accepted last time. Improve it below — when you save, it goes back into the review queue. That counts as sending it
+              again, so it costs {PROPOSAL_COST_GEMS} gems{typeof user?.gems === "number" ? ` (you have ${user.gems})` : ""}.
+            </p>
             {proposal.reviewNote && (
               <p className={styles.reviewNote}>
                 <b>Note from the reviewer:</b> {proposal.reviewNote}
@@ -99,7 +120,7 @@ function EditProposalContent() {
           <ProposalForm
             key={proposal.updatedAt}
             initial={proposal}
-            submitLabel={proposal.status === "rejected" ? "Save and send for review" : "Save changes"}
+            submitLabel={proposal.status === "rejected" ? `Save and send for review (${PROPOSAL_COST_GEMS} gems)` : "Save changes"}
             submittingLabel="Saving…"
             cancelHref={`/profile/proposals/${id}`}
             error={error}

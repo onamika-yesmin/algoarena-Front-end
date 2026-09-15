@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useState } from "react";
+import { useAuth } from "@/providers/AuthProvider";
 import { ApiError, getErrorMessage } from "@/lib/api/client";
-import { deleteProposal, getProposal, type ProposalDetail } from "@/lib/api/proposals";
+import { deleteProposal, getProposal, PROPOSAL_REJECT_REFUND_GEMS, type ProposalDetail } from "@/lib/api/proposals";
 import { ProposalDetails } from "@/components/proposals/ProposalDetails";
 import { DifficultyTag, ProposalStatusBadge } from "@/components/proposals/ProposalBadges";
 import { Loader } from "@/components/ui/Loader";
@@ -32,7 +33,7 @@ function StatusCard({ proposal }: { proposal: ProposalDetail }) {
         <h2>Accepted — thank you!</h2>
         {proposal.problem?.isPublished ? (
           <>
-            <p>Your problem is live in the AlgoArena problem library.</p>
+            <p>Your problem is live in the AlgoArena problem library. An accepted proposal keeps its full gem cost.</p>
             {note}
             <Link className="button button-small" href={`/problems/${proposal.problem.slug}`}>
               Open the problem <span aria-hidden="true">→</span>
@@ -40,7 +41,10 @@ function StatusCard({ proposal }: { proposal: ProposalDetail }) {
           </>
         ) : (
           <>
-            <p>{proposal.problem ? "It's in the problem library as a draft and goes live once an admin publishes it." : "An admin accepted this proposal."}</p>
+            <p>
+              {proposal.problem ? "It's in the problem library as a draft and goes live once an admin publishes it." : "An admin accepted this proposal."} An
+              accepted proposal keeps its full gem cost.
+            </p>
             {note}
           </>
         )}
@@ -53,7 +57,9 @@ function StatusCard({ proposal }: { proposal: ProposalDetail }) {
       <div className={`${styles.card} ${styles.rejected}`}>
         <h2>Not accepted this time</h2>
         <p>
-          {reviewed ? `Reviewed on ${reviewed}. ` : ""}You can improve it and send it again — editing it puts it back in the review queue — or delete it.
+          {reviewed ? `Reviewed on ${reviewed}. ` : ""}
+          {PROPOSAL_REJECT_REFUND_GEMS} gems came back to you. You can improve it and send it again — that puts it back in the review queue and costs the gems
+          again — or delete it.
         </p>
         {note}
       </div>
@@ -63,7 +69,10 @@ function StatusCard({ proposal }: { proposal: ProposalDetail }) {
   return (
     <div className={`${styles.card} ${styles.pending}`}>
       <h2>Waiting for review</h2>
-      <p>Sent {formatDateTime(proposal.submittedAt) ?? "recently"}. An admin will accept it into the library or send it back with a note. Until then you can still edit or delete it.</p>
+      <p>
+        Sent {formatDateTime(proposal.submittedAt) ?? "recently"}. An admin will accept it into the library or send it back with a note. Until then you can still
+        edit it, or delete it and get the gems it cost back.
+      </p>
     </div>
   );
 }
@@ -71,12 +80,13 @@ function StatusCard({ proposal }: { proposal: ProposalDetail }) {
 function ProposalContent() {
   const params = useParams<{ id: string }>();
   const id = String(params?.id ?? "");
+  const { refresh } = useAuth();
   const searchParams = useSearchParams();
   const notice = searchParams?.get("sent") === "1" ? "Proposal sent! An admin will review it soon." : searchParams?.get("saved") === "1" ? "Changes saved." : null;
 
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [isDeleting, setIsDeleting] = useState(false);
-  const [deleted, setDeleted] = useState(false);
+  const [deleted, setDeleted] = useState<{ gemsRefunded: number } | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
   const load = useCallback(() => {
@@ -91,12 +101,15 @@ function ProposalContent() {
   useEffect(load, [load]);
 
   const remove = async (proposal: ProposalDetail) => {
-    if (!window.confirm(`Delete your proposal "${proposal.title}"? This can't be undone.`)) return;
+    const refundNote = proposal.status === "pending" ? " It hasn't been reviewed yet, so the gems it cost come back to you." : "";
+    if (!window.confirm(`Delete your proposal "${proposal.title}"?${refundNote} This can't be undone.`)) return;
     setIsDeleting(true);
     setActionError(null);
     try {
-      await deleteProposal(proposal.id);
-      setDeleted(true);
+      const result = await deleteProposal(proposal.id);
+      setDeleted({ gemsRefunded: result.gemsRefunded });
+      // The site header shows the gem balance.
+      if (result.gemsRefunded) void refresh();
     } catch (requestError) {
       setActionError(requestError instanceof ApiError ? requestError.message : getErrorMessage(requestError, "Could not delete this proposal."));
       load();
@@ -110,7 +123,9 @@ function ProposalContent() {
     body = (
       <div className={styles.card} role="status">
         <h2>Proposal deleted</h2>
-        <p>It&apos;s gone for good.</p>
+        <p>
+          It&apos;s gone for good.{deleted.gemsRefunded ? ` ${deleted.gemsRefunded} gems were returned to you.` : ""}
+        </p>
         <div className={styles.actions}>
           <Link className="button button-small" href="/profile#proposals">
             Back to your proposals <span aria-hidden="true">→</span>
@@ -165,6 +180,9 @@ function ProposalContent() {
             <ProposalStatusBadge status={proposal.status} />
             <DifficultyTag difficulty={proposal.difficulty} />
             <span className={styles.muted}>Last updated {formatDateTime(proposal.updatedAt)}</span>
+            <span className={styles.muted}>
+              · {proposal.gemsSpent} gems spent{proposal.gemsRefunded ? `, ${proposal.gemsRefunded} refunded` : ""}
+            </span>
           </div>
           <h2>{proposal.title}</h2>
           {editable && (
