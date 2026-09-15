@@ -12,7 +12,7 @@ import type { ReactNode } from "react";
 import { SiteHeader } from "@/app/_components/home/SiteHeader";
 import { useAuth } from "@/providers/AuthProvider";
 import type { UserRole } from "@/types/api";
-import { IconGrid, IconCode, IconUsers, IconTrophy, IconAlert, IconInbox, IconRefresh } from "./icons";
+import { IconGrid, IconCode, IconUsers, IconTrophy, IconAlert, IconInbox, IconRefresh, IconBulb } from "./icons";
 
 // Each section carries its own icon accent (see .admin-nav-item.accent-*
 // in globals.css) instead of every active item turning the same cyan —
@@ -26,6 +26,7 @@ const NAV_ITEMS: { href: string; label: string; icon: typeof IconGrid; exact: bo
   { href: "/admin/users", label: "Users", icon: IconUsers, exact: false, accent: "violet", roles: ["admin"] },
   { href: "/admin/contests", label: "Contests", icon: IconTrophy, exact: false, accent: "green", roles: ["admin", "guest"] },
   { href: "/admin/host-requests", label: "Host requests", icon: IconInbox, exact: false, accent: "orange", roles: ["admin"] },
+  { href: "/admin/proposals", label: "Proposals", icon: IconBulb, exact: false, accent: "cyan", roles: ["admin"] },
 ];
 
 interface AdminShellProps {
