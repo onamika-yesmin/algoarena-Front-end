@@ -10,6 +10,7 @@ import { updateProfile, changePassword } from "@/lib/api/auth";
 import { getErrorMessage } from "@/lib/api/client";
 import type { MyRank } from "@/types/api";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { MyProposalsPanel } from "@/components/proposals/MyProposalsPanel";
 
 const MAX_AVATAR_BYTES = 4 * 1024 * 1024;
 const ALLOWED_AVATAR_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
@@ -283,6 +284,7 @@ function ProfileContent() {
           )}
         </article>
       </section>
+      <MyProposalsPanel isAdmin={user.role === "admin"} />
     </main>
   );
 }
