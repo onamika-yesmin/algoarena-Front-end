@@ -557,7 +557,10 @@
 /* Action-cell buttons (Edit/Publish/Delete, Make admin/Block, View). Shared
    class instead of the old inline style="{display:flex,...}" so the mobile
    card layout below can override it without fighting inline styles. */
-.admin-cell-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+/* It stays a real table cell: a flex <td> drops out of the row's layout, so
+   its bottom border stopped lining up with the rest of the row. */
+.admin-cell-actions { text-align: right; }
+.admin-cell-actions > * { display: inline-block; vertical-align: middle; margin: 3px 0 3px 8px; }
 
 /* Admin tables → mobile cards. Below 700px a <table> with sticky headers is
    unusable: the row scrolls horizontally and the action buttons (Edit,
@@ -604,11 +607,12 @@
   }
   .admin-table-wrap tbody td:first-child.admin-cell-name { padding: 0 0 12px; }
   .admin-table-wrap .admin-cell-actions {
-    justify-content: flex-start;
+    text-align: left;
     padding-top: 12px;
     margin-top: 2px;
     border-top: 1px solid rgba(213,218,255,.08);
   }
+  .admin-table-wrap .admin-cell-actions > * { margin: 4px 8px 4px 0; }
 }
 
 /* Toolbar: search input with an icon, kept above tables. */
