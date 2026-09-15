@@ -256,3 +256,99 @@ export interface AdminUserListResult {
   page: number;
   limit: number;
 }
+
+// ---------------------------------------------------------------------------
+// Contest hosting: host requests (/host, /admin/host-requests) and the
+// contest manager (/admin/contests — admins see every contest, "guest" hosts
+// only the ones they created).
+
+export type HostRequestStatus = "pending" | "approved" | "rejected";
+
+export interface HostRequestUser {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+}
+
+export interface HostRequest {
+  id: string;
+  status: HostRequestStatus;
+  organization: string;
+  contestTitle: string;
+  contestDescription: string;
+  proposedStartTime: string | null;
+  proposedEndTime: string | null;
+  expectedParticipants: number | null;
+  contactEmail: string;
+  message: string;
+  reviewNote: string | null;
+  reviewedAt: string | null;
+  createdAt: string;
+  /** Only included on the admin endpoints. */
+  user?: HostRequestUser;
+}
+
+/** GET /api/host-requests/me — the caller's current role plus their latest request (any status). */
+export interface MyHostRequestResult {
+  role: UserRole;
+  request: HostRequest | null;
+}
+
+export interface HostRequestListResult {
+  items: HostRequest[];
+  total: number;
+  page: number;
+  limit: number;
+  /** Pending requests overall, whatever status filter was requested. */
+  pendingCount: number;
+}
+
+export interface ContestCreator {
+  id: string;
+  name: string;
+  role: UserRole;
+}
+
+export interface ManagedContestSummary {
+  id: string;
+  slug: string;
+  title: string;
+  status: ContestStatus;
+  startTime: string;
+  endTime: string;
+  isPublished: boolean;
+  problemCount: number;
+  participantCount: number;
+  createdBy: ContestCreator | null;
+  canEdit: boolean;
+}
+
+export interface ManagedContestListResult {
+  items: ManagedContestSummary[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface ManagedContestProblem {
+  problemId: string;
+  title: string | null;
+  slug: string | null;
+  difficulty: Difficulty | null;
+  points: number;
+}
+
+export interface ManagedContestDetail {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  startTime: string;
+  endTime: string;
+  isPublished: boolean;
+  status: ContestStatus;
+  createdBy: ContestCreator | null;
+  participantCount: number;
+  problems: ManagedContestProblem[];
+}
