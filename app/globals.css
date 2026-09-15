@@ -167,6 +167,9 @@
 .iobox .lab{color:#55d8d2;font-size:10px;display:block;margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px}
 
 .editor-shell{border:0;border-top:1px solid #303854;overflow:hidden;flex:1}
+/* Placeholder while Monaco downloads: same size and colour as the editor, so the panel doesn't collapse and jump. */
+.editor-loading{display:grid;place-items:center;min-height:360px;background:#1e1e1e;color:#8a8fa2;font:12px 'DM Mono',ui-monospace,monospace}
+.editor-loading-code{min-height:480px}
 /* Error marker from the last Run (MonacoEditor decorations): tinted line + red gutter bar. */
 .editor-error-line{background:rgba(255,128,128,.13)}
 .editor-error-gutter{background:#ff8080;width:3px !important;margin-left:4px}

@@ -7,7 +7,7 @@ import type { Language } from "@/types/api";
 
 // Monaco touches `window`/`navigator` at import time, so it must never be
 // server-rendered (see 06-TEAM-PLAN-12-DAYS.md's Day 10 "Monaco SSR bug" note).
-const Editor = dynamic(() => import("@monaco-editor/react"), { ssr: false, loading: () => <div className="editor-loading">Loading editor…</div> });
+const Editor = dynamic(() => import("@monaco-editor/react"), { ssr: false, loading: () => <div className="editor-loading editor-loading-code">Loading editor…</div> });
 
 type EditorInstance = Parameters<OnMount>[0];
 type MonacoInstance = Parameters<OnMount>[1];
