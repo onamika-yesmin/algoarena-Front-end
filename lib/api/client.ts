@@ -35,7 +35,7 @@ export function getErrorMessage(error: unknown, fallback = "Something went wrong
 }
 
 interface RequestOptions {
-  method?: "GET" | "POST" | "PATCH" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   /** A FormData body (e.g. an avatar upload) is sent as-is, multipart, with
    *  no Content-Type set — the browser fills in the boundary itself. Any
    *  other value is JSON-stringified as before. */
