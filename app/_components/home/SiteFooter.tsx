@@ -32,6 +32,8 @@ export function SiteFooter() {
           <Link href="/signin">Sign in</Link>
           <Link href="/profile">My profile</Link>
           {!isLoading && user?.role === "admin" && <Link href="/admin">Admin dashboard</Link>}
+          {!isLoading && user?.role === "guest" && <Link href="/admin/contests">Host panel</Link>}
+          {!isLoading && user?.role !== "admin" && user?.role !== "guest" && <Link href="/host">Host a contest</Link>}
         </div>
       </div>
       <div className="footer-bottom section-shell">
