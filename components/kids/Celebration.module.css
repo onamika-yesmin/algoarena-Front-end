@@ -1,0 +1,208 @@
+.dialog {
+  width: min(460px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  padding: 0;
+  border: 4px solid #1b2240;
+  border-radius: 30px;
+  background: linear-gradient(180deg, #fff8d6 0%, #ffffff 55%);
+  color: #1b2240;
+  font-family: inherit;
+  box-shadow: 0 10px 0 #1b2240, 0 40px 70px -30px rgba(0, 0, 0, 0.6);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.dialog[open] {
+  animation: popIn 0.4s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+.dialog::backdrop {
+  background: rgba(18, 28, 70, 0.55);
+  backdrop-filter: blur(3px);
+}
+
+.inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 22px 22px 18px;
+  text-align: center;
+}
+
+.mascot {
+  margin-bottom: -4px;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(28px, 7vw, 36px);
+}
+
+.stars {
+  display: flex;
+  gap: 6px;
+  line-height: 0;
+}
+
+.starSlot {
+  display: inline-block;
+  animation: starPop 0.55s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+
+.starSlot svg {
+  width: 58px;
+  height: 58px;
+}
+
+.starSlot:nth-child(2) svg {
+  width: 70px;
+  height: 70px;
+  margin-top: -10px;
+}
+
+.message {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.tip {
+  margin: 0;
+  padding: 8px 14px;
+  border-radius: 14px;
+  background: #eef4ff;
+  color: #28325a;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border: 3px dashed #e0a100;
+  border-radius: 18px;
+  background: #fff3c4;
+  text-align: left;
+  animation: starPop 0.6s 0.9s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+
+.badge b {
+  display: block;
+  font-family: var(--kq-display);
+  font-size: 18px;
+}
+
+.badge span:not(.badgeMedal) {
+  font-weight: 700;
+}
+
+.badgeMedal {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #ffc83d;
+  border: 3px solid #1b2240;
+  font-size: 26px;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.secondary {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.save {
+  margin: 4px 0 0;
+  color: #465072;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.piece {
+  position: absolute;
+  top: -20px;
+  left: var(--left);
+  width: 10px;
+  height: 16px;
+  border-radius: 3px;
+  background: var(--color);
+  opacity: 0;
+  animation: fall var(--duration) ease-in var(--delay) forwards;
+}
+
+.piece:nth-child(3n) {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+@keyframes fall {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(var(--rotate));
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--drift), 640px) rotate(calc(var(--rotate) + 540deg));
+  }
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes starPop {
+  from {
+    transform: scale(0) rotate(-35deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog[open],
+  .starSlot,
+  .badge {
+    animation: none;
+  }
+
+  .confetti {
+    display: none;
+  }
+}
