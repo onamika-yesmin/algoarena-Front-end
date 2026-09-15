@@ -207,13 +207,17 @@ export interface ContestScoreboardResult {
   entries: ContestScoreboardEntry[];
 }
 
+/** "guest" is an approved contest host: a regular user who can also manage
+ *  their own contests from the admin contest manager (see /host). */
+export type UserRole = "user" | "guest" | "admin";
+
 export interface CurrentUser {
   id?: string;
   _id?: string;
   name: string;
   email: string;
   profilePicUrl?: string;
-  role: "user" | "admin";
+  role: UserRole;
   status: "active" | "blocked";
   createdAt?: string;
   /** True for an email/password account; false for a Google-only account,
@@ -240,7 +244,7 @@ export interface AdminUser {
   id: string;
   name: string;
   email: string;
-  role: "user" | "admin";
+  role: UserRole;
   status: "active" | "blocked";
   profilePicUrl?: string;
   createdAt: string;
