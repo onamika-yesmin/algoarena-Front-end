@@ -1,0 +1,111 @@
+/* Shared by the learner's proposal pages: new, view and edit. */
+
+.page h1 {
+  overflow-wrap: anywhere;
+}
+
+.back {
+  display: inline-flex;
+  margin-bottom: 18px;
+}
+
+.lead {
+  margin: 0;
+  max-width: 700px;
+  color: #adb5ce;
+  line-height: 1.75;
+}
+
+.stack {
+  display: grid;
+  gap: 16px;
+  margin-top: 28px;
+  min-width: 0;
+}
+
+.card {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+  min-width: 0;
+  padding: 24px;
+  border: 1px solid #303854;
+  border-radius: 12px;
+  background: #12172b;
+}
+
+.card > * {
+  max-width: 100%;
+}
+
+.formCard {
+  justify-items: stretch;
+}
+
+.card h2 {
+  margin: 0;
+  font: 700 21px/1.25 'Space Grotesk', system-ui, sans-serif;
+  color: #fff;
+  overflow-wrap: anywhere;
+}
+
+.card > p {
+  margin: 0;
+  color: #aeb4c9;
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+.pending {
+  border-left: 3px solid var(--orange, #ffb254);
+}
+
+.accepted {
+  border-left: 3px solid #65dfad;
+}
+
+.rejected {
+  border-left: 3px solid #ff8080;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.muted {
+  color: #8a8fa2;
+  font: 11.5px 'DM Mono', ui-monospace, monospace;
+}
+
+.reviewNote {
+  width: 100%;
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #0d1020;
+  color: #c3c8dd;
+  font-size: 13px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.reviewNote b {
+  color: #fff;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 18px 16px;
+  }
+}

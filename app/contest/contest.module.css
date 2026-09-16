@@ -1,0 +1,96 @@
+/* Contest list call to action (app/contest/page.tsx) and the registration
+   gate on a contest page (app/contest/[id]/page.tsx). */
+
+.cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 18px;
+  margin-top: 20px;
+  padding: 14px 18px;
+  border: 1px solid #303854;
+  border-left: 3px solid var(--violet, #8067ff);
+  border-radius: 10px;
+  background: #12172b;
+}
+
+.ctaText {
+  margin: 0;
+  color: #c3c8dd;
+  font-size: 13.5px;
+}
+
+.registerBox {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin-top: 18px;
+  padding: 14px 16px;
+  border: 1px solid #303854;
+  border-radius: 10px;
+  background: #12172b;
+}
+
+.registerBoxLocked {
+  border-color: rgba(255, 178, 84, 0.4);
+  border-left: 3px solid #ffb254;
+  background: rgba(58, 47, 16, 0.3);
+}
+
+.registerText {
+  flex: 1 1 260px;
+  margin: 0;
+  color: #c3c8dd;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.registerText b {
+  color: #fff;
+}
+
+.registerText svg {
+  vertical-align: -2px;
+  color: #ffb254;
+}
+
+.registerError {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+.lockedNote {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffb254;
+  font: 12px 'DM Mono', ui-monospace, monospace;
+}
+
+.lockTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  color: #ffb254;
+  font: 10.5px 'DM Mono', ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+div.lockedCard {
+  cursor: not-allowed;
+  border-style: dashed;
+}
+
+div.lockedCard h3 {
+  color: #aeb4c9;
+}
+
+div.lockedCard:hover {
+  transform: none;
+  border-color: #3d4673;
+  box-shadow: none;
+}

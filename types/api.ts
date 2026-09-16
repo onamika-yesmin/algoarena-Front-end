@@ -11,7 +11,7 @@ export interface ApiResponse<T> {
 
 export type Difficulty = "EASY" | "MEDIUM" | "HARD";
 
-export type Language = "python" | "cpp" | "javascript";
+export type Language = "python" | "cpp" | "javascript" | "typescript";
 
 export interface ProblemSummary {
   id: string;
@@ -53,6 +53,10 @@ export interface ProblemDetail {
   starterCode: Partial<Record<Language, string>>;
   mySubmissionsCount: number;
   myBestVerdict: string | null;
+  /** Highest hint tier this user has already unlocked on the problem (0 if
+   *  none), and the score penalty those hints cost, as a percentage. */
+  myHintTier?: number;
+  myHintPenaltyPercent?: number;
 }
 
 export type Verdict =
@@ -203,13 +207,17 @@ export interface ContestScoreboardResult {
   entries: ContestScoreboardEntry[];
 }
 
+/** "guest" is an approved contest host: a regular user who can also manage
+ *  their own contests from the admin contest manager (see /host). */
+export type UserRole = "user" | "guest" | "admin";
+
 export interface CurrentUser {
   id?: string;
   _id?: string;
   name: string;
   email: string;
   profilePicUrl?: string;
-  role: "user" | "admin";
+  role: UserRole;
   status: "active" | "blocked";
   createdAt?: string;
   /** True for an email/password account; false for a Google-only account,
@@ -236,7 +244,7 @@ export interface AdminUser {
   id: string;
   name: string;
   email: string;
-  role: "user" | "admin";
+  role: UserRole;
   status: "active" | "blocked";
   profilePicUrl?: string;
   createdAt: string;
@@ -247,4 +255,100 @@ export interface AdminUserListResult {
   total: number;
   page: number;
   limit: number;
+}
+
+// ---------------------------------------------------------------------------
+// Contest hosting: host requests (/host, /admin/host-requests) and the
+// contest manager (/admin/contests — admins see every contest, "guest" hosts
+// only the ones they created).
+
+export type HostRequestStatus = "pending" | "approved" | "rejected";
+
+export interface HostRequestUser {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+}
+
+export interface HostRequest {
+  id: string;
+  status: HostRequestStatus;
+  organization: string;
+  contestTitle: string;
+  contestDescription: string;
+  proposedStartTime: string | null;
+  proposedEndTime: string | null;
+  expectedParticipants: number | null;
+  contactEmail: string;
+  message: string;
+  reviewNote: string | null;
+  reviewedAt: string | null;
+  createdAt: string;
+  /** Only included on the admin endpoints. */
+  user?: HostRequestUser;
+}
+
+/** GET /api/host-requests/me — the caller's current role plus their latest request (any status). */
+export interface MyHostRequestResult {
+  role: UserRole;
+  request: HostRequest | null;
+}
+
+export interface HostRequestListResult {
+  items: HostRequest[];
+  total: number;
+  page: number;
+  limit: number;
+  /** Pending requests overall, whatever status filter was requested. */
+  pendingCount: number;
+}
+
+export interface ContestCreator {
+  id: string;
+  name: string;
+  role: UserRole;
+}
+
+export interface ManagedContestSummary {
+  id: string;
+  slug: string;
+  title: string;
+  status: ContestStatus;
+  startTime: string;
+  endTime: string;
+  isPublished: boolean;
+  problemCount: number;
+  participantCount: number;
+  createdBy: ContestCreator | null;
+  canEdit: boolean;
+}
+
+export interface ManagedContestListResult {
+  items: ManagedContestSummary[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface ManagedContestProblem {
+  problemId: string;
+  title: string | null;
+  slug: string | null;
+  difficulty: Difficulty | null;
+  points: number;
+}
+
+export interface ManagedContestDetail {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  startTime: string;
+  endTime: string;
+  isPublished: boolean;
+  status: ContestStatus;
+  createdBy: ContestCreator | null;
+  participantCount: number;
+  problems: ManagedContestProblem[];
 }

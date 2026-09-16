@@ -1,0 +1,172 @@
+.panel {
+  display: grid;
+  gap: 16px;
+  margin-top: 14px;
+  min-width: 0;
+}
+
+.title {
+  margin: 8px 0 6px;
+  font: 700 22px/1.25 'Space Grotesk', system-ui, sans-serif;
+  color: #fff;
+}
+
+.lead {
+  margin: 0;
+  max-width: 680px;
+  color: #aeb4c9;
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+.meter {
+  display: grid;
+  gap: 8px;
+  max-width: 560px;
+  padding: 14px 16px;
+  border: 1px solid #303854;
+  border-radius: 10px;
+  background: #0d1020;
+}
+
+.meterRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 12px;
+  color: #c3c8dd;
+  font: 12px 'DM Mono', ui-monospace, monospace;
+}
+
+.gems {
+  color: #ffb254;
+  font-weight: 700;
+}
+
+.bar {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #242a4a;
+}
+
+.bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ffb254, #ffd166);
+  transition: width 0.3s ease;
+}
+
+.barDone span {
+  background: linear-gradient(90deg, #65dfad, #55d8d2);
+}
+
+.cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+}
+
+.locked {
+  margin: 0;
+  max-width: 680px;
+  color: #aeb4c9;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.adminNote {
+  margin: 0;
+  color: #9da5bf;
+  font-size: 12.5px;
+}
+
+.empty {
+  margin: 0;
+  padding: 16px;
+  border: 1px dashed #303854;
+  border-radius: 10px;
+  color: #9da5bf;
+  font-size: 13px;
+  text-align: center;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.item {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px 16px;
+  padding: 14px 16px;
+  border: 1px solid #303854;
+  border-radius: 10px;
+  background: #12172b;
+}
+
+.itemMain {
+  display: grid;
+  flex: 1 1 320px;
+  gap: 8px;
+  min-width: 0;
+}
+
+.itemTitle {
+  font: 700 15px 'Space Grotesk', system-ui, sans-serif;
+  color: #fff;
+  overflow-wrap: anywhere;
+}
+
+.itemTitle:hover {
+  color: var(--cyan, #55d8d2);
+}
+
+.itemMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.muted {
+  margin: 0;
+  color: #8a8fa2;
+  font: 11.5px 'DM Mono', ui-monospace, monospace;
+}
+
+.note {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #0d1020;
+  color: #c3c8dd;
+  font-size: 12.5px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.note b {
+  color: #fff;
+}
+
+.accepted {
+  margin: 0;
+  color: #65dfad;
+  font-size: 12.5px;
+}
+
+.itemActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+}

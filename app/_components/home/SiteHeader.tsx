@@ -19,6 +19,7 @@ const PRIMARY_LINKS: NavLink[] = [
   { href: "/contest", label: "Contests" },
   { href: "/leaderboard", label: "Leaderboard" },
   { href: "/community", label: "Community" },
+  { href: "/kids", label: "Kids" },
 ];
 
 export function SiteHeader() {
@@ -28,11 +29,18 @@ export function SiteHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
-  // A signed-in user unlocks a couple of extra links; admins get one more on
+  // A signed-in user unlocks a couple of extra links; admins (and approved
+  // guest contest hosts, who only get the contest manager) get one more on
   // top of that. Computed once per render so both the desktop nav and the
   // mobile drawer stay in sync from a single source of truth.
   const signedInLinks: NavLink[] = !isLoading && user ? [{ href: "/analytics", label: "Analytics" }, { href: "/interview", label: "Interview" }] : [];
-  const adminLink: NavLink | null = !isLoading && user?.role === "admin" ? { href: "/admin", label: "Admin" } : null;
+  const adminLink: NavLink | null =
+    !isLoading && user?.role === "admin"
+      ? { href: "/admin", label: "Admin" }
+      : !isLoading && user?.role === "guest"
+        ? { href: "/admin/contests", label: "Host panel" }
+        : null;
+  const roleBadge = user?.role === "admin" ? "Admin" : user?.role === "guest" ? "Host" : null;
   const allLinks = [...PRIMARY_LINKS, ...signedInLinks, ...(adminLink ? [adminLink] : [])];
 
   const isActive = (href: string) => pathname === href || pathname?.startsWith(`${href}/`);
@@ -104,7 +112,7 @@ export function SiteHeader() {
                 <span className="header-avatar header-avatar-fallback">{user.name.slice(0, 1).toUpperCase()}</span>
               )}
               <span className="header-account-name">{user.name}</span>
-              {user.role === "admin" && <span className="header-role-badge">Admin</span>}
+              {roleBadge && <span className="header-role-badge">{roleBadge}</span>}
             </Link>
             <button className="sign-in header-signout" type="button" onClick={handleSignOut} disabled={isSigningOut}>
               {isSigningOut ? "Signing out…" : "Sign out"}
@@ -145,7 +153,7 @@ export function SiteHeader() {
                   <span className="header-avatar header-avatar-fallback">{user.name.slice(0, 1).toUpperCase()}</span>
                 )}
                 <span>{user.name}</span>
-                {user.role === "admin" && <span className="header-role-badge">Admin</span>}
+                {roleBadge && <span className="header-role-badge">{roleBadge}</span>}
                 {typeof user.gems === "number" && (
                   <span className="header-gems">
                     <IconGem /> {user.gems}

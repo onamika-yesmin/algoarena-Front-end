@@ -90,6 +90,15 @@ function InterviewRoomContent() {
   const totalQuestions = session.totalQuestions ?? 5;
   const questionProgress = session.status === "completed" ? totalQuestions : Math.min(candidateTurns + 1, totalQuestions);
 
+  // A completed session's closing feedback is also appended as the final
+  // interviewer message (interview.service.ts) — it's already shown in the
+  // feedback panel below, so don't render it a second time in the chat.
+  const lastMessage = session.messages[session.messages.length - 1];
+  const visibleMessages =
+    session.status === "completed" && session.feedback && lastMessage?.role === "interviewer" && lastMessage.content === session.feedback
+      ? session.messages.slice(0, -1)
+      : session.messages;
+
   return (
     <main className={styles.roomShell}>
       <div className={styles.roomHead}>
@@ -107,7 +116,7 @@ function InterviewRoomContent() {
 
       <div className={styles.chatShell}>
         <div className={styles.messageList} ref={messageListRef}>
-          {session.messages.map((message, index) => (
+          {visibleMessages.map((message, index) => (
             <div
               key={index}
               className={`${styles.messageRow} ${

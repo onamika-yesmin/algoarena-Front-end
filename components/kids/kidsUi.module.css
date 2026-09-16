@@ -1,0 +1,391 @@
+/* Code Quest shared look: design tokens, chunky buttons, cards, speech
+   bubbles, stars and world colours. Scoped to the kids section — the site
+   header and footer keep the global dark theme. */
+
+.shell {
+  --kq-ink: #1b2240;
+  --kq-ink-soft: #465072;
+  --kq-card: #ffffff;
+  --kq-line: rgba(27, 34, 64, 0.12);
+  --kq-sun: #ffc83d;
+  --kq-sun-hover: #ffd766;
+  --kq-go: #22c55e;
+  --kq-go-hover: #3bd673;
+  --kq-good: #15803d;
+  --kq-bad: #b4233f;
+  --kq-warn: #9a5b00;
+  --kq-radius: 24px;
+  --kq-shadow: 0 16px 34px -20px rgba(27, 34, 64, 0.55), 0 4px 0 rgba(27, 34, 64, 0.08);
+  --kq-display: var(--font-kids-display, "Fredoka"), "Baloo 2", "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+  --kq-body: var(--font-kids-body, "Nunito"), "Segoe UI", "Trebuchet MS", system-ui, -apple-system, sans-serif;
+  --kq-mono: "DM Mono", ui-monospace, "Cascadia Code", Consolas, "Courier New", monospace;
+
+  position: relative;
+  isolation: isolate;
+  /* clip (not hidden) so the drifting clouds are cut off without turning this
+     into a scroll container — that would break the sticky puzzle board. */
+  overflow: hidden;
+  overflow: clip;
+  min-height: calc(100vh - 78px);
+  padding-block: 28px 88px;
+  color: var(--kq-ink);
+  font-family: var(--kq-body);
+  font-size: 17px;
+  line-height: 1.5;
+  background:
+    radial-gradient(circle at 88% 6%, rgba(255, 236, 153, 0.9) 0 90px, rgba(255, 236, 153, 0) 220px),
+    linear-gradient(180deg, #7fcdfd 0%, #bfe8ff 34%, #e9f7ff 62%, #fff6d9 100%);
+}
+
+.shell h1,
+.shell h2,
+.shell h3,
+.shell h4 {
+  font-family: var(--kq-display);
+  color: var(--kq-ink);
+  letter-spacing: 0;
+  line-height: 1.15;
+}
+
+.shell :focus-visible {
+  outline: 4px solid #1d4ed8;
+  outline-offset: 3px;
+}
+
+.shell ::selection {
+  background: #ffe28a;
+  color: var(--kq-ink);
+}
+
+.clouds {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.clouds span {
+  position: absolute;
+  height: 46px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 34px -18px 0 6px rgba(255, 255, 255, 0.85), 74px 0 0 -4px rgba(255, 255, 255, 0.85);
+  animation: drift 60s linear infinite;
+}
+
+.clouds span:nth-child(1) {
+  top: 70px;
+  left: -8%;
+  width: 120px;
+}
+
+.clouds span:nth-child(2) {
+  top: 240px;
+  left: 62%;
+  width: 90px;
+  opacity: 0.7;
+  animation-duration: 80s;
+  animation-delay: -30s;
+}
+
+.clouds span:nth-child(3) {
+  top: 520px;
+  left: 18%;
+  width: 70px;
+  opacity: 0.6;
+  animation-duration: 95s;
+  animation-delay: -50s;
+}
+
+@keyframes drift {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(60vw);
+  }
+}
+
+.container {
+  position: relative;
+  width: min(1180px, 100%);
+  margin-inline: auto;
+  padding-inline: 16px;
+}
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 10px 24px;
+  border: 3px solid var(--kq-ink);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--kq-ink);
+  font: 600 18px/1.1 var(--kq-display);
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 5px 0 var(--kq-ink);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 var(--kq-ink);
+}
+
+.btn:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--kq-ink);
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.5;
+  transform: none;
+  box-shadow: 0 5px 0 var(--kq-ink);
+}
+
+.btnPrimary {
+  background: var(--kq-sun);
+}
+
+.btnPrimary:hover {
+  background: var(--kq-sun-hover);
+}
+
+.btnGo {
+  background: var(--kq-go);
+}
+
+.btnGo:hover {
+  background: var(--kq-go-hover);
+}
+
+.btnSoft {
+  background: #eaf2ff;
+}
+
+.btnSoft:hover {
+  background: #f3f7ff;
+}
+
+.btnSmall {
+  min-height: 44px;
+  padding: 6px 16px;
+  border-width: 2.5px;
+  font-size: 16px;
+  box-shadow: 0 4px 0 var(--kq-ink);
+}
+
+.btnSmall:hover {
+  box-shadow: 0 5px 0 var(--kq-ink);
+}
+
+.btnSmall:disabled,
+.btnSmall[aria-disabled="true"] {
+  box-shadow: 0 4px 0 var(--kq-ink);
+}
+
+.btnIcon {
+  width: 44px;
+  padding: 0;
+}
+
+/* ---------- Surfaces ---------- */
+
+.card {
+  background: var(--kq-card);
+  border: 2px solid var(--kq-line);
+  border-radius: var(--kq-radius);
+  box-shadow: var(--kq-shadow);
+  padding: 22px;
+}
+
+.bubble {
+  position: relative;
+  background: #fff;
+  border: 3px solid var(--kq-ink);
+  border-radius: 22px;
+  padding: 12px 18px;
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.4;
+  box-shadow: 0 4px 0 var(--kq-ink);
+}
+
+/* Tail pointing left, toward the mascot. */
+.bubble::after {
+  content: "";
+  position: absolute;
+  left: -12px;
+  top: 22px;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-left: 3px solid var(--kq-ink);
+  border-bottom: 3px solid var(--kq-ink);
+  transform: rotate(45deg);
+}
+
+/* Tail pointing down (used when the bubble sits above the mascot). */
+.bubbleDown::after {
+  left: 44px;
+  top: auto;
+  bottom: -12px;
+  border-left: 0;
+  border-right: 3px solid var(--kq-ink);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--world-soft, #eaf2ff);
+  color: var(--world-deep, var(--kq-ink));
+  font: 600 14px/1.3 var(--kq-display);
+}
+
+.inlineCode {
+  padding: 1px 6px;
+  border-radius: 7px;
+  background: #eef1fb;
+  border: 1px solid #d9def0;
+  color: #3b2a8c;
+  font: 0.9em/1.4 var(--kq-mono);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  padding: 12px 16px;
+  border-radius: 18px;
+  border: 2px solid #f0c36a;
+  background: #fff4d6;
+  color: #5c3b00;
+  font-weight: 700;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Stars ---------- */
+
+.stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  line-height: 0;
+}
+
+.star {
+  width: 22px;
+  height: 22px;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+
+.stars_sm .star {
+  width: 16px;
+  height: 16px;
+}
+
+.stars_lg .star {
+  width: 52px;
+  height: 52px;
+}
+
+.starOn {
+  fill: #ffc83d;
+  stroke: #a86a00;
+}
+
+.starOff {
+  fill: #e3e8f3;
+  stroke: #a9b3ca;
+}
+
+/* ---------- World colours ---------- */
+
+.theme_meadow {
+  --world: #3fb950;
+  --world-deep: #1d7a36;
+  --world-soft: #e3f8e1;
+}
+
+.theme_lagoon {
+  --world: #2aa3e0;
+  --world-deep: #0b6fa4;
+  --world-soft: #ddf2fc;
+}
+
+.theme_caves {
+  --world: #8b5cf6;
+  --world-deep: #6533d6;
+  --world-soft: #efe8ff;
+}
+
+.theme_island {
+  --world: #ff9f43;
+  --world-deep: #a64b00;
+  --world-soft: #ffefd9;
+}
+
+.theme_station {
+  --world: #ec4899;
+  --world-deep: #b8175a;
+  --world-soft: #fde6f2;
+}
+
+@media (max-width: 640px) {
+  .shell {
+    font-size: 16px;
+    padding-block: 18px 64px;
+  }
+
+  .card {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .btn {
+    padding-inline: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clouds span {
+    animation: none;
+  }
+
+  .btn {
+    transition: none;
+  }
+
+  .btn:hover,
+  .btn:active {
+    transform: none;
+  }
+}

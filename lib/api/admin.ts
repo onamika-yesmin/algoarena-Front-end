@@ -1,18 +1,20 @@
 import { apiRequest } from "./client";
-import type { AdminStats, AdminUser, AdminUserListResult, Difficulty, Language } from "@/types/api";
+import type { AdminStats, AdminUser, AdminUserListResult, Difficulty, Language, UserRole } from "@/types/api";
 
 export const getAdminStats = () => apiRequest<AdminStats>("/api/admin/stats");
 
-export const listAdminUsers = (params: { page?: number; limit?: number; search?: string } = {}) => {
+/** `role` narrows the list to one role; omit it for everyone. */
+export const listAdminUsers = (params: { page?: number; limit?: number; search?: string; role?: UserRole } = {}) => {
   const query = new URLSearchParams();
   if (params.page) query.set("page", String(params.page));
   if (params.limit) query.set("limit", String(params.limit));
   if (params.search) query.set("search", params.search);
+  if (params.role) query.set("role", params.role);
   const queryString = query.toString();
   return apiRequest<AdminUserListResult>(`/api/admin/users${queryString ? `?${queryString}` : ""}`);
 };
 
-export const updateAdminUser = (id: string, payload: { role?: "user" | "admin"; status?: "active" | "blocked" }) =>
+export const updateAdminUser = (id: string, payload: { role?: UserRole; status?: AdminUser["status"] }) =>
   apiRequest<AdminUser>(`/api/admin/users/${id}`, { method: "PATCH", body: payload });
 
 export interface AdminProblemSummary {
@@ -91,7 +93,12 @@ export interface AdminProblemInput {
 
 export const createAdminProblem = (payload: AdminProblemInput) => apiRequest<{ id: string }>("/api/problems", { method: "POST", body: payload });
 
-export const updateAdminProblem = (id: string, payload: Partial<AdminProblemInput>) =>
+// `referenceSolution: null` clears a saved solution — `undefined` would just
+// be dropped by JSON.stringify and leave the old one in place.
+export const updateAdminProblem = (
+  id: string,
+  payload: Partial<Omit<AdminProblemInput, "referenceSolution">> & { referenceSolution?: AdminReferenceSolution | null },
+) =>
   apiRequest<{ id: string }>(`/api/problems/${id}`, { method: "PATCH", body: payload });
 
 export const deleteAdminProblem = (id: string) => apiRequest<null>(`/api/problems/admin/${id}`, { method: "DELETE" });

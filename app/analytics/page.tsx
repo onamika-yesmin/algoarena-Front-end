@@ -115,7 +115,10 @@ function ProgressHistory({ history }: { history: AnalyticsHistoryEntry[] }) {
     <div className={styles.historyList}>
       {[...history].reverse().map((day) => (
         <div className={styles.historyRow} key={day.date}>
-          <span className={styles.historyDate}>{new Date(day.date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</span>
+          {/* day.date is a "YYYY-MM-DD" day key, which new Date() parses as
+              UTC midnight — format it in UTC too, or anyone west of UTC sees
+              the previous day. */}
+          <span className={styles.historyDate}>{new Date(day.date).toLocaleDateString(undefined, { month: "short", day: "numeric", timeZone: "UTC" })}</span>
           <span className={styles.historyMetric}>
             <b>{day.problemsSolved}</b> solved
           </span>

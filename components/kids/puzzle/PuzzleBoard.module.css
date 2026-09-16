@@ -1,0 +1,244 @@
+.frame {
+  --board-bg: #7fcf5a;
+  --floor: #c9f29b;
+  --floor-alt: #b8e986;
+  --wall-bg: #9ad96b;
+
+  width: 100%;
+  margin-inline: auto;
+  padding: 10px;
+  border: 4px solid #1b2240;
+  border-radius: 26px;
+  background: var(--board-bg);
+  box-shadow: 0 8px 0 #1b2240, 0 24px 40px -24px rgba(27, 34, 64, 0.6);
+}
+
+.world_lagoon {
+  --board-bg: #1f8fd0;
+  --floor: #f7dcaa;
+  --floor-alt: #efcd92;
+  --wall-bg: #4cb8ee;
+}
+
+.world_caves {
+  --board-bg: #3f3170;
+  --floor: #ece4ff;
+  --floor-alt: #ddd1fa;
+  --wall-bg: #5d4c94;
+}
+
+.board {
+  position: relative;
+  display: grid;
+  width: 100%;
+}
+
+.cell {
+  position: relative;
+  padding: 2px;
+  min-width: 0;
+}
+
+.tile {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+}
+
+.floor {
+  background: var(--floor);
+}
+
+.floorAlt {
+  background: var(--floor-alt);
+}
+
+.wall {
+  background: var(--wall-bg);
+}
+
+.art {
+  grid-area: 1 / 1;
+  width: 86%;
+  height: 86%;
+  overflow: visible;
+}
+
+.trail {
+  grid-area: 1 / 1;
+  width: 18%;
+  height: 18%;
+  border-radius: 50%;
+  background: rgba(27, 34, 64, 0.3);
+}
+
+.gem {
+  transition: transform 0.35s ease, opacity 0.35s ease;
+  animation: gemFloat 2.4s ease-in-out infinite;
+}
+
+.gemGone {
+  opacity: 0;
+  transform: translateY(-45%) scale(0.2);
+  animation: none;
+}
+
+.flagWave {
+  transform-origin: 15px 12px;
+  animation: flagWave 0.5s ease-in-out infinite alternate;
+}
+
+.sparkle {
+  animation: twinkle 2s ease-in-out infinite;
+}
+
+.robot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  padding: 4%;
+  pointer-events: none;
+  transition: transform 0.36s cubic-bezier(0.45, 0.05, 0.3, 1);
+}
+
+.robotSpin {
+  width: 100%;
+  height: 100%;
+  transition: transform 0.3s ease;
+}
+
+.robotBody {
+  width: 100%;
+  height: 100%;
+}
+
+.token {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 3px 0 rgba(27, 34, 64, 0.35));
+}
+
+/* Effects run in Bolt's own frame, so "up" is always the way Bolt faces. */
+.effect_bump {
+  animation: bump 0.5s ease-in-out;
+}
+
+.effect_noGem {
+  animation: shrug 0.5s ease-in-out;
+}
+
+.effect_win {
+  animation: celebrate 0.9s ease-in-out 2;
+}
+
+@keyframes bump {
+  0% {
+    transform: translateY(0);
+  }
+  35% {
+    transform: translateY(-24%);
+  }
+  55% {
+    transform: translateY(-6%) rotate(-10deg);
+  }
+  75% {
+    transform: rotate(10deg);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+@keyframes shrug {
+  0%,
+  100% {
+    transform: none;
+  }
+  25% {
+    transform: translateX(-10%);
+  }
+  75% {
+    transform: translateX(10%);
+  }
+}
+
+@keyframes celebrate {
+  0%,
+  100% {
+    transform: none;
+  }
+  40% {
+    transform: translateY(-18%) scale(1.12) rotate(180deg);
+  }
+  70% {
+    transform: scale(1.05) rotate(360deg);
+  }
+}
+
+@keyframes gemFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6%);
+  }
+}
+
+@keyframes flagWave {
+  from {
+    transform: skewY(0);
+  }
+  to {
+    transform: skewY(-8deg) scaleX(0.94);
+  }
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .frame {
+    padding: 6px;
+    border-width: 3px;
+    border-radius: 20px;
+  }
+
+  .cell {
+    padding: 1.5px;
+  }
+
+  .tile {
+    border-radius: 7px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .robot,
+  .robotSpin,
+  .gem {
+    transition: none;
+  }
+
+  .gem,
+  .flagWave,
+  .sparkle,
+  .effect_bump,
+  .effect_noGem,
+  .effect_win {
+    animation: none;
+  }
+}

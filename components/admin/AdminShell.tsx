@@ -10,17 +10,23 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { SiteHeader } from "@/app/_components/home/SiteHeader";
-import { IconGrid, IconCode, IconUsers, IconTrophy, IconAlert, IconInbox, IconRefresh } from "./icons";
+import { useAuth } from "@/providers/AuthProvider";
+import type { UserRole } from "@/types/api";
+import { IconGrid, IconCode, IconUsers, IconTrophy, IconAlert, IconInbox, IconRefresh, IconBulb } from "./icons";
 
 // Each section carries its own icon accent (see .admin-nav-item.accent-*
 // in globals.css) instead of every active item turning the same cyan —
 // same 4-color mapping reused by the overview stat cards and quick-link
 // cards so a section reads as the same color everywhere it appears.
-const NAV_ITEMS = [
-  { href: "/admin", label: "Overview", icon: IconGrid, exact: true, accent: "orange" },
-  { href: "/admin/problems", label: "Problems", icon: IconCode, exact: false, accent: "cyan" },
-  { href: "/admin/users", label: "Users", icon: IconUsers, exact: false, accent: "violet" },
-  { href: "/admin/contests", label: "Contests", icon: IconTrophy, exact: false, accent: "green" },
+// `roles` lists who can use a section: guest contest hosts only ever see the
+// contest manager (the backend enforces the same split on every endpoint).
+const NAV_ITEMS: { href: string; label: string; icon: typeof IconGrid; exact: boolean; accent: string; roles: readonly UserRole[] }[] = [
+  { href: "/admin", label: "Overview", icon: IconGrid, exact: true, accent: "orange", roles: ["admin"] },
+  { href: "/admin/problems", label: "Problems", icon: IconCode, exact: false, accent: "cyan", roles: ["admin"] },
+  { href: "/admin/users", label: "Users", icon: IconUsers, exact: false, accent: "violet", roles: ["admin"] },
+  { href: "/admin/contests", label: "Contests", icon: IconTrophy, exact: false, accent: "green", roles: ["admin", "guest"] },
+  { href: "/admin/host-requests", label: "Host requests", icon: IconInbox, exact: false, accent: "orange", roles: ["admin"] },
+  { href: "/admin/proposals", label: "Proposals", icon: IconBulb, exact: false, accent: "cyan", roles: ["admin"] },
 ];
 
 interface AdminShellProps {
@@ -33,15 +39,18 @@ interface AdminShellProps {
 
 export function AdminShell({ eyebrow, title, description, actions, children }: AdminShellProps) {
   const pathname = usePathname();
+  const { user } = useAuth();
+  const role: UserRole = user?.role ?? "user";
+  const navItems = NAV_ITEMS.filter((item) => item.roles.includes(role));
 
   return (
     <>
       <SiteHeader />
       <div className="admin-shell">
         <aside className="admin-sidebar">
-          <p className="admin-sidebar-kicker">Control room</p>
+          <p className="admin-sidebar-kicker">{role === "guest" ? "Host panel" : "Control room"}</p>
           <nav aria-label="Admin sections">
-            {NAV_ITEMS.map((item) => {
+            {navItems.map((item) => {
               const isActive = item.exact ? pathname === item.href : pathname?.startsWith(item.href);
               const Icon = item.icon;
               return (

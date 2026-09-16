@@ -1,0 +1,130 @@
+.details {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+
+.details h3 {
+  margin: 0 0 8px;
+  font: 10px 'DM Mono', ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6d748d;
+}
+
+.facts {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px 18px;
+  padding: 14px 16px;
+  border: 1px solid #303854;
+  border-radius: 10px;
+  background: #0d1020;
+}
+
+.facts dt {
+  margin-bottom: 4px;
+  font: 10px 'DM Mono', ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6d748d;
+}
+
+.facts dd {
+  margin: 0;
+  color: #dfe1ee;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.prewrap {
+  margin: 0;
+  color: #c3c8dd;
+  font-size: 13.5px;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.cases {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.case {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid #303854;
+  border-left: 3px solid #3d4673;
+  border-radius: 10px;
+  background: #12172b;
+}
+
+.caseSample {
+  border-left-color: var(--cyan, #55d8d2);
+}
+
+.caseTitle {
+  margin: 0;
+  font: 700 13px 'Space Grotesk', system-ui, sans-serif;
+  color: #fff;
+}
+
+.caseGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 4px;
+  font: 10px 'DM Mono', ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6d748d;
+}
+
+.pre {
+  margin: 0;
+  max-height: 260px;
+  overflow: auto;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #0d1020;
+  color: #e7e9f5;
+  font: 12.5px/1.55 'DM Mono', ui-monospace, monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.explanation {
+  margin: 0;
+  color: #9da5bf;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.codeList {
+  display: grid;
+  gap: 8px;
+}
+
+.code summary {
+  cursor: pointer;
+  padding: 6px 0;
+  color: #c3c8dd;
+  font: 600 13px Manrope, system-ui, sans-serif;
+}
+
+@media (max-width: 640px) {
+  .caseGrid {
+    grid-template-columns: 1fr;
+  }
+}

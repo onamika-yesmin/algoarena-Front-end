@@ -1,0 +1,124 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 20px;
+}
+
+.stage {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.runButton {
+  min-width: 150px;
+  font-size: 21px;
+}
+
+.feedback {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 84px;
+  padding: 10px 14px;
+  border: 3px solid var(--kq-line);
+  border-radius: 20px;
+  background: #fff;
+}
+
+.feedbackText {
+  flex: 1;
+  min-width: 0;
+}
+
+.feedbackText b {
+  display: block;
+  font: 600 19px/1.25 var(--kq-display);
+}
+
+.feedbackText p {
+  margin: 3px 0 0;
+  color: var(--kq-ink-soft);
+  font-weight: 600;
+}
+
+.good {
+  border-color: #22c55e;
+  background: #eafbef;
+}
+
+.bad {
+  border-color: #ff8a9b;
+  background: #fff1f3;
+}
+
+.stepBadge {
+  flex: none;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: #1b2240;
+  color: #fff;
+  font: 600 15px/1.5 var(--kq-display);
+}
+
+.hints {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+}
+
+.hintList {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: hint;
+}
+
+.hintList li {
+  position: relative;
+  padding: 10px 14px 10px 44px;
+  border: 2px solid #f5d565;
+  border-radius: 16px;
+  background: #fffbe6;
+  font-weight: 700;
+  counter-increment: hint;
+}
+
+.hintList li::before {
+  content: counter(hint);
+  position: absolute;
+  left: 10px;
+  top: 9px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ffc83d;
+  font: 700 14px var(--kq-display);
+}
+
+@media (min-width: 940px) {
+  .layout {
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    gap: 28px;
+  }
+
+  .stage {
+    position: sticky;
+    top: 96px;
+  }
+}

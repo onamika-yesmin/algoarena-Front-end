@@ -1,4 +1,5 @@
 import { apiRequest } from "./client";
+import { setTokens } from "@/lib/auth-storage";
 import type { CurrentUser } from "@/types/api";
 
 export const getCurrentUser = () => apiRequest<CurrentUser>("/api/auth/me");
@@ -17,5 +18,11 @@ export const updateProfile = (input: { name?: string; avatarFile?: File | null }
   return apiRequest<CurrentUser>("/api/auth/me", { method: "PATCH", body: form });
 };
 
-export const changePassword = (input: { currentPassword: string; newPassword: string }) =>
-  apiRequest<null>("/api/auth/change-password", { method: "POST", body: input });
+// The backend rotates the session's tokens on a password change (so any
+// session stolen with the old password dies) and returns the new pair —
+// store it, or this session would be holding tokens that no longer work.
+export const changePassword = async (input: { currentPassword: string; newPassword: string }) => {
+  const result = await apiRequest<{ accessToken?: string; refreshToken?: string } | null>("/api/auth/change-password", { method: "POST", body: input });
+  if (result?.accessToken && result.refreshToken) setTokens(result.accessToken, result.refreshToken);
+  return result;
+};

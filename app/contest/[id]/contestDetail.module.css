@@ -1,0 +1,366 @@
+/* Contest detail page layout: header with fact cards, then the problems and
+   scoreboard as two panels (stacked on narrow screens). */
+
+.page {
+  padding-block: 44px 96px;
+}
+
+.back {
+  display: inline-flex;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 22px 36px;
+  align-items: end;
+  padding-bottom: 26px;
+  border-bottom: 1px solid var(--line, rgba(213, 218, 255, 0.14));
+}
+
+.heroText {
+  min-width: 0;
+}
+
+.title {
+  margin: 0 0 12px;
+  font: 700 clamp(32px, 4.4vw, 48px) / 1.08 'Space Grotesk', Manrope, sans-serif;
+  letter-spacing: -1.5px;
+  overflow-wrap: anywhere;
+}
+
+.description {
+  margin: 0;
+  max-width: 62ch;
+  color: #aeb4c9;
+  font-size: 15px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.fact {
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid #303854;
+  border-radius: 10px;
+  background: #12172b;
+}
+
+.fact dt {
+  margin-bottom: 6px;
+  color: #8a8fa2;
+  font: 10px 'DM Mono', ui-monospace, monospace;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.fact dd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  margin: 0;
+  color: #e7e9f5;
+  font: 600 13.5px Manrope, Arial, sans-serif;
+}
+
+.timing {
+  color: #9da5bf;
+  font: 11.5px 'DM Mono', ui-monospace, monospace;
+}
+
+.registered {
+  border-left: 3px solid #65dfad;
+}
+
+.check {
+  color: #65dfad;
+  font-weight: 700;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+  margin-top: 26px;
+}
+
+.panel {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #303854;
+  border-radius: 12px;
+  background: #12172b;
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid #303854;
+  background: #171c34;
+}
+
+.panelHead h2 {
+  margin: 0;
+  font: 700 16px 'Space Grotesk', Manrope, sans-serif;
+}
+
+.panelMeta {
+  color: #9da5bf;
+  font: 11px 'DM Mono', ui-monospace, monospace;
+}
+
+.panelBody {
+  padding: 16px 18px 18px;
+}
+
+.note {
+  margin: 0 0 12px;
+  color: #9da5bf;
+  font-size: 13px;
+}
+
+.empty {
+  margin: 0;
+  padding: 22px 6px;
+  color: #9da5bf;
+  font-size: 13.5px;
+  text-align: center;
+}
+
+.problemList {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.problemList .problemCard {
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 10px;
+}
+
+.problemList .problemCard h3 {
+  margin: 0;
+  color: #fff;
+  font: 700 16px 'Space Grotesk', Manrope, sans-serif;
+  overflow-wrap: anywhere;
+}
+
+.problemList .staticCard:hover {
+  transform: none;
+  border-color: #303854;
+  box-shadow: none;
+}
+
+.problemIndex {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #3d4673;
+  border-radius: 9px;
+  background: #0d1020;
+  color: #c9bbff;
+  font: 700 14px 'Space Grotesk', Manrope, sans-serif;
+}
+
+.problemMain {
+  flex: 1;
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.problemTags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.points {
+  color: #9da5bf;
+  font: 11.5px 'DM Mono', ui-monospace, monospace;
+}
+
+.problemAction {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #9da5bf;
+  font: 11px 'DM Mono', ui-monospace, monospace;
+  white-space: nowrap;
+}
+
+.problemAction svg {
+  color: #ffb254;
+}
+
+a.problemCard .problemAction {
+  color: var(--cyan, #55d8d2);
+}
+
+.liveTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #65dfad;
+  font: 11px 'DM Mono', ui-monospace, monospace;
+}
+
+.liveDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #65dfad;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liveDot {
+    animation: none;
+  }
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.table th {
+  padding: 0 10px 10px;
+  border-bottom: 1px solid #303854;
+  color: #8a8fa2;
+  font: 10px 'DM Mono', ui-monospace, monospace;
+  letter-spacing: 0.6px;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.table td {
+  padding: 11px 10px;
+  border-bottom: 1px solid rgba(48, 56, 84, 0.6);
+  color: #e7e9f5;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.table .num {
+  text-align: right;
+  font-family: 'DM Mono', ui-monospace, monospace;
+}
+
+.solver {
+  overflow-wrap: anywhere;
+}
+
+.score {
+  color: #fff;
+  font-weight: 700;
+}
+
+.rank {
+  display: inline-grid;
+  place-items: center;
+  min-width: 30px;
+  height: 26px;
+  padding: 0 8px;
+  border: 1px solid #303854;
+  border-radius: 7px;
+  background: #0d1020;
+  color: #c3c8dd;
+  font: 700 12px 'DM Mono', ui-monospace, monospace;
+}
+
+.rank1 {
+  border-color: rgba(255, 209, 102, 0.5);
+  background: rgba(255, 209, 102, 0.1);
+  color: #ffd166;
+}
+
+.rank2 {
+  border-color: rgba(214, 219, 232, 0.45);
+  color: #d6dbe8;
+}
+
+.rank3 {
+  border-color: rgba(232, 168, 124, 0.45);
+  color: #e8a87c;
+}
+
+.me td {
+  background: rgba(128, 103, 255, 0.1);
+}
+
+.meTag {
+  margin-left: 8px;
+  padding: 1px 6px;
+  border-radius: 20px;
+  background: rgba(128, 103, 255, 0.2);
+  color: #c9bbff;
+  font: 10px 'DM Mono', ui-monospace, monospace;
+}
+
+@media (max-width: 900px) {
+  .hero,
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    align-items: start;
+  }
+}
+
+@media (max-width: 520px) {
+  .facts {
+    grid-template-columns: 1fr;
+  }
+
+  .panelBody {
+    padding: 14px;
+  }
+
+  .problemList .problemCard {
+    gap: 10px;
+    padding: 12px;
+  }
+}
