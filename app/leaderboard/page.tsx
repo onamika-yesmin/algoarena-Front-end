@@ -9,6 +9,7 @@ import { getErrorMessage } from "@/lib/api/client";
 import { SiteHeader } from "@/app/_components/home/SiteHeader";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { getSocket } from "@/lib/socket";
 
 const PAGE_SIZE = 25;
 
@@ -51,6 +52,29 @@ export default function LeaderboardPage() {
       .then(setMyRank)
       .catch(() => setMyRank(null));
   }, [user]);
+
+  // Connect to Socket.IO and listen for real-time leaderboard updates
+  useEffect(() => {
+    const socket = getSocket();
+
+    socket.emit("join:leaderboard");
+
+    socket.on("leaderboard:update", (data: { entries: LeaderboardEntry[]; total: number }) => {
+      // Only auto-update if viewing the first page (or refresh full state)
+      if (page === 1) {
+        setEntries(data.entries.slice(0, PAGE_SIZE));
+        setTotal(data.total);
+      }
+      if (user) {
+        getMyRank().then(setMyRank).catch(() => setMyRank(null));
+      }
+    });
+
+    return () => {
+      socket.emit("leave:leaderboard");
+      socket.off("leaderboard:update");
+    };
+  }, [page, user]);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
