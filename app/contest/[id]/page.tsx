@@ -11,6 +11,7 @@ import { PageLoader } from "@/components/ui/Loader";
 import { SiteHeader } from "@/app/_components/home/SiteHeader";
 import { SiteFooter } from "@/app/_components/home/SiteFooter";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { getSocket } from "@/lib/socket";
 import styles from "../contest.module.css";
 import layout from "./contestDetail.module.css";
 
@@ -122,6 +123,27 @@ export default function ContestDetailPage() {
       clearInterval(interval);
     };
   }, [params.id, contestStatus]);
+
+  // Connect to Socket.IO and listen for real-time contest scoreboard broadcasts
+  useEffect(() => {
+    if (!contest?.id) return;
+
+    const socket = getSocket();
+    const contestId = contest.id;
+
+    socket.emit("join:contest", { contestId });
+
+    socket.on("contest:scoreboard", (result: { entries: ContestScoreboardEntry[] }) => {
+      if (result?.entries) {
+        setScoreboard(result.entries);
+      }
+    });
+
+    return () => {
+      socket.emit("leave:contest", { contestId });
+      socket.off("contest:scoreboard");
+    };
+  }, [contest?.id]);
 
   const register = async () => {
     if (!user) {
