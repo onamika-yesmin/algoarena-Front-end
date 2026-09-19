@@ -1,96 +1,407 @@
-/* Contest list call to action (app/contest/page.tsx) and the registration
-   gate on a contest page (app/contest/[id]/page.tsx). */
+/* Contest index. Surfaces/ink copied from globals.css so this module stays
+   self-contained: panel #171c34, line #262e4f, muted #9da5bf, violet
+   #8067ff, cyan #55d8d2, live green #65dfad, amber #ffc861. */
 
-.cta {
+.page {
+  padding-block: 44px 96px;
+}
+
+.head {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: 10px 18px;
-  margin-top: 20px;
-  padding: 14px 18px;
-  border: 1px solid #303854;
-  border-left: 3px solid var(--violet, #8067ff);
-  border-radius: 10px;
-  background: #12172b;
+  gap: 28px;
+  margin-bottom: 30px;
 }
 
-.ctaText {
+.head h1 {
   margin: 0;
-  color: #c3c8dd;
-  font-size: 13.5px;
-}
-
-.registerBox {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px 16px;
-  margin-top: 18px;
-  padding: 14px 16px;
-  border: 1px solid #303854;
-  border-radius: 10px;
-  background: #12172b;
-}
-
-.registerBoxLocked {
-  border-color: rgba(255, 178, 84, 0.4);
-  border-left: 3px solid #ffb254;
-  background: rgba(58, 47, 16, 0.3);
-}
-
-.registerText {
-  flex: 1 1 260px;
-  margin: 0;
-  color: #c3c8dd;
-  font-size: 13.5px;
-  line-height: 1.6;
-}
-
-.registerText b {
   color: #fff;
+  font: 700 clamp(32px, 4.4vw, 50px) / 1.05 "Space Grotesk", sans-serif;
+  letter-spacing: -2.2px;
 }
 
-.registerText svg {
-  vertical-align: -2px;
-  color: #ffb254;
+.lede {
+  max-width: 580px;
+  margin: 14px 0 0;
+  color: #aeb4c9;
+  font-size: 14.5px;
+  line-height: 1.75;
 }
 
-.registerError {
-  flex-basis: 100%;
-  margin: 0;
-}
-
-.lockedNote {
+.hostCard {
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: #ffb254;
-  font: 12px 'DM Mono', ui-monospace, monospace;
+  gap: 14px;
+  flex: none;
+  padding: 14px 18px;
+  border: 1px solid #2c3459;
+  border-radius: 13px;
+  background: #12172b;
 }
 
-.lockTag {
+.hostCard p {
+  margin: 0;
+  color: #aeb4c9;
+  font-size: 12.5px;
+}
+
+/* A 13px link is an 18px-tall hit target; the padding is what a thumb
+   actually aims at. */
+.hostCard :global(.text-link) {
+  padding: 8px 0;
+}
+
+/* ------------------------------------------------------ featured card */
+
+.feature {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 32px;
+  align-items: center;
+  margin-bottom: 26px;
+  padding: 30px 32px;
+  border: 1px solid #2f3866;
+  border-radius: 20px;
+  background: radial-gradient(120% 160% at 0% 0%, #241f52 0%, #161c37 52%, #11162a 100%);
+}
+
+.featureLive {
+  border-color: rgba(101, 223, 173, 0.4);
+  background: radial-gradient(120% 160% at 0% 0%, #123526 0%, #151d36 48%, #11162a 100%);
+}
+
+.featureGlow {
+  position: absolute;
+  top: -120px;
+  left: -80px;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  background: #6d4dff;
+  opacity: 0.22;
+  filter: blur(90px);
+  pointer-events: none;
+}
+
+.featureLive .featureGlow { background: #2fbf8f; opacity: 0.2; }
+
+/* :not(.featureGlow) matters — a bare `.feature > *` out-specifies
+   .featureGlow's own position:absolute, which drops the glow back into the
+   grid as a third column and pushes the countdown onto its own row. */
+.feature > *:not(.featureGlow) { position: relative; z-index: 1; }
+
+.featureKicker {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  margin-left: auto;
-  color: #ffb254;
-  font: 10.5px 'DM Mono', ui-monospace, monospace;
+  gap: 8px;
+  margin: 0 0 14px;
+  color: #9aa1b8;
+  font: 10.5px "DM Mono", monospace;
+  letter-spacing: 1px;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
 }
 
-div.lockedCard {
-  cursor: not-allowed;
-  border-style: dashed;
+.featureTitle {
+  margin: 0 0 10px;
+  color: #fff;
+  font: 700 clamp(22px, 2.6vw, 30px) / 1.15 "Space Grotesk", sans-serif;
+  letter-spacing: -1px;
 }
 
-div.lockedCard h3 {
+.featureText {
+  max-width: 520px;
+  margin: 0 0 18px;
   color: #aeb4c9;
+  font-size: 13.5px;
+  line-height: 1.75;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-div.lockedCard:hover {
-  transform: none;
-  border-color: #3d4673;
-  box-shadow: none;
+.featureMeta {
+  display: flex;
+  gap: 8px 22px;
+  flex-wrap: wrap;
+  color: #9aa1b8;
+  font: 11.5px "DM Mono", monospace;
+}
+
+.featureMeta b { color: #e7e9f5; font-weight: 400; }
+
+/* --------------------------------------------------------- countdown */
+
+.countdown {
+  display: flex;
+  gap: 8px;
+  flex: none;
+}
+
+.countUnit {
+  min-width: 66px;
+  padding: 12px 10px;
+  border: 1px solid #333c63;
+  border-radius: 12px;
+  background: rgba(13, 16, 32, 0.55);
+  text-align: center;
+}
+
+.countUnit b {
+  display: block;
+  color: #fff;
+  font: 700 26px "Space Grotesk", sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -1px;
+}
+
+.countUnit span {
+  display: block;
+  margin-top: 2px;
+  color: #8f96ad;
+  font: 9.5px "DM Mono", monospace;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.countdownSide {
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+}
+
+.countdownLabel {
+  color: #9aa1b8;
+  font: 10.5px "DM Mono", monospace;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+/* A live contest's elapsed share of its own window. */
+.featureProgress {
+  width: 100%;
+  height: 5px;
+  margin-top: 2px;
+  border-radius: 3px;
+  background: rgba(13, 16, 32, 0.6);
+  overflow: hidden;
+}
+
+.featureProgress i {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #65dfad, #55d8d2);
+}
+
+/* --------------------------------------------------------- filter row */
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+  padding: 4px;
+  border: 1px solid #262e4f;
+  border-radius: 12px;
+  background: #12172b;
+  width: fit-content;
+}
+
+.filterButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 15px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #9aa1b8;
+  font: 700 12px Manrope, sans-serif;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+
+.filterButton:hover { color: #e7e9f5; }
+
+.filterActive,
+.filterActive:hover {
+  background: rgba(128, 103, 255, 0.24);
+  color: #d5caff;
+}
+
+.filterCount {
+  padding: 1px 7px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+  font: 10px "DM Mono", monospace;
+}
+
+/* -------------------------------------------------------------- cards */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 22px;
+  border: 1px solid #262e4f;
+  border-radius: 16px;
+  background: linear-gradient(168deg, #171c34, #12172b);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s, box-shadow 0.28s;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: #3b4573;
+  box-shadow: 0 26px 48px -28px rgba(0, 0, 0, 0.95);
+}
+
+.cardLive { border-color: rgba(101, 223, 173, 0.34); }
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.livePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.liveDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #65dfad;
+  animation: pulse 2.2s ease-out infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(101, 223, 173, 0.6); }
+  70% { box-shadow: 0 0 0 7px rgba(101, 223, 173, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(101, 223, 173, 0); }
+}
+
+.cardWhen {
+  margin-left: auto;
+  color: #8f96ad;
+  font: 11px "DM Mono", monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.cardWhenLive { color: #65dfad; }
+.cardWhenSoon { color: #ffc861; }
+
+.card h3 {
+  margin: 0;
+  color: #fff;
+  font: 700 18px "Space Grotesk", sans-serif;
+  letter-spacing: -0.6px;
+}
+
+.cardText {
+  margin: 0;
+  color: #a7aec6;
+  font-size: 13px;
+  line-height: 1.7;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardProgress {
+  height: 4px;
+  border-radius: 3px;
+  background: #0f1428;
+  overflow: hidden;
+}
+
+.cardProgress i {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #65dfad, #55d8d2);
+}
+
+.cardFoot {
+  display: flex;
+  align-items: center;
+  gap: 8px 16px;
+  flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid #232a48;
+  color: #8f96ad;
+  font: 11.5px "DM Mono", monospace;
+}
+
+.cardGo {
+  margin-left: auto;
+  color: #c9bbff;
+  font: 700 12px Manrope, sans-serif;
+}
+
+.card:hover .cardGo { color: #ddd3ff; }
+
+/* ------------------------------------------------------- empty states */
+
+.empty {
+  padding: 56px 24px;
+  border: 1px dashed #2c3459;
+  border-radius: 16px;
+  background: #12172b;
+  color: #9da5bf;
+  font-size: 13.5px;
+  line-height: 1.8;
+  text-align: center;
+}
+
+.empty b {
+  display: block;
+  margin-bottom: 6px;
+  color: #fff;
+  font: 700 17px "Space Grotesk", sans-serif;
+}
+
+.error {
+  margin: 0;
+  color: #ff9e9e;
+  font-size: 13.5px;
+}
+
+/* -------------------------------------------------------- responsive */
+
+@media (max-width: 900px) {
+  .head { display: block; }
+  .hostCard { margin-top: 20px; }
+  .feature { grid-template-columns: 1fr; gap: 22px; padding: 24px; }
+  .countdownSide { justify-items: start; }
+}
+
+@media (max-width: 560px) {
+  .page { padding-block: 32px 64px; }
+  .countUnit { min-width: 0; flex: 1; padding: 10px 6px; }
+  .countUnit b { font-size: 21px; }
+  .filters { width: 100%; }
+  .filterButton { flex: 1; justify-content: center; padding: 9px 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liveDot { animation: none; }
+  .card { transition: none; }
+  .card:hover { transform: none; }
 }
