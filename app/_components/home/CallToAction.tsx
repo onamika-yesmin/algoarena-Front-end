@@ -49,8 +49,8 @@ export function CallToAction() {
                   <Link className="button" href="/signin?mode=register">
                     Create a free account <span aria-hidden="true">→</span>
                   </Link>
-                  <Link className="button-outline" href="/problems">
-                    Look around first
+                  <Link className="button-outline" href="#how-it-works">
+                    See how it works
                   </Link>
                 </>
               )}

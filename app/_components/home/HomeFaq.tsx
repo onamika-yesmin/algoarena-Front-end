@@ -26,8 +26,8 @@ const QUESTIONS = [
     a: "You earn gems for accepted solutions and spend them on hints. Tier 1 is a nudge, tier 2 sketches the approach, tier 3 gets close to the answer — and unlocking one carries a small scoring penalty, so asking for help stays a real decision.",
   },
   {
-    q: "Do I need an account just to look around?",
-    a: "No. The problem library, the contest schedule and the community feed are all browsable while signed out. You need an account to submit, earn gems, join a contest or start a mock interview.",
+    q: "Do I need an account?",
+    a: "Yes — everything past this page is behind a free account, because every problem, verdict, gem and streak is tied to you. Signing in with Google takes one click, and you are never asked for a card.",
   },
   {
     q: "How much should I trust the Big-O auditor?",
@@ -72,9 +72,12 @@ export function HomeFaq() {
             </div>
             <div className={styles.faqCard}>
               <h3>Still not sure?</h3>
-              <p>Open a problem and run the sample tests. It takes about a minute and you don&apos;t need an account.</p>
-              <Link className="button-outline" href="/problems">
-                Try one now <span aria-hidden="true">→</span>
+              <p>
+                Signing up takes one click with Google. Open your first problem, run the sample tests, and see the whole
+                loop for yourself.
+              </p>
+              <Link className="button-outline" href="/signin?mode=register">
+                Create a free account <span aria-hidden="true">→</span>
               </Link>
             </div>
           </div>

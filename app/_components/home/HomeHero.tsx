@@ -50,8 +50,11 @@ export function HomeHero() {
               <Link className="button" href={isSignedIn ? "/problems" : "/signin?mode=register"}>
                 {isSignedIn ? "Continue solving" : "Start solving — free"} <span aria-hidden="true">→</span>
               </Link>
-              <Link className="button-outline" href="/problems">
-                Browse the problem library
+              {/* Everything past the homepage needs an account, so a signed-out
+                  visitor gets an in-page tour rather than a link that would
+                  bounce them straight into the sign-in wall. */}
+              <Link className="button-outline" href={isSignedIn ? "/problems" : "#how-it-works"}>
+                {isSignedIn ? "Browse the problem library" : "See how it works"}
               </Link>
             </div>
 
