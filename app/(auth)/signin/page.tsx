@@ -22,6 +22,41 @@ declare global {
 const MAX_AVATAR_BYTES = 4 * 1024 * 1024;
 const ALLOWED_AVATAR_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
 
+const GSI_SRC = "https://accounts.google.com/gsi/client";
+
+// One <script> per document, ever. The loader used to append a fresh tag on
+// every mount, so React's development double-invoke — and any client-side
+// navigation back to /signin — left several copies of the Google Identity
+// script in <head>. Each copy injects its own #googleidentityservice iframe
+// (duplicate element ids) and calls initialize() again, which GSI itself
+// warns about. This promise is created once and reused by every mount.
+let gsiLoader: Promise<void> | null = null;
+
+function loadGoogleIdentityScript(): Promise<void> {
+  if (window.google?.accounts?.id) return Promise.resolve();
+  if (gsiLoader) return gsiLoader;
+
+  gsiLoader = new Promise<void>((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = GSI_SRC;
+    script.async = true;
+    script.addEventListener("load", () => resolve(), { once: true });
+    script.addEventListener(
+      "error",
+      () => {
+        // Let a later attempt retry instead of caching the failure forever.
+        gsiLoader = null;
+        script.remove();
+        reject(new Error("Google sign-in could not load. Please try again."));
+      },
+      { once: true },
+    );
+    document.head.appendChild(script);
+  });
+
+  return gsiLoader;
+}
+
 // Where to send someone after they authenticate — honors a ?next=/path
 // query param (set by "Sign in" links from gated pages/actions) so they
 // land back where they started instead of always on /problems. Guarded
@@ -132,6 +167,7 @@ export default function SignInPage() {
     };
 
     useEffect(() => {
+        let cancelled = false;
         let resizeHandler: (() => void) | null = null;
 
         const setupGoogleSignIn = async () => {
@@ -140,13 +176,13 @@ export default function SignInPage() {
                 // path proxied by next.config.ts) — that is not misconfiguration.
                 const configResponse = await fetch(`${appConfig.apiUrl}/api/auth/google/client-config`);
                 const config = await configResponse.json();
+                if (cancelled) return;
                 if (!configResponse.ok || !config.data?.clientId) throw new Error(config.message ?? "Google sign-in is unavailable.");
 
-                const script = document.createElement("script");
-                script.src = "https://accounts.google.com/gsi/client";
-                script.async = true;
-                script.onload = () => {
-                    if (!window.google || !googleButton.current) return;
+                await loadGoogleIdentityScript();
+                if (cancelled || !window.google || !googleButton.current) return;
+
+                {
                     window.google.accounts.id.initialize({
                         client_id: config.data.clientId,
                         callback: async ({ credential }) => {
@@ -197,16 +233,16 @@ export default function SignInPage() {
                         resizeTimeout = setTimeout(renderGoogleButton, 150);
                     };
                     window.addEventListener("resize", resizeHandler);
-                };
-                script.onerror = () => { setMessage("Google sign-in could not load. Please try again."); setIsLoading(false); };
-                document.head.appendChild(script);
+                }
             } catch (error) {
+                if (cancelled) return;
                 setMessage(error instanceof Error ? error.message : "Unable to start sign-in."); setIsLoading(false);
             }
         };
         setupGoogleSignIn();
 
         return () => {
+            cancelled = true;
             if (resizeHandler) window.removeEventListener("resize", resizeHandler);
         };
     }, []);
@@ -282,9 +318,24 @@ export default function SignInPage() {
                   </div>
                 </div>
               )}
-              {mode === "register" && <input name="name" required minLength={2} placeholder="Your name" />}
-              <input name="email" type="email" required placeholder="Email address" />
-              <input name="password" type="password" required minLength={8} placeholder="Password (8+ characters)" />
+              {mode === "register" && (
+                <>
+                  <label className="sr-only" htmlFor="auth-name">Your name</label>
+                  <input id="auth-name" name="name" required minLength={2} autoComplete="name" placeholder="Your name" />
+                </>
+              )}
+              <label className="sr-only" htmlFor="auth-email">Email address</label>
+              <input id="auth-email" name="email" type="email" required autoComplete="email" placeholder="Email address" />
+              <label className="sr-only" htmlFor="auth-password">Password</label>
+              <input
+                id="auth-password"
+                name="password"
+                type="password"
+                required
+                minLength={8}
+                autoComplete={mode === "login" ? "current-password" : "new-password"}
+                placeholder="Password (8+ characters)"
+              />
               <button className="button" disabled={isSubmitting} type="submit">{isSubmitting ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}</button>
             </form>
             <p className="auth-divider">or continue with Google</p><div className="google-button" ref={googleButton} />
