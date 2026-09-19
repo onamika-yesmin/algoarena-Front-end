@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const BACKEND_ORIGIN = (process.env.BACKEND_ORIGIN ?? "https://algoarena-back-end.vercel.app").replace(/\/$/, "");
+
 const nextConfig: NextConfig = {
   images: { remotePatterns: [{ protocol: "https", hostname: "lh3.googleusercontent.com" }, { protocol: "https", hostname: "*.googleusercontent.com" }, { protocol: "https", hostname: "res.cloudinary.com" }] },
   async headers() {
@@ -9,6 +11,15 @@ const nextConfig: NextConfig = {
         headers: [
           // Required for Google Identity Services popup communication.
           { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
+          // Baseline hardening. No Content-Security-Policy yet: Google
+          // Identity Services and the Monaco editor both need a carefully
+          // built script-src, and a wrong one silently breaks sign-in.
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          // The app never asks for these; denying them up front means an
+          // embedded third-party frame can't either.
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), interest-cohort=()" },
         ],
       },
     ];
@@ -22,7 +33,9 @@ const nextConfig: NextConfig = {
       // instead of the browser treating it as a third-party cookie (which
       // is blocked by default in current browsers) across the frontend's
       // and backend's separate domains.
-      { source: "/api/:path*", destination: "https://algoarena-back-end.vercel.app/api/:path*" },
+      // BACKEND_ORIGIN lets a developer point this proxy at a local API
+      // without editing the file; the deployed default is unchanged.
+      { source: "/api/:path*", destination: `${BACKEND_ORIGIN}/api/:path*` },
     ];
   },
 };
