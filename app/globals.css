@@ -321,6 +321,10 @@
 
 @media (max-width:760px) {
   .header-account-name { display:none; }
+  /* On a phone the header row is avatar + role badge + hamburger already;
+     the gems badge pushed that past the edge, so it drops out here. It is
+     still one tap away — the mobile drawer's account row carries it. */
+  .header-account .header-gems { display:none; }
 }
 
 /* Shared loading indicators (components/ui/Loader.tsx) */
