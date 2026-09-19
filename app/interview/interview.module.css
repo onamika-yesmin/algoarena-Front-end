@@ -332,6 +332,9 @@
 
 /* Progress through an unfinished session's question count. */
 .sessionProgress {
+  /* Rendered on a <span> whose parent is a plain block, so it needs its
+     own display — height/border-radius do nothing on an inline box. */
+  display: block;
   width: 150px;
   height: 5px;
   margin-top: 10px;
@@ -417,7 +420,295 @@
   font: 700 17px "Space Grotesk", sans-serif;
 }
 
+/* =====================================================================
+   The interview room — app/interview/[sessionId]/page.tsx, which shares
+   this module. A transcript reads best as a conversation, so the room is
+   a chat: interviewer on the left, you on the right, a fixed-height
+   scroller so the composer stays reachable, and the score+feedback as a
+   card at the end rather than a wall of text.
+   ===================================================================== */
+
+.roomShell {
+  width: min(880px, calc(100% - 48px));
+  margin: 0 auto;
+  padding-block: 34px 80px;
+}
+
+.roomBack {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  padding: 6px 0;
+  color: #9aa1b8;
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: color 0.15s;
+}
+
+.roomBack:hover { color: var(--cyan, #55d8d2); }
+
+.roomHead {
+  padding: 22px 24px;
+  border: 1px solid #262e4f;
+  border-radius: 18px 18px 0 0;
+  border-bottom: 0;
+  background: linear-gradient(168deg, #1a2040, #141a33);
+}
+
+.roomTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.roomHead h1 {
+  margin: 0;
+  color: #fff;
+  font: 700 clamp(22px, 3vw, 30px) / 1.15 "Space Grotesk", sans-serif;
+  letter-spacing: -1px;
+  text-transform: capitalize;
+}
+
+.roomMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px 14px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  color: #9aa1b8;
+  font: 11.5px "DM Mono", monospace;
+}
+
+.roomProgress {
+  display: block;
+  height: 5px;
+  margin-top: 14px;
+  border-radius: 3px;
+  background: #242c4d;
+  overflow: hidden;
+}
+
+.roomProgress i {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #8067ff, #55d8d2);
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ------------------------------------------------------------ chat */
+
+.chatShell {
+  border: 1px solid #262e4f;
+  border-radius: 0 0 18px 18px;
+  background: #12172b;
+  overflow: hidden;
+}
+
+.messageList {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-height: 58vh;
+  min-height: 260px;
+  padding: 24px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.messageRow {
+  display: flex;
+  gap: 11px;
+  max-width: 82%;
+}
+
+.messageRowInterviewer { align-self: flex-start; }
+
+.messageRowCandidate {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.speaker {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: 50%;
+  font: 700 12px "Space Grotesk", sans-serif;
+}
+
+.speakerInterviewer {
+  background: rgba(85, 216, 210, 0.16);
+  color: #7fe3de;
+  box-shadow: inset 0 0 0 1px rgba(85, 216, 210, 0.3);
+}
+
+.speakerCandidate {
+  background: rgba(128, 103, 255, 0.2);
+  color: #c9bbff;
+  box-shadow: inset 0 0 0 1px rgba(128, 103, 255, 0.36);
+}
+
+.bubble {
+  padding: 13px 16px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.7;
+  /* Answers get pasted in as prose, code, or one long unbroken token —
+     wrap all of them rather than letting one blow out the column. */
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.bubbleInterviewer {
+  border: 1px solid #2a3255;
+  border-bottom-left-radius: 4px;
+  background: #1a2040;
+  color: #d4d9ec;
+}
+
+.bubbleCandidate {
+  border: 1px solid rgba(128, 103, 255, 0.45);
+  border-bottom-right-radius: 4px;
+  background: rgba(128, 103, 255, 0.16);
+  color: #eae6ff;
+}
+
+.bubbleLabel {
+  display: block;
+  margin-bottom: 5px;
+  color: #8f96ad;
+  font: 9.5px "DM Mono", monospace;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.thinkingRow {
+  padding: 0 24px 18px;
+}
+
+/* -------------------------------------------------------- composer */
+
+.composer {
+  padding: 16px 20px 18px;
+  border-top: 1px solid #232a48;
+  background: #141a30;
+}
+
+.composer textarea {
+  display: block;
+  width: 100%;
+  min-height: 92px;
+  padding: 13px 15px;
+  border: 1px solid #333c63;
+  border-radius: 11px;
+  background: #0d1020;
+  color: #e7e9f5;
+  font: 14px/1.7 Manrope, sans-serif;
+  resize: vertical;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.composer textarea:focus {
+  outline: none;
+  border-color: var(--cyan, #55d8d2);
+  box-shadow: 0 0 0 3px rgba(85, 216, 210, 0.15);
+}
+
+.composer textarea:disabled { opacity: 0.6; }
+
+.composerActions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.composerHint {
+  color: #6d748d;
+  font: 11px "DM Mono", monospace;
+}
+
+.composerActions .button,
+.composerActions button { margin-left: auto; }
+
+/* -------------------------------------------------------- feedback */
+
+.feedbackPanel {
+  position: relative;
+  overflow: hidden;
+  margin-top: 18px;
+  padding: 26px 28px;
+  border: 1px solid #2f3866;
+  border-radius: 18px;
+  background: radial-gradient(120% 150% at 100% 0%, #241f52 0%, #161c37 55%, #11162a 100%);
+}
+
+.feedbackHead {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 16px;
+}
+
+.feedbackHead h2 {
+  margin: 0;
+  color: #fff;
+  font: 700 19px "Space Grotesk", sans-serif;
+  letter-spacing: -0.6px;
+}
+
+.feedbackScore { margin-left: auto; }
+
+.feedbackText {
+  margin: 0;
+  color: #c3c8dd;
+  font-size: 14px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.feedbackActions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(213, 218, 255, 0.14);
+}
+
+.notFoundPanel {
+  max-width: 520px;
+  margin: 70px auto;
+  padding: 44px 28px;
+  border: 1px dashed #2c3459;
+  border-radius: 16px;
+  background: #12172b;
+  color: #aeb4c9;
+  font-size: 13.5px;
+  line-height: 1.8;
+  text-align: center;
+}
+
+.notFoundPanel p { margin: 0 0 18px; }
+
 /* ------------------------------------------------------- responsive */
+
+@media (max-width: 720px) {
+  .roomShell { width: min(880px, calc(100% - 32px)); padding-block: 24px 60px; }
+  .roomHead { padding: 18px 16px; }
+  .messageList { padding: 18px 14px; gap: 14px; max-height: none; }
+  .messageRow { max-width: 94%; }
+  .composer { padding: 14px 14px 16px; }
+  .composerActions { flex-wrap: wrap; }
+  .composerHint { flex-basis: 100%; order: 2; }
+  .feedbackPanel { padding: 20px 18px; }
+}
 
 @media (max-width: 860px) {
   .stats { grid-template-columns: repeat(2, 1fr); }

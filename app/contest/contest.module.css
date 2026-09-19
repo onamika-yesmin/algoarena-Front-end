@@ -182,6 +182,7 @@
 
 /* A live contest's elapsed share of its own window. */
 .featureProgress {
+  display: block;
   width: 100%;
   height: 5px;
   margin-top: 2px;
@@ -324,6 +325,7 @@
 }
 
 .cardProgress {
+  display: block;
   height: 4px;
   border-radius: 3px;
   background: #0f1428;
@@ -382,6 +384,67 @@
   color: #ff9e9e;
   font-size: 13.5px;
 }
+
+/* ------------------------------------- contest detail: register box
+   Used by app/contest/[id]/page.tsx, which shares this module (its own
+   contestDetail.module.css only covers that page's layout). */
+
+.registerBox {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin-top: 18px;
+  padding: 16px 18px;
+  border: 1px solid #262e4f;
+  border-radius: 14px;
+  background: #12172b;
+}
+
+.registerBoxLocked {
+  border-color: rgba(255, 200, 97, 0.4);
+  border-left: 3px solid #ffc861;
+  background: rgba(58, 47, 16, 0.3);
+}
+
+.registerText {
+  flex: 1 1 260px;
+  margin: 0;
+  color: #c3c8dd;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.registerText b { color: #fff; }
+.registerText svg { vertical-align: -2px; color: #ffc861; }
+
+.registerError {
+  flex-basis: 100%;
+  margin: 0;
+  color: #ff9e9e;
+  font-size: 13px;
+}
+
+.lockedNote {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffc861;
+  font: 12px "DM Mono", ui-monospace, monospace;
+}
+
+div.lockedCard {
+  cursor: not-allowed;
+  border-style: dashed;
+}
+
+div.lockedCard:hover {
+  transform: none;
+  border-color: #262e4f;
+  box-shadow: none;
+}
+
+div.lockedCard h3 { color: #aeb4c9; }
 
 /* -------------------------------------------------------- responsive */
 
