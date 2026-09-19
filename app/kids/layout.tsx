@@ -8,7 +8,9 @@ const displayFont = Fredoka({ subsets: ["latin"], weight: ["500", "600", "700"],
 const bodyFont = Nunito({ subsets: ["latin"], weight: ["400", "600", "700", "800"], variable: "--font-kids-body", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Code Quest for Kids | AlgoArena",
+  // Bare title, not "… | AlgoArena": the root layout's title template
+  // appends the site name, so spelling it out here doubled it up.
+  title: "Code Quest for Kids",
   description: "A playful coding adventure for ages 8–14: robot puzzles, loops and decisions, then real Python.",
 };
 
