@@ -1,0 +1,415 @@
+/* =====================================================================
+   Homepage (app/page.tsx) — eight sections, scoped to this module so the
+   landing page can have its own layout language without touching the
+   shared chrome in globals.css (.button, .brand, .site-header, …), which
+   every other route also renders.
+
+   Section order: hero · proof band · feature bento · workspace ·
+   how it works · arena modes · FAQ · closing CTA.
+   ===================================================================== */
+
+/* ---------------------------------------------------------------- shared */
+
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 20px;
+  padding: 7px 15px 7px 12px;
+  border: 1px solid rgba(128, 103, 255, 0.4);
+  border-radius: 100px;
+  background: linear-gradient(120deg, rgba(128, 103, 255, 0.18), rgba(85, 216, 210, 0.08));
+  color: #cdc3ff;
+  font: 600 10.5px/1 Manrope;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+}
+
+.kickerDot {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--cyan);
+  animation: pulseDot 2.6s ease-out infinite;
+}
+
+@keyframes pulseDot {
+  0% { box-shadow: 0 0 0 0 rgba(85, 216, 210, 0.55); }
+  70% { box-shadow: 0 0 0 9px rgba(85, 216, 210, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(85, 216, 210, 0); }
+}
+
+/* Section heading block: kicker, h2, optional lede + trailing link. */
+.head {
+  max-width: 660px;
+  margin: 0 0 52px;
+}
+
+.headCentered {
+  max-width: 700px;
+  margin: 0 auto 56px;
+  text-align: center;
+}
+
+.head h2,
+.headCentered h2 {
+  margin: 0;
+  color: #fff;
+  font: 700 clamp(30px, 3.8vw, 46px) / 1.08 "Space Grotesk";
+  letter-spacing: -2px;
+}
+
+.head p,
+.headCentered p {
+  margin: 18px 0 0;
+  color: #aeb4c9;
+  font-size: 15.5px;
+  line-height: 1.8;
+}
+
+.headCentered p {
+  margin-inline: auto;
+}
+
+.accent {
+  display: inline-block;
+  background: linear-gradient(96deg, #a78bfa 0%, #7dd3fc 48%, #5eead4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(30px, -26px) scale(1.09); }
+}
+
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-9px); }
+}
+
+/* ------------------------------------------------------------- 1. hero */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding-block: 84px 104px;
+  border-bottom: 1px solid var(--line);
+}
+
+.heroBackdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Faint blueprint grid, faded out towards the edges so it never competes
+   with the copy sitting on top of it. */
+.heroBackdrop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(148, 163, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 255, 0.06) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask-image: radial-gradient(ellipse 78% 64% at 50% 24%, #000 18%, transparent 76%);
+  mask-image: radial-gradient(ellipse 78% 64% at 50% 24%, #000 18%, transparent 76%);
+}
+
+.heroOrb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(95px);
+}
+
+.heroOrbA {
+  width: 520px;
+  height: 520px;
+  top: -240px;
+  left: -180px;
+  background: #6d4dff;
+  opacity: 0.3;
+  animation: drift 19s ease-in-out infinite;
+}
+
+.heroOrbB {
+  width: 440px;
+  height: 440px;
+  top: 130px;
+  right: -160px;
+  background: #18b0ad;
+  opacity: 0.2;
+  animation: drift 24s ease-in-out infinite reverse;
+}
+
+.heroInner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.04fr) minmax(0, 0.96fr);
+  gap: 68px;
+  align-items: center;
+}
+
+.heroTitle {
+  margin: 0 0 22px;
+  color: #fff;
+  font: 700 clamp(38px, 4.6vw, 60px) / 1.06 "Space Grotesk";
+  letter-spacing: -3px;
+}
+
+.heroLede {
+  max-width: 520px;
+  margin: 0 0 32px;
+  color: #b3b8cb;
+  font-size: 16.5px;
+  line-height: 1.8;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+
+.heroTicks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px 22px;
+  margin: 26px 0 0;
+  padding: 0;
+  list-style: none;
+  color: #8f96ad;
+  font-size: 12.5px;
+}
+
+.heroTicks li {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.heroTicks svg {
+  flex: none;
+  color: #65dfad;
+}
+
+.heroStats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 38px;
+  margin-top: 36px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line);
+}
+
+.heroStats b {
+  display: block;
+  margin-bottom: 3px;
+  color: #fff;
+  font: 700 30px "Space Grotesk";
+  letter-spacing: -1.2px;
+}
+
+.heroStats small {
+  display: block;
+  color: #8f96ad;
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+/* The visual: a photo in a tilted frame, a translucent editor card
+   overlapping its bottom-left corner, and two floating status chips. */
+.heroVisual {
+  position: relative;
+  z-index: 1;
+}
+
+.heroPhoto {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 1px solid #2c3459;
+  border-radius: 20px;
+  box-shadow: 0 44px 84px -44px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(128, 103, 255, 0.14);
+  transform: perspective(1500px) rotateY(-7deg) rotateX(3deg);
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.heroVisual:hover .heroPhoto {
+  transform: perspective(1500px) rotateY(-2.5deg) rotateX(1deg);
+}
+
+.heroPhoto img {
+  object-fit: cover;
+}
+
+.heroPhotoVeil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(148deg, rgba(13, 16, 32, 0.3) 0%, rgba(13, 16, 32, 0.74) 56%, rgba(128, 103, 255, 0.36) 100%);
+}
+
+.heroEditor {
+  position: absolute;
+  left: -34px;
+  bottom: -38px;
+  width: min(340px, 84%);
+  overflow: hidden;
+  border: 1px solid #343d66;
+  border-radius: 14px;
+  background: rgba(18, 23, 43, 0.93);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 34px 64px -32px rgba(0, 0, 0, 0.95);
+}
+
+.heroEditorBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #2a3255;
+  color: #9aa2bd;
+  font: 10.5px "DM Mono";
+}
+
+.heroEditorDots {
+  display: flex;
+  gap: 5px;
+}
+
+.heroEditorDots b {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fc6c70;
+}
+
+.heroEditorDots b:nth-child(2) { background: #ffca59; }
+.heroEditorDots b:nth-child(3) { background: #54d4b1; }
+
+.heroEditorBar small {
+  margin-left: auto;
+  color: var(--cyan);
+}
+
+.heroCode {
+  margin: 0;
+  padding: 14px 16px;
+  color: #6d7698;
+  font: 11.5px/1.95 "DM Mono";
+  list-style: none;
+  counter-reset: ln;
+}
+
+.heroCode li::before {
+  counter-increment: ln;
+  content: counter(ln);
+  display: inline-block;
+  width: 20px;
+  color: #4d5678;
+}
+
+.heroCode code { color: #d4d9ec; }
+.heroCode i { color: #c792ea; font-style: normal; }
+.heroCode b { color: #82d9f5; font-weight: 400; }
+.heroCode em { color: #8ff0c7; font-style: normal; }
+
+.heroRun {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-top: 1px solid #2a3255;
+  font: 10.5px "DM Mono";
+  color: #65dfad;
+}
+
+.heroRun small {
+  margin-left: auto;
+  color: #8a92ad;
+}
+
+.heroChip {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 15px;
+  border: 1px solid rgba(213, 218, 255, 0.22);
+  border-radius: 13px;
+  background: rgba(23, 28, 52, 0.88);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.95);
+  color: #e7e9f5;
+  font: 600 12px Manrope;
+  white-space: nowrap;
+}
+
+.heroChip b {
+  color: #fff;
+  font: 700 13px "Space Grotesk";
+}
+
+.heroChip small {
+  display: block;
+  color: #8f96ad;
+  font: 10px "DM Mono";
+}
+
+.heroChipVerdict {
+  top: 22px;
+  right: -28px;
+  animation: floatY 5.6s ease-in-out infinite;
+}
+
+.heroChipVerdict svg { color: #65dfad; }
+
+.heroChipGems {
+  bottom: 108px;
+  right: -22px;
+  animation: floatY 6.6s ease-in-out infinite 0.6s;
+}
+
+.heroChipGems svg { color: var(--orange); }
+
+/* ------------------------------------------------------------ responsive */
+
+@media (max-width: 1060px) {
+  .heroInner { grid-template-columns: 1fr; gap: 52px; }
+  .heroLede { max-width: none; }
+  .heroPhoto { transform: none; }
+  .heroVisual:hover .heroPhoto { transform: none; }
+  .heroEditor { left: 16px; bottom: -30px; }
+  .heroChipVerdict { right: 14px; }
+  .heroChipGems { right: 18px; bottom: 96px; }
+}
+
+@media (max-width: 680px) {
+  .hero { padding-block: 56px 72px; }
+  .heroTitle { letter-spacing: -1.8px; }
+  .heroStats { gap: 24px 30px; }
+  .heroChip { display: none; }
+  .heroEditor { position: relative; left: 0; bottom: 0; width: 100%; margin-top: 16px; }
+  .head, .headCentered { margin-bottom: 36px; }
+  .head h2, .headCentered h2 { letter-spacing: -1.2px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroOrbA,
+  .heroOrbB,
+  .kickerDot,
+  .heroChipVerdict,
+  .heroChipGems {
+    animation: none;
+  }
+  .heroPhoto,
+  .heroVisual:hover .heroPhoto {
+    transition: none;
+  }
+}
