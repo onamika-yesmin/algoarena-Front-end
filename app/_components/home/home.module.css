@@ -60,15 +60,18 @@
   letter-spacing: -2px;
 }
 
-.head p,
-.headCentered p {
+/* :not([class]) matters — this is the lede paragraph only. A bare `.head p`
+   out-specifies the single-class `.kicker` that sits in the same block, and
+   silently re-styled every section's eyebrow to 15.5px grey body text. */
+.head p:not([class]),
+.headCentered p:not([class]) {
   margin: 18px 0 0;
   color: #aeb4c9;
   font-size: 15.5px;
   line-height: 1.8;
 }
 
-.headCentered p {
+.headCentered p:not([class]) {
   margin-inline: auto;
 }
 
@@ -488,7 +491,9 @@
   letter-spacing: -0.4px;
 }
 
-.langHead span {
+/* The "starter code included" note only — not the classed .langBadge tile,
+   which this rule would otherwise flatten to an 11.5px block. */
+.langHead span:not([class]) {
   display: block;
   margin-top: 2px;
   color: #8f96ad;
