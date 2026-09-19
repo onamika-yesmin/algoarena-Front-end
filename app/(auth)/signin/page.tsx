@@ -7,6 +7,7 @@ import { appConfig } from "@/lib/config";
 import { setTokens } from "@/lib/auth-storage";
 import { Spinner } from "@/components/ui/Loader";
 import { CountUp } from "@/components/ui/CountUp";
+import { BrandLogo } from "@/components/layout/BrandLogo";
 import { IconCheck } from "@/app/_components/home/icons";
 
 declare global {
@@ -214,7 +215,7 @@ export default function SignInPage() {
       <main className="auth-page">
         <section className="auth-visual" aria-hidden="true">
           <div className="auth-visual-glow" />
-          <Link className="brand" href="/">Algo<span>Arena</span><i>{" //"}</i></Link>
+          <BrandLogo />
           <h2>Practice with purpose.<br />Compete with people who love it.</h2>
           <ul className="spotlight-list">
             <li><IconCheck /> Every submission, streak, and verdict saved to your profile</li>
@@ -229,7 +230,7 @@ export default function SignInPage() {
 
         <section className="auth-form-side">
           <div className="auth-card">
-            <Link className="brand auth-card-brand" href="/">Algo<span>Arena</span><i>{" //"}</i></Link>
+            <BrandLogo className="auth-card-brand" />
             <div className="auth-mode-toggle" role="tablist" aria-label="Sign in or create an account">
               <button type="button" role="tab" aria-selected={mode === "login"} className={mode === "login" ? "is-active" : undefined} onClick={() => switchMode("login")}>
                 Sign in

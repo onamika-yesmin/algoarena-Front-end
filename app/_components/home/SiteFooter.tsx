@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useAuth } from "@/providers/AuthProvider";
+import { BrandLogo } from "@/components/layout/BrandLogo";
 
 export function SiteFooter() {
   const { user, isLoading } = useAuth();
@@ -11,7 +12,7 @@ export function SiteFooter() {
     <footer>
       <div className="footer-main section-shell">
         <div className="footer-brand">
-          <Link className="brand" href="/"><i>{"</>"}</i> Algo<span>Arena</span></Link>
+          <BrandLogo size="lg" />
           <p>A home for developers who<br />enjoy the hard problems.</p>
         </div>
         <div>
