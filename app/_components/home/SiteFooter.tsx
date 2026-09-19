@@ -13,7 +13,13 @@ export function SiteFooter() {
       <div className="footer-main section-shell">
         <div className="footer-brand">
           <BrandLogo size="lg" />
-          <p>A home for developers who<br />enjoy the hard problems.</p>
+          <p>
+            A practice arena for people who like the hard problems — a real judge, an AI coach and a scoreboard, free
+            for everyone.
+          </p>
+          <Link className="button button-small" href="/problems">
+            Start solving <span aria-hidden="true">→</span>
+          </Link>
         </div>
         <div>
           <h4>Explore</h4>
