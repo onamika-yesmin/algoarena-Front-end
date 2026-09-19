@@ -378,7 +378,385 @@
 
 .heroChipGems svg { color: var(--orange); }
 
+/* ------------------------------------------------------- 2. proof band */
+
+.proof {
+  padding-block: 72px 84px;
+  background: #0b0f21;
+  border-bottom: 1px solid var(--line);
+}
+
+.proofLabel {
+  margin: 0 0 26px;
+  color: #7f86a0;
+  font: 10.5px "DM Mono";
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* Two rows of topic chips drifting in opposite directions. The track holds
+   the same chips twice so translating it exactly -50% loops seamlessly. */
+.marquee {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+
+.marquee + .marquee {
+  margin-top: 12px;
+}
+
+.marqueeTrack {
+  display: flex;
+  gap: 12px;
+  width: max-content;
+  animation: scrollX 52s linear infinite;
+}
+
+.marqueeReverse .marqueeTrack {
+  animation-direction: reverse;
+}
+
+.marquee:hover .marqueeTrack {
+  animation-play-state: paused;
+}
+
+@keyframes scrollX {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.topicChip {
+  flex: none;
+  padding: 10px 18px;
+  border: 1px solid #2a3255;
+  border-radius: 100px;
+  background: #12172b;
+  color: #c3c8dd;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.topicChip b {
+  margin-right: 8px;
+  color: var(--violet);
+  font-weight: 400;
+}
+
+.langGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 46px;
+}
+
+.langCard {
+  padding: 22px;
+  border: 1px solid #262e4f;
+  border-radius: 16px;
+  background: linear-gradient(162deg, #151b35, #10152a);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s, box-shadow 0.28s;
+}
+
+.langCard:hover {
+  transform: translateY(-5px);
+  border-color: #3b4573;
+  box-shadow: 0 26px 46px -28px rgba(0, 0, 0, 0.95);
+}
+
+.langHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.langBadge {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: none;
+  border-radius: 12px;
+  font: 700 14px "Space Grotesk";
+}
+
+.langHead h3 {
+  margin: 0;
+  color: #fff;
+  font: 700 17px "Space Grotesk";
+  letter-spacing: -0.4px;
+}
+
+.langHead span {
+  display: block;
+  margin-top: 2px;
+  color: #8f96ad;
+  font-size: 11.5px;
+}
+
+.langCard code {
+  display: block;
+  margin-top: 16px;
+  padding: 11px 13px;
+  overflow-x: auto;
+  border: 1px solid #232a45;
+  border-radius: 9px;
+  background: #0d1020;
+  color: #8ff0c7;
+  font: 11.5px "DM Mono";
+  white-space: pre;
+}
+
+.proofNote {
+  margin: 30px 0 0;
+  color: #8f96ad;
+  font-size: 13px;
+  text-align: center;
+}
+
+.proofNote b {
+  color: #c3c8dd;
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------- 3. feature bento */
+
+.bento {
+  padding-block: 100px;
+  border-bottom: 1px solid var(--line);
+}
+
+.bentoGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+}
+
+.tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  overflow: hidden;
+  padding: 26px;
+  border: 1px solid #262e4f;
+  border-radius: 18px;
+  background: linear-gradient(165deg, #151b35, #10152a);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s, box-shadow 0.3s;
+}
+
+/* Soft violet bloom from the top edge, revealed on hover. */
+.tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(460px circle at 50% -10%, rgba(128, 103, 255, 0.2), transparent 62%);
+  transition: opacity 0.3s;
+}
+
+.tile:hover {
+  transform: translateY(-5px);
+  border-color: #3b4573;
+  box-shadow: 0 30px 56px -32px rgba(0, 0, 0, 0.95);
+}
+
+.tile:hover::after { opacity: 1; }
+
+.tile > * { position: relative; z-index: 1; }
+
+.tileWide { grid-column: span 4; }
+.tileHalf { grid-column: span 3; }
+.tileThird { grid-column: span 2; }
+
+.tileIcon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(128, 103, 255, 0.34);
+  border-radius: 13px;
+  background: rgba(128, 103, 255, 0.13);
+  color: #b9a8ff;
+}
+
+.tileIconCyan { border-color: rgba(85, 216, 210, 0.34); background: rgba(85, 216, 210, 0.11); color: #7fe3de; }
+.tileIconOrange { border-color: rgba(255, 178, 84, 0.32); background: rgba(255, 178, 84, 0.1); color: #ffc27a; }
+.tileIconGreen { border-color: rgba(101, 223, 173, 0.32); background: rgba(101, 223, 173, 0.1); color: #7ce7bd; }
+
+.tile h3 {
+  margin: 0;
+  color: #fff;
+  font: 700 19px "Space Grotesk";
+  letter-spacing: -0.5px;
+}
+
+.tile p {
+  margin: 0;
+  color: #a7aec6;
+  font-size: 13.5px;
+  line-height: 1.75;
+}
+
+/* Per-tile mini visuals. */
+.tileArt {
+  margin-top: auto;
+  padding-top: 18px;
+}
+
+.judgeMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  color: #9da5bf;
+  font: 11px "DM Mono";
+}
+
+.judgeMeta b { color: #65dfad; }
+.judgeMeta small { margin-left: auto; }
+
+.testGrid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 5px;
+}
+
+.testCell {
+  aspect-ratio: 1;
+  border: 1px solid rgba(101, 223, 173, 0.6);
+  border-radius: 4px;
+  background: rgba(101, 223, 173, 0.24);
+}
+
+:global(.is-visible) .testCell {
+  animation: popIn 0.36s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.4); }
+  to { opacity: 1; transform: none; }
+}
+
+.miniRows {
+  display: grid;
+  gap: 7px;
+}
+
+.miniRow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 11px;
+  border: 1px solid #262e4f;
+  border-radius: 9px;
+  background: #0d1020;
+  color: #c3c8dd;
+  font: 11px "DM Mono";
+}
+
+.miniRow b { margin-left: auto; color: var(--orange); }
+.miniRowLocked { border-style: dashed; color: #7f86a0; }
+.miniRowLocked b { color: #8f96ad; }
+
+.bigO {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid #2a3255;
+  border-radius: 11px;
+  background: #0d1020;
+}
+
+.bigO strong {
+  color: #7fe3de;
+  font: 700 26px "Space Grotesk";
+  letter-spacing: -1px;
+}
+
+.bigO span {
+  color: #8f96ad;
+  font: 11px "DM Mono";
+}
+
+.diff {
+  overflow: hidden;
+  border: 1px solid #2a3255;
+  border-radius: 11px;
+  background: #0d1020;
+  font: 11px/2.1 "DM Mono";
+}
+
+.diff span {
+  display: block;
+  padding: 0 12px;
+}
+
+.diffMinus { background: rgba(255, 128, 128, 0.1); color: #ff9e9e; }
+.diffPlus { background: rgba(101, 223, 173, 0.1); color: #8ff0c7; }
+
+.spark {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  height: 62px;
+}
+
+.spark i {
+  flex: 1;
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(180deg, #8067ff, rgba(128, 103, 255, 0.25));
+  transform-origin: bottom;
+}
+
+:global(.is-visible) .spark i {
+  animation: growUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes growUp {
+  from { transform: scaleY(0.05); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+.pillRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.statusPill {
+  padding: 5px 11px;
+  border-radius: 100px;
+  font: 10px "DM Mono";
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.statusPending { background: #3a2f10; color: var(--orange); }
+.statusApproved { background: #123526; color: #65dfad; }
+.statusLive { background: #1c2a4a; color: #8fc3ff; }
+
 /* ------------------------------------------------------------ responsive */
+
+@media (max-width: 980px) {
+  .bentoGrid { grid-template-columns: repeat(4, 1fr); }
+  .tileWide { grid-column: span 4; }
+  .tileHalf { grid-column: span 2; }
+  .tileThird { grid-column: span 2; }
+}
+
+@media (max-width: 860px) {
+  .langGrid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 620px) {
+  .bento { padding-block: 64px; }
+  .bentoGrid { grid-template-columns: 1fr; }
+  .tileWide, .tileHalf, .tileThird { grid-column: span 1; }
+}
 
 @media (max-width: 1060px) {
   .heroInner { grid-template-columns: 1fr; gap: 52px; }
@@ -392,6 +770,7 @@
 
 @media (max-width: 680px) {
   .hero { padding-block: 56px 72px; }
+  .proof { padding-block: 52px 60px; }
   .heroTitle { letter-spacing: -1.8px; }
   .heroStats { gap: 24px 30px; }
   .heroChip { display: none; }
@@ -405,7 +784,8 @@
   .heroOrbB,
   .kickerDot,
   .heroChipVerdict,
-  .heroChipGems {
+  .heroChipGems,
+  .marqueeTrack {
     animation: none;
   }
   .heroPhoto,
