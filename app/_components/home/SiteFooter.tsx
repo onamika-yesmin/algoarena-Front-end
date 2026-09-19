@@ -22,7 +22,7 @@ export function SiteFooter() {
           </Link>
         </div>
         <div>
-          <h4>Explore</h4>
+          <h3>Explore</h3>
           <Link href="/problems">Problems</Link>
           <Link href="/contest">Contests</Link>
           <Link href="/leaderboard">Leaderboard</Link>
@@ -30,13 +30,13 @@ export function SiteFooter() {
           <Link href="/kids">Kids zone</Link>
         </div>
         <div>
-          <h4>Practice</h4>
+          <h3>Practice</h3>
           <Link href="/interview">Mock interviews</Link>
           <Link href="/analytics">Your analytics</Link>
           <Link href="/submissions">Submission history</Link>
         </div>
         <div>
-          <h4>Account</h4>
+          <h3>Account</h3>
           <Link href="/signin">Sign in</Link>
           <Link href="/profile">My profile</Link>
           {!isLoading && user?.role === "admin" && <Link href="/admin">Admin dashboard</Link>}

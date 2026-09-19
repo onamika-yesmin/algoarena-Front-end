@@ -78,7 +78,9 @@ export function ProofBand() {
   return (
     <section className={styles.proof} id="topics">
       <div className="section-shell">
-        <p className={styles.proofLabel}>Practise every topic an interview throws at you</p>
+        {/* A real <h2>, not a styled <p>: it is this section's heading, and it
+            keeps the page's outline going h1 → h2 → h3 for screen readers. */}
+        <h2 className={styles.proofLabel}>Practise every topic an interview throws at you</h2>
       </div>
 
       <Marquee items={TOPICS.slice(0, 8)} />
