@@ -1,0 +1,97 @@
+/* Shared shell for the two whole-page status screens — not-found.tsx and
+   error.tsx. Both used to fall back to Next's unstyled white default, which
+   dropped visitors out of the site with no way back. */
+
+.wrap {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  min-height: 68vh;
+  padding: 88px 24px 104px;
+  text-align: center;
+}
+
+.wrap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(148, 163, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 255, 0.06) 1px, transparent 1px);
+  background-size: 62px 62px;
+  -webkit-mask-image: radial-gradient(ellipse 60% 60% at 50% 30%, #000, transparent 72%);
+  mask-image: radial-gradient(ellipse 60% 60% at 50% 30%, #000, transparent 72%);
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  max-width: 560px;
+}
+
+.code {
+  margin: 0 0 6px;
+  background: linear-gradient(96deg, #a78bfa 0%, #7dd3fc 48%, #5eead4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font: 700 clamp(64px, 12vw, 116px) / 1 "Space Grotesk";
+  letter-spacing: -5px;
+}
+
+.inner h1 {
+  margin: 0 0 16px;
+  color: #fff;
+  font: 700 clamp(26px, 3.4vw, 38px) / 1.15 "Space Grotesk";
+  letter-spacing: -1.4px;
+}
+
+/* Body copy only: a bare `.inner p` would out-specify .code and .detail. */
+.inner p:not([class]) {
+  margin: 0 auto 30px;
+  max-width: 460px;
+  color: #aeb4c9;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 22px;
+  margin: 34px 0 0;
+  padding: 26px 0 0;
+  border-top: 1px solid var(--line);
+  list-style: none;
+}
+
+.links a {
+  color: #8f96ad;
+  font-size: 12.5px;
+  padding: 6px 0;
+  transition: color 0.15s;
+}
+
+.links a:hover { color: var(--cyan); }
+
+.detail {
+  margin: 26px auto 0;
+  max-width: 460px;
+  padding: 12px 14px;
+  border: 1px solid #2a3255;
+  border-radius: 9px;
+  background: #0d1020;
+  color: #8f96ad;
+  font: 11.5px/1.7 "DM Mono";
+  overflow-wrap: anywhere;
+  text-align: left;
+}

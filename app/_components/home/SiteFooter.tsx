@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useAuth } from "@/providers/AuthProvider";
+import { BrandLogo } from "@/components/layout/BrandLogo";
 
 export function SiteFooter() {
   const { user, isLoading } = useAuth();
@@ -11,11 +12,17 @@ export function SiteFooter() {
     <footer>
       <div className="footer-main section-shell">
         <div className="footer-brand">
-          <Link className="brand" href="/"><i>{"</>"}</i> Algo<span>Arena</span></Link>
-          <p>A home for developers who<br />enjoy the hard problems.</p>
+          <BrandLogo size="lg" />
+          <p>
+            A practice arena for people who like the hard problems — a real judge, an AI coach and a scoreboard, free
+            for everyone.
+          </p>
+          <Link className="button button-small" href="/problems">
+            Start solving <span aria-hidden="true">→</span>
+          </Link>
         </div>
         <div>
-          <h4>Explore</h4>
+          <h2>Explore</h2>
           <Link href="/problems">Problems</Link>
           <Link href="/contest">Contests</Link>
           <Link href="/leaderboard">Leaderboard</Link>
@@ -23,13 +30,13 @@ export function SiteFooter() {
           <Link href="/kids">Kids zone</Link>
         </div>
         <div>
-          <h4>Practice</h4>
+          <h2>Practice</h2>
           <Link href="/interview">Mock interviews</Link>
           <Link href="/analytics">Your analytics</Link>
           <Link href="/submissions">Submission history</Link>
         </div>
         <div>
-          <h4>Account</h4>
+          <h2>Account</h2>
           <Link href="/signin">Sign in</Link>
           <Link href="/profile">My profile</Link>
           {!isLoading && user?.role === "admin" && <Link href="/admin">Admin dashboard</Link>}

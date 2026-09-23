@@ -9,6 +9,17 @@ import { Loader } from "@/components/ui/Loader";
 import { getMyAnalytics, getMyAnalyticsHistory } from "@/lib/api/analytics";
 import type { AnalyticsResult, AnalyticsHistoryEntry } from "@/lib/api/analytics";
 import { getErrorMessage } from "@/lib/api/client";
+import {
+  ActivityCalendar,
+  BarBreakdown,
+  StatTile,
+  STATUS,
+  TrendChart,
+  TrendSwitch,
+  formatDay,
+  type BarRow,
+  type TrendMetric,
+} from "./charts";
 import styles from "./analytics.module.css";
 
 const VERDICT_LABELS: Record<string, string> = {
@@ -22,15 +33,17 @@ const VERDICT_LABELS: Record<string, string> = {
   RUNNING: "Running",
 };
 
-const VERDICT_FILL_CLASS: Record<string, string> = {
-  ACCEPTED: styles.fillAccepted,
-  WRONG_ANSWER: styles.fillWrong,
-  PENDING: styles.fillPending,
-  RUNNING: styles.fillRunning,
-  TIME_LIMIT_EXCEEDED: styles.fillError,
-  MEMORY_LIMIT_EXCEEDED: styles.fillError,
-  RUNTIME_ERROR: styles.fillError,
-  COMPILATION_ERROR: styles.fillError,
+/* A verdict is a state, not an identity, so it takes the reserved status
+   scale — and every bar is labelled, so the colour only reinforces. */
+const VERDICT_COLOR: Record<string, string> = {
+  ACCEPTED: STATUS.good,
+  PENDING: STATUS.info,
+  RUNNING: STATUS.info,
+  WRONG_ANSWER: STATUS.bad,
+  TIME_LIMIT_EXCEEDED: STATUS.warn,
+  MEMORY_LIMIT_EXCEEDED: STATUS.warn,
+  RUNTIME_ERROR: STATUS.bad,
+  COMPILATION_ERROR: STATUS.bad,
 };
 
 const LANGUAGE_LABELS: Record<string, string> = {
@@ -39,99 +52,49 @@ const LANGUAGE_LABELS: Record<string, string> = {
   javascript: "JavaScript",
 };
 
-const DIFFICULTY_FILL_CLASS: Record<string, string> = {
-  EASY: styles.fillEasy,
-  MEDIUM: styles.fillMedium,
-  HARD: styles.fillHard,
+const DIFFICULTY_COLOR: Record<string, string> = {
+  EASY: STATUS.good,
+  MEDIUM: STATUS.warn,
+  HARD: STATUS.bad,
 };
 
-function BarList({
-  rows,
-  labelFor,
-  fillClassFor,
+const DIFFICULTY_ORDER = ["EASY", "MEDIUM", "HARD"];
+
+function Panel({
+  title,
+  subtitle,
+  action,
+  children,
 }: {
-  rows: { key: string; count: number }[];
-  labelFor: (key: string) => string;
-  fillClassFor?: (key: string) => string | undefined;
+  title: string;
+  subtitle?: string;
+  action?: React.ReactNode;
+  children: React.ReactNode;
 }) {
-  const max = rows.reduce((acc, row) => Math.max(acc, row.count), 0) || 1;
   return (
-    <div className={styles.barList}>
-      {rows.map((row) => (
-        <div className={styles.barRow} key={row.key}>
-          <span className={styles.barLabel}>{labelFor(row.key)}</span>
-          <span className={styles.barTrack}>
-            <span
-              className={`${styles.barFill} ${fillClassFor?.(row.key) ?? ""}`}
-              style={{ width: `${(row.count / max) * 100}%` }}
-            />
-          </span>
-          <span className={styles.barCount}>{row.count}</span>
+    <section className={styles.panel}>
+      <div className={styles.panelHead}>
+        <div>
+          <h2 className={styles.panelTitle}>{title}</h2>
+          {subtitle && <p className={styles.panelSubtitle}>{subtitle}</p>}
         </div>
-      ))}
-    </div>
+        {action}
+      </div>
+      {children}
+    </section>
   );
 }
 
-function ActivityStrip({ activity }: { activity: AnalyticsResult["activity"] }) {
-  const max = activity.reduce((acc, day) => Math.max(acc, day.count), 0) || 1;
-  return (
-    <>
-      <div className={styles.activityStrip}>
-        {activity.map((day) => {
-          const ratio = day.count > 0 ? Math.max(day.count / max, 0.12) : 0;
-          return (
-            <span
-              key={day.date}
-              className={styles.activityCell}
-              title={`${day.date}: ${day.count} submission${day.count === 1 ? "" : "s"}`}
-            >
-              <span
-                className={styles.activityFill}
-                style={{ height: `${ratio * 100}%`, opacity: day.count > 0 ? 1 : 0 }}
-              />
-            </span>
-          );
-        })}
-      </div>
-      <div className={styles.activityLegend}>
-        <span>{activity[0]?.date}</span>
-        <span>{activity[activity.length - 1]?.date}</span>
-      </div>
-    </>
-  );
-}
-
-function ProgressHistory({ history }: { history: AnalyticsHistoryEntry[] }) {
-  if (history.length === 0) {
-    return (
-      <p className={styles.emptyState}>
-        Come back tomorrow to start seeing your progress charted day by day.
-      </p>
-    );
-  }
-
-  return (
-    <div className={styles.historyList}>
-      {[...history].reverse().map((day) => (
-        <div className={styles.historyRow} key={day.date}>
-          {/* day.date is a "YYYY-MM-DD" day key, which new Date() parses as
-              UTC midnight — format it in UTC too, or anyone west of UTC sees
-              the previous day. */}
-          <span className={styles.historyDate}>{new Date(day.date).toLocaleDateString(undefined, { month: "short", day: "numeric", timeZone: "UTC" })}</span>
-          <span className={styles.historyMetric}>
-            <b>{day.problemsSolved}</b> solved
-          </span>
-          <span className={styles.historyMetric}>
-            <b>{day.accuracyPercent}%</b> accuracy
-          </span>
-          <span className={styles.historyMetric}>
-            <b>{day.currentStreakDays}</b> day streak
-          </span>
-        </div>
-      ))}
-    </div>
-  );
+/** Wording for a stat tile's change over the loaded history window. */
+function deltaFor(history: AnalyticsHistoryEntry[], key: "problemsSolved" | "accuracyPercent" | "totalSubmissions", suffix = "") {
+  if (history.length < 2) return undefined;
+  const change = history[history.length - 1][key] - history[0][key];
+  const since = formatDay(history[0].date);
+  if (change === 0) return { text: `No change since ${since}`, direction: "flat" as const };
+  return {
+    text: `${change > 0 ? "+" : ""}${change}${suffix} since ${since}`,
+    direction: change > 0 ? ("up" as const) : ("flat" as const),
+  };
 }
 
 function AnalyticsContent() {
@@ -139,6 +102,7 @@ function AnalyticsContent() {
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState("");
   const [history, setHistory] = useState<AnalyticsHistoryEntry[]>([]);
+  const [metric, setMetric] = useState<TrendMetric>("problemsSolved");
 
   useEffect(() => {
     let cancelled = false;
@@ -171,16 +135,45 @@ function AnalyticsContent() {
     };
   }, []);
 
+  const verdictRows: BarRow[] =
+    analytics?.verdictBreakdown.map((entry) => ({
+      key: entry.verdict,
+      label: VERDICT_LABELS[entry.verdict] ?? entry.verdict,
+      count: entry.count,
+      color: VERDICT_COLOR[entry.verdict] ?? STATUS.info,
+    })) ?? [];
+
+  // Nominal categories — one series, so every bar shares the series hue.
+  const languageRows: BarRow[] =
+    analytics?.languageBreakdown.map((entry) => ({
+      key: entry.language,
+      label: LANGUAGE_LABELS[entry.language] ?? entry.language,
+      count: entry.count,
+    })) ?? [];
+
+  const difficultyRows: BarRow[] = (analytics?.difficultyBreakdown ?? [])
+    .slice()
+    .sort((a, b) => DIFFICULTY_ORDER.indexOf(a.difficulty) - DIFFICULTY_ORDER.indexOf(b.difficulty))
+    .map((entry) => ({
+      key: entry.difficulty,
+      label: entry.difficulty.charAt(0) + entry.difficulty.slice(1).toLowerCase(),
+      count: entry.count,
+      color: DIFFICULTY_COLOR[entry.difficulty],
+    }));
+
   return (
-    <main className="dashboard-shell">
-      <div className="dashboard-head">
+    <main className={`section-shell ${styles.page}`}>
+      <div className={styles.head}>
         <div>
           <p className="eyebrow">
             <b />
             YOUR ARENA / ANALYTICS
           </p>
           <h1>Your analytics</h1>
-          <p>A breakdown of every submission you&apos;ve made — verdicts, languages, difficulty and your solving streak.</p>
+          <p className={styles.lede}>
+            Every submission you&apos;ve made, broken down — verdicts, languages, difficulty, and how your standing has
+            moved day by day.
+          </p>
         </div>
         <Link className="button button-small" href="/problems">
           Solve a problem <span>→</span>
@@ -188,98 +181,114 @@ function AnalyticsContent() {
       </div>
 
       {status === "loading" && <Loader label="Loading your analytics…" />}
-      {status === "error" && <p className="problem-list-status">{errorMessage}</p>}
+      {status === "error" && <p className={styles.emptyState}>{errorMessage}</p>}
 
       {status === "ready" && analytics && (
         <>
-          <section className="metric-grid">
-            <article>
-              <b>{analytics.problemsSolved}</b>
-              <span>Problems solved</span>
-            </article>
-            <article>
-              <b>{analytics.accuracyPercent}%</b>
-              <span>Accuracy</span>
-            </article>
-            <article>
-              <b>{analytics.currentStreakDays}</b>
-              <span>Current streak (days)</span>
-            </article>
-            <article>
-              <b>{analytics.totalSubmissions}</b>
-              <span>Total submissions</span>
-            </article>
+          <section className={styles.tiles}>
+            <StatTile
+              label="Problems solved"
+              value={String(analytics.problemsSolved)}
+              delta={deltaFor(history, "problemsSolved")}
+              trend={history.map((day) => day.problemsSolved)}
+            />
+            <StatTile
+              label="Accuracy"
+              value={`${analytics.accuracyPercent}%`}
+              delta={deltaFor(history, "accuracyPercent", "%")}
+              trend={history.map((day) => day.accuracyPercent)}
+            />
+            <StatTile
+              label="Current streak"
+              value={`${analytics.currentStreakDays} ${analytics.currentStreakDays === 1 ? "day" : "days"}`}
+              trend={history.map((day) => day.currentStreakDays)}
+            />
+            <StatTile
+              label="Total submissions"
+              value={String(analytics.totalSubmissions)}
+              delta={deltaFor(history, "totalSubmissions")}
+              trend={history.map((day) => day.totalSubmissions)}
+            />
           </section>
 
           {analytics.totalSubmissions === 0 ? (
-            <section className={styles.panel}>
+            <Panel title="Nothing to chart yet">
               <p className={styles.emptyState}>
-                You haven&apos;t submitted anything yet. <Link href="/problems">Solve your first problem</Link> to see analytics here.
+                You haven&apos;t submitted anything yet. <Link href="/problems">Solve your first problem</Link> and this
+                page fills in.
               </p>
-            </section>
+            </Panel>
           ) : (
             <>
-              <section className={styles.panel}>
-                <h2 className={styles.panelTitle}>Verdict breakdown</h2>
-                <p className={styles.panelSubtitle}>How your submissions resolved across every attempt.</p>
-                <BarList
-                  rows={analytics.verdictBreakdown.map((entry) => ({ key: entry.verdict, count: entry.count }))}
-                  labelFor={(key) => VERDICT_LABELS[key] ?? key}
-                  fillClassFor={(key) => VERDICT_FILL_CLASS[key]}
-                />
-              </section>
+              <Panel
+                title="Progress over time"
+                subtitle="One daily snapshot per day you visit. Hover a point for that day's figures."
+                action={<TrendSwitch metric={metric} onChange={setMetric} />}
+              >
+                <TrendChart history={history} metric={metric} />
+              </Panel>
 
-              <section className={styles.panel}>
-                <h2 className={styles.panelTitle}>Language breakdown</h2>
-                <p className={styles.panelSubtitle}>Which languages you submit in most often.</p>
-                <BarList
-                  rows={analytics.languageBreakdown.map((entry) => ({ key: entry.language, count: entry.count }))}
-                  labelFor={(key) => LANGUAGE_LABELS[key] ?? key}
-                />
-              </section>
+              <Panel title="Last 30 days" subtitle="Daily submission activity — darker means a busier day.">
+                <ActivityCalendar activity={analytics.activity} />
+              </Panel>
 
-              <section className={styles.panel}>
-                <h2 className={styles.panelTitle}>Difficulty breakdown</h2>
-                <p className={styles.panelSubtitle}>Distinct problems solved, by difficulty.</p>
-                {analytics.difficultyBreakdown.length === 0 ? (
-                  <p className={styles.emptyState}>
-                    No solved problems yet. <Link href="/problems">Browse the problem library</Link> to get started.
-                  </p>
-                ) : (
-                  <>
-                    <div className={styles.legendRow}>
-                      <span className={styles.legendItem}>
-                        <span className={styles.legendDot} style={{ background: "#55d8d2" }} /> Easy
-                      </span>
-                      <span className={styles.legendItem}>
-                        <span className={styles.legendDot} style={{ background: "#ffb254" }} /> Medium
-                      </span>
-                      <span className={styles.legendItem}>
-                        <span className={styles.legendDot} style={{ background: "#fc6c70" }} /> Hard
-                      </span>
-                    </div>
-                    <BarList
-                      rows={analytics.difficultyBreakdown.map((entry) => ({ key: entry.difficulty, count: entry.count }))}
-                      labelFor={(key) => key.charAt(0) + key.slice(1).toLowerCase()}
-                      fillClassFor={(key) => DIFFICULTY_FILL_CLASS[key]}
-                    />
-                  </>
-                )}
-              </section>
+              <div className={styles.panelRow}>
+                <Panel title="Verdicts" subtitle="How every attempt resolved.">
+                  <BarBreakdown rows={verdictRows} totalForPercent={analytics.totalSubmissions} />
+                </Panel>
 
-              <section className={styles.panel}>
-                <h2 className={styles.panelTitle}>Last 30 days</h2>
-                <p className={styles.panelSubtitle}>Daily submission activity, oldest to newest.</p>
-                <ActivityStrip activity={analytics.activity} />
-              </section>
+                <Panel title="Languages" subtitle="What you submit in most often.">
+                  <BarBreakdown rows={languageRows} />
+                </Panel>
+
+                <Panel title="Difficulty" subtitle="Distinct problems solved.">
+                  {difficultyRows.length === 0 ? (
+                    <p className={styles.emptyState}>
+                      No solved problems yet. <Link href="/problems">Browse the library</Link> to get started.
+                    </p>
+                  ) : (
+                    <BarBreakdown rows={difficultyRows} />
+                  )}
+                </Panel>
+              </div>
             </>
           )}
 
-          <section className={styles.panel}>
-            <h2 className={styles.panelTitle}>Progress history</h2>
-            <p className={styles.panelSubtitle}>A daily snapshot of your standing, newest first — builds up day by day as you keep solving.</p>
-            <ProgressHistory history={history} />
-          </section>
+          <Panel
+            title="Daily snapshots"
+            subtitle="The same history as the chart above, newest first — and the full numbers behind it."
+          >
+            {history.length === 0 ? (
+              <p className={styles.emptyState}>Come back tomorrow to start seeing your progress day by day.</p>
+            ) : (
+              <div className={styles.tableScroll}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th scope="col">Date</th>
+                      <th scope="col">Solved</th>
+                      <th scope="col">Accuracy</th>
+                      <th scope="col">Streak</th>
+                      <th scope="col">Submissions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...history].reverse().map((day) => (
+                      <tr key={day.date}>
+                        <td>{formatDay(day.date)}</td>
+                        <td>{day.problemsSolved}</td>
+                        <td>{day.accuracyPercent}%</td>
+                        <td>
+                          {day.currentStreakDays} {day.currentStreakDays === 1 ? "day" : "days"}
+                        </td>
+                        <td>{day.totalSubmissions}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Panel>
         </>
       )}
     </main>

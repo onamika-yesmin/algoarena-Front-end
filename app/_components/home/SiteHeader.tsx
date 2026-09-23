@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/providers/AuthProvider";
+import { BrandLogo } from "@/components/layout/BrandLogo";
 import { IconGem } from "./icons";
 
 const Arrow = () => <span aria-hidden="true">→</span>;
@@ -71,9 +72,7 @@ export function SiteHeader() {
 
   return (
     <header className={`site-header${isScrolled ? " is-scrolled" : ""}`}>
-      <Link className="brand" href="/" aria-label="AlgoArena home">
-        <i>{"</>"}</i> Algo<span>Arena</span>
-      </Link>
+      <BrandLogo />
       <nav aria-label="Primary navigation">
         {PRIMARY_LINKS.map((link) => (
           <Link key={link.href} href={link.href} className={isActive(link.href) ? "is-active" : undefined}>

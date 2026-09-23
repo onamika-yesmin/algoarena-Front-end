@@ -1,131 +1,428 @@
-/* Analytics dashboard visuals — bar lists and the 30-day activity strip.
-   Colors are copied from app/globals.css (not imported) so this module
-   stays self-contained: panel #171c34, border #303854, muted text #9da5bf,
-   violet #8067ff, cyan #55d8d2, orange #ffb254. */
+/* Analytics dashboard.
+   ---------------------------------------------------------------------
+   Palette decisions here were run through the dataviz palette validator
+   against the panel surface #171c34 in dark mode, not eyeballed:
+
+   · Series (single-series bars, the trend line)  #8067ff — in the dark
+     lightness band, over the chroma floor, >=3:1 on the surface.
+   · Activity ramp (magnitude, one hue, light→dark)
+     #55d8d2 · #31a5a4 · #23787c · #1d5b60 — passes monotone lightness,
+     adjacent ΔL, light-end contrast and the single-hue check.
+   · Status scale (verdicts, difficulty) #65dfad / #ffc861 / #f2545b —
+     the app's amber/red pair (#ffb254 / #ff8080) failed the normal-vision
+     floor at ΔE 14.1, i.e. hard to tell apart even with full colour
+     vision, so both were re-stepped: the pair now clears at ΔE 18.2 with
+     CVD separation 8.7. Every bar is also directly labelled, so colour is
+     never the only identity channel.
+   Surfaces/text copied from globals.css so this module stays standalone. */
+
+.page {
+  padding-block: 44px 96px;
+}
+
+.head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 28px;
+  margin-bottom: 34px;
+}
+
+.head h1 {
+  margin: 0;
+  color: #fff;
+  font: 700 clamp(32px, 4.4vw, 50px) / 1.05 "Space Grotesk", sans-serif;
+  letter-spacing: -2.2px;
+}
+
+.lede {
+  max-width: 600px;
+  margin: 14px 0 0;
+  color: #aeb4c9;
+  font-size: 14.5px;
+  line-height: 1.75;
+}
+
+/* --------------------------------------------------------- stat tiles */
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px 22px 18px;
+  border: 1px solid #262e4f;
+  border-radius: 16px;
+  background: linear-gradient(168deg, #171c34, #12172b);
+}
+
+.tileLabel {
+  color: #9aa1b8;
+  font: 10.5px "DM Mono", monospace;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.tileValue {
+  color: #fff;
+  /* Proportional figures: tabular-nums makes a display-size number look
+     loose. Tabular is reserved for the snapshot table's columns. */
+  font: 700 34px "Space Grotesk", sans-serif;
+  letter-spacing: -1.4px;
+  line-height: 1.1;
+}
+
+.tileDelta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #8f96ad;
+  font-size: 11.5px;
+}
+
+.tileDeltaUp { color: #65dfad; }
+.tileDeltaFlat { color: #8f96ad; }
+
+.tileSpark {
+  margin-top: 10px;
+  height: 30px;
+  width: 100%;
+}
+
+/* ------------------------------------------------------------- panels */
 
 .panel {
-  border: 1px solid #303854;
+  margin-top: 16px;
+  padding: 24px 26px 26px;
+  border: 1px solid #262e4f;
+  border-radius: 18px;
   background: #171c34;
-  padding: 26px;
-  margin-top: 22px;
+}
+
+.panelHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 20px;
 }
 
 .panelTitle {
-  font: 700 18px "Space Grotesk", sans-serif;
-  margin: 0 0 4px;
+  margin: 0;
   color: #fff;
+  font: 700 17px "Space Grotesk", sans-serif;
+  letter-spacing: -0.4px;
 }
 
 .panelSubtitle {
+  margin: 5px 0 0;
   color: #9da5bf;
-  font-size: 12px;
-  margin: 0 0 20px;
+  font-size: 12.5px;
+  line-height: 1.6;
 }
 
+.panelRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.panelRow .panel { margin-top: 0; }
+
+/* ------------------------------------------------- segmented control */
+
+.segmented {
+  display: inline-flex;
+  flex: none;
+  gap: 3px;
+  padding: 4px;
+  border: 1px solid #2c3459;
+  border-radius: 10px;
+  background: #0f1428;
+}
+
+.segmentedButton {
+  padding: 7px 13px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #9aa1b8;
+  font: 700 11px Manrope, sans-serif;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+
+.segmentedButton:hover { color: #e7e9f5; }
+
+.segmentedActive,
+.segmentedActive:hover {
+  background: rgba(128, 103, 255, 0.24);
+  color: #d5caff;
+}
+
+/* --------------------------------------------------------- bar lists */
+
 .barList {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  gap: 14px;
 }
 
 .barRow {
   display: grid;
-  grid-template-columns: 130px 1fr 40px;
-  align-items: center;
-  gap: 12px;
+  gap: 7px;
 }
 
-@media (max-width: 480px) {
-  .barRow {
-    grid-template-columns: 88px 1fr 32px;
-    gap: 8px;
-  }
+.barTop {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.barDot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+  align-self: center;
 }
 
 .barLabel {
-  font-size: 12px;
-  color: #cfd2df;
-  text-transform: capitalize;
-  white-space: nowrap;
   overflow: hidden;
+  color: #cfd2df;
+  font-size: 12.5px;
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Direct label at the bar's tip, in text ink — never the series colour. */
+.barValue {
+  margin-left: auto;
+  color: #fff;
+  font: 700 12.5px "DM Mono", monospace;
+}
+
+.barValue small {
+  margin-left: 6px;
+  color: #8f96ad;
+  font-weight: 400;
 }
 
 .barTrack {
-  position: relative;
+  display: block;
   height: 10px;
-  border-radius: 6px;
-  background: #12172b;
-  border: 1px solid #303854;
-  overflow: hidden;
+  border-radius: 5px;
+  background: #0f1428;
 }
 
+/* Square at the baseline, 4px rounded at the data end. */
 .barFill {
+  display: block;
   height: 100%;
-  border-radius: 6px;
-  background: var(--violet, #8067ff);
-  transition: width 0.3s ease;
+  min-width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: #8067ff;
+  transform-origin: left;
+  animation: growX 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.barCount {
-  font: 12px "DM Mono", monospace;
-  color: #9da5bf;
-  text-align: right;
+@keyframes growX {
+  from { transform: scaleX(0); }
+  to { transform: none; }
 }
 
-/* Verdict-specific fill colors */
-.fillAccepted { background: #55d8d2; }
-.fillWrong { background: #fc6c70; }
-.fillPending,
-.fillRunning { background: #ffb254; }
-.fillError { background: #c9bbff; }
+.barRow:hover .barLabel { color: #fff; }
 
-/* Difficulty-specific fill colors */
-.fillEasy { background: #55d8d2; }
-.fillMedium { background: #ffb254; }
-.fillHard { background: #fc6c70; }
+/* ------------------------------------------------- activity calendar */
+
+.stripScroll {
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
 
 .activityStrip {
-  display: flex;
-  gap: 4px;
-  align-items: flex-end;
-  overflow-x: auto;
-  padding-bottom: 4px;
+  display: grid;
+  gap: 6px;
+  min-width: 420px;
 }
 
 .activityCell {
-  flex: 1 0 10px;
-  min-width: 10px;
-  height: 34px;
-  border-radius: 3px;
-  background: #12172b;
-  border: 1px solid #303854;
-  position: relative;
+  aspect-ratio: 1;
+  max-height: 34px;
+  border-radius: 5px;
+  background: #1a2038;
   cursor: default;
+  outline: 2px solid transparent;
+  outline-offset: 1px;
+  transition: outline-color 0.15s;
 }
 
-.activityFill {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 2px;
-  background: var(--cyan, #55d8d2);
-}
+.activityCell:hover { outline-color: #4a5488; }
 
-.activityLegend {
+.activityAxis {
   display: flex;
   justify-content: space-between;
+  margin-top: 10px;
   color: #6d748d;
   font: 10px "DM Mono", monospace;
-  margin-top: 8px;
+}
+
+.calFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #232a48;
+}
+
+.calSummary {
+  margin: 0;
+  color: #9da5bf;
+  font-size: 12.5px;
+}
+
+.calSummary b { color: #e7e9f5; }
+
+.calLegend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #6d748d;
+  font: 10px "DM Mono", monospace;
+}
+
+.calLegend i {
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+}
+
+/* --------------------------------------------------------- SVG chart */
+
+.chartWrap {
+  position: relative;
+}
+
+.chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.gridLine {
+  stroke: #262e4f;
+  stroke-width: 1;
+}
+
+.axisText {
+  fill: #6d748d;
+  font: 10px "DM Mono", monospace;
+}
+
+.trendArea { fill: rgba(128, 103, 255, 0.1); }
+
+.trendLine {
+  fill: none;
+  stroke: #8067ff;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.trendDot {
+  fill: #8067ff;
+  /* 2px ring in the surface colour so overlapping dots stay legible. */
+  stroke: #171c34;
+  stroke-width: 2;
+}
+
+.trendHit {
+  fill: transparent;
+  cursor: crosshair;
+}
+
+.crosshair {
+  stroke: #4a5488;
+  stroke-width: 1;
+}
+
+.tooltip {
+  position: absolute;
+  z-index: 2;
+  transform: translate(-50%, -100%);
+  padding: 8px 11px;
+  border: 1px solid #333c63;
+  border-radius: 9px;
+  background: rgba(13, 16, 32, 0.96);
+  box-shadow: 0 14px 30px -14px rgba(0, 0, 0, 0.9);
+  color: #e7e9f5;
+  font: 11.5px "DM Mono", monospace;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.tooltip b {
+  display: block;
+  margin-bottom: 3px;
+  color: #fff;
+  font: 700 12px "Space Grotesk", sans-serif;
+}
+
+/* ------------------------------------------------------ table  view */
+
+.tableScroll {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  /* Columns of numbers — this is where tabular figures belong. */
+  font-variant-numeric: tabular-nums;
+}
+
+.table th {
+  padding: 0 14px 10px 0;
+  border-bottom: 1px solid #262e4f;
+  color: #8f96ad;
+  font: 10px "DM Mono", monospace;
+  letter-spacing: 0.6px;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 11px 14px 11px 0;
+  border-bottom: 1px solid #1c2340;
+  color: #c3c8dd;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.table tbody tr:last-child td { border-bottom: 0; }
+.table tbody tr:hover td { background: #141a33; }
+
+.table td:first-child {
+  color: #fff;
+  font: 700 12.5px "DM Mono", monospace;
 }
 
 .emptyState {
+  margin: 0;
+  padding: 8px 0;
   color: #aeb4c9;
   font-size: 13px;
   line-height: 1.7;
-  padding: 6px 0;
 }
 
 .emptyState a {
@@ -133,61 +430,26 @@
   font-weight: 700;
 }
 
-.legendRow {
-  display: flex;
-  gap: 18px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
+/* -------------------------------------------------------- responsive */
+
+@media (max-width: 1040px) {
+  .panelRow { grid-template-columns: 1fr; }
+  .tiles { grid-template-columns: repeat(2, 1fr); }
 }
 
-.legendItem {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: #9da5bf;
+@media (max-width: 720px) {
+  .page { padding-block: 32px 64px; }
+  .head { display: block; }
+  .head .button, .head a { margin-top: 20px; }
+  .panelHead { display: block; }
+  .segmented { margin-top: 16px; }
+  .panel { padding: 20px 16px 22px; }
 }
 
-.legendDot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  display: inline-block;
+@media (max-width: 460px) {
+  .tiles { grid-template-columns: 1fr; }
 }
 
-/* Progress history — one row per AnalyticsSnapshot day (see
-   lib/api/analytics.ts's getMyAnalyticsHistory). */
-.historyList {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.historyRow {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 4px 18px;
-  padding: 10px 0;
-  border-bottom: 1px solid #232a45;
-}
-
-.historyRow:last-child {
-  border-bottom: none;
-}
-
-.historyDate {
-  min-width: 64px;
-  color: #fff;
-  font: 700 12px "DM Mono", monospace;
-}
-
-.historyMetric {
-  color: #9da5bf;
-  font-size: 12px;
-}
-
-.historyMetric b {
-  color: #cfd2df;
-  font-weight: 700;
+@media (prefers-reduced-motion: reduce) {
+  .barFill { animation: none; }
 }

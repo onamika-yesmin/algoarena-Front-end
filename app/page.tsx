@@ -1,37 +1,32 @@
 import { SiteHeader } from "./_components/home/SiteHeader";
 import { SiteFooter } from "./_components/home/SiteFooter";
-import { HomeStats } from "./_components/home/HomeStats";
-import { LearningPaths } from "./_components/home/LearningPaths";
-import { CallToAction } from "./_components/home/CallToAction";
 import { HomeHero } from "./_components/home/HomeHero";
-import { EditorSpotlight } from "./_components/home/EditorSpotlight";
-import { InterviewSpotlight } from "./_components/home/InterviewSpotlight";
-import { ContestSpotlight } from "./_components/home/ContestSpotlight";
-import { CommunitySpotlight } from "./_components/home/CommunitySpotlight";
-import { PlatformSections } from "./_components/home/PlatformSections";
+import { ProofBand } from "./_components/home/ProofBand";
+import { FeatureBento } from "./_components/home/FeatureBento";
+import { WorkspaceShowcase } from "./_components/home/WorkspaceShowcase";
+import { HowItWorks } from "./_components/home/HowItWorks";
+import { ArenaModes } from "./_components/home/ArenaModes";
+import { HomeFaq } from "./_components/home/HomeFaq";
+import { CallToAction } from "./_components/home/CallToAction";
 
+/**
+ * The homepage, in eight sections: the promise, what you can practise, what
+ * the platform does for you, the workspace it does it in, the loop you
+ * repeat, the rest of the arena, the questions people ask, and the ask.
+ */
 export default function HomePage() {
   return (
     <main>
       <SiteHeader />
 
-      <HomeHero />
-
-      <HomeStats />
-
-      <EditorSpotlight />
-
-      <LearningPaths />
-
-      <InterviewSpotlight />
-
-      <ContestSpotlight />
-
-      <CommunitySpotlight />
-
-      <PlatformSections />
-
-      <CallToAction />
+      {/* 1 */} <HomeHero />
+      {/* 2 */} <ProofBand />
+      {/* 3 */} <FeatureBento />
+      {/* 4 */} <WorkspaceShowcase />
+      {/* 5 */} <HowItWorks />
+      {/* 6 */} <ArenaModes />
+      {/* 7 */} <HomeFaq />
+      {/* 8 */} <CallToAction />
 
       <SiteFooter />
     </main>
