@@ -120,6 +120,12 @@ export interface AdminPendingQuestionsListResult {
     total: number;
     totalPages: number;
   };
+  statusCounts?: {
+    pending: number;
+    approved: number;
+    rejected: number;
+    all: number;
+  };
 }
 
 export type ReviewAction = "approve" | "reject" | "edit";

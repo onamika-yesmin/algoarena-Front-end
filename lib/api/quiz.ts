@@ -52,11 +52,12 @@ export interface ListAdminPendingParams {
   limit?: number;
   topic?: string;
   difficulty?: QuestionDifficulty;
+  status?: string;
 }
 
 /**
  * GET /api/quiz/admin/pending
- * Fetches paginated review queue for admin moderation
+ * Fetches paginated questions for admin moderation & database overview
  */
 export const getAdminPendingQuestions = (params: ListAdminPendingParams = {}) => {
   const query = new URLSearchParams();
@@ -64,6 +65,7 @@ export const getAdminPendingQuestions = (params: ListAdminPendingParams = {}) =>
   if (params.limit) query.set("limit", String(params.limit));
   if (params.topic) query.set("topic", params.topic);
   if (params.difficulty) query.set("difficulty", params.difficulty);
+  if (params.status) query.set("status", params.status);
 
   const queryString = query.toString();
   return apiRequest<AdminPendingQuestionsListResult>(

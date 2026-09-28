@@ -27,6 +27,7 @@ const NAV_ITEMS: { href: string; label: string; icon: typeof IconGrid; exact: bo
   { href: "/admin/contests", label: "Contests", icon: IconTrophy, exact: false, accent: "green", roles: ["admin", "guest"] },
   { href: "/admin/host-requests", label: "Host requests", icon: IconInbox, exact: false, accent: "orange", roles: ["admin"] },
   { href: "/admin/proposals", label: "Proposals", icon: IconBulb, exact: false, accent: "cyan", roles: ["admin"] },
+  { href: "/admin/quiz", label: "Quiz Moderation", icon: IconGrid, exact: false, accent: "violet", roles: ["admin"] },
 ];
 
 interface AdminShellProps {
