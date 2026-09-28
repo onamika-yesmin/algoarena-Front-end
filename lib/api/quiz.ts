@@ -106,3 +106,20 @@ export const triggerAdminBatchGeneration = (
     },
   );
 };
+
+export interface AutoFlagResult {
+  inspectedCount: number;
+  flaggedLowAccuracyCount: number;
+  flaggedHighAccuracyCount: number;
+  flaggedQuestionIds: string[];
+}
+
+/**
+ * POST /api/quiz/admin/auto-flag
+ * Triggers Quality Control loop to flag low/high accuracy outlier questions
+ */
+export const triggerAdminAutoFlag = () => {
+  return apiRequest<AutoFlagResult>("/api/quiz/admin/auto-flag", {
+    method: "POST",
+  });
+};

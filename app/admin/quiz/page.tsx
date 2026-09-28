@@ -9,6 +9,7 @@ import {
   getAdminPendingQuestions,
   reviewAdminQuestion,
   triggerAdminBatchGeneration,
+  triggerAdminAutoFlag,
 } from "@/lib/api/quiz";
 import { getErrorMessage } from "@/lib/api/client";
 import type {
@@ -55,6 +56,7 @@ function AdminQuizModerationContent() {
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [actioningId, setActioningId] = useState<string | null>(null);
   const [isBatchApproving, setIsBatchApproving] = useState<boolean>(false);
+  const [isRunningQC, setIsRunningQC] = useState<boolean>(false);
 
   // Edit Modal State
   const [editingQ, setEditingQ] = useState<AdminPendingQuizQuestion | null>(null);
@@ -108,6 +110,23 @@ function AdminQuizModerationContent() {
       return () => clearTimeout(timer);
     }
   }, [toastMsg]);
+
+  // Handle Quality Control Auto-Flag Audit
+  const handleRunQCAudit = async () => {
+    setIsRunningQC(true);
+    try {
+      const res = await triggerAdminAutoFlag();
+      const totalFlagged = res.flaggedLowAccuracyCount + res.flaggedHighAccuracyCount;
+      setToastMsg(
+        `🔍 Quality Control Audit complete! Inspected ${res.inspectedCount} active questions. Flagged ${totalFlagged} outliers (${res.flaggedLowAccuracyCount} low accuracy, ${res.flaggedHighAccuracyCount} trivial) for review.`
+      );
+      void fetchQuestions(true);
+    } catch (err) {
+      setToastMsg(`QC Audit failed: ${getErrorMessage(err)}`);
+    } finally {
+      setIsRunningQC(false);
+    }
+  };
 
   // Handle Approve
   const handleApprove = async (id: string) => {
@@ -257,9 +276,18 @@ function AdminQuizModerationContent() {
       <AdminShell
         eyebrow="ADMIN MODERATION"
         title="Quiz Bank & Batch Pipeline"
-        description="Review AI-generated questions awaiting audit, browse approved quiz bank, execute inline edits, and trigger background generation."
+        description="Review AI-generated questions awaiting audit, browse approved quiz bank, execute inline edits, trigger background generation, and run quality control audits."
         actions={
-          <div style={{ display: "flex", gap: 10 }}>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <button
+              type="button"
+              disabled={isRunningQC}
+              onClick={handleRunQCAudit}
+              className="button button-small"
+              style={{ background: "#ffb254", color: "#1a1202", fontWeight: 700 }}
+            >
+              {isRunningQC ? "Auditing Analytics..." : "🔍 Run Quality Control Audit"}
+            </button>
             {verifiedInView > 0 && filterStatus === "pending_review" && (
               <button
                 type="button"
