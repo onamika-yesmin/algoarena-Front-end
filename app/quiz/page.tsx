@@ -83,6 +83,7 @@ export default function QuizHubPage() {
         count: questionCount,
       });
 
+      sessionStorage.setItem(`algoarena_quiz_session_${session.sessionId}`, JSON.stringify(session));
       router.push(`/quiz/${session.sessionId}`);
     } catch (err) {
       setErrorMsg(getErrorMessage(err, "Failed to initialize quiz session."));
@@ -126,9 +127,8 @@ export default function QuizHubPage() {
                     key={topic.id}
                     type="button"
                     onClick={() => setSelectedTopic(topic.id)}
-                    className={`${styles.topicCard} ${
-                      isSelected ? styles.topicCardActive : ""
-                    }`}
+                    className={`${styles.topicCard} ${isSelected ? styles.topicCardActive : ""
+                      }`}
                   >
                     {topic.badge && (
                       <span className={styles.badgePopular}>{topic.badge}</span>
@@ -157,9 +157,8 @@ export default function QuizHubPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedMode("PRACTICE")}
-                  className={`${styles.modeButton} ${
-                    selectedMode === "PRACTICE" ? styles.modeButtonActive : ""
-                  }`}
+                  className={`${styles.modeButton} ${selectedMode === "PRACTICE" ? styles.modeButtonActive : ""
+                    }`}
                 >
                   <div className={styles.modeTitle}>Practice</div>
                   <div className={styles.modeSub}>Instant Notes</div>
@@ -168,9 +167,8 @@ export default function QuizHubPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedMode("EXAM")}
-                  className={`${styles.modeButton} ${
-                    selectedMode === "EXAM" ? styles.modeButtonActive : ""
-                  }`}
+                  className={`${styles.modeButton} ${selectedMode === "EXAM" ? styles.modeButtonActive : ""
+                    }`}
                 >
                   <div className={styles.modeTitle}>Exam Mode</div>
                   <div className={styles.modeSub}>Timed & Gems</div>
@@ -216,9 +214,8 @@ export default function QuizHubPage() {
                     key={cnt}
                     type="button"
                     onClick={() => setQuestionCount(cnt)}
-                    className={`${styles.countBtn} ${
-                      questionCount === cnt ? styles.countBtnActive : ""
-                    }`}
+                    className={`${styles.countBtn} ${questionCount === cnt ? styles.countBtnActive : ""
+                      }`}
                   >
                     {cnt} Qs
                   </button>

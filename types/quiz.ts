@@ -20,7 +20,8 @@ export interface CodeSnippet {
 }
 
 export interface QuizQuestionPublic {
-  questionId: string;
+  _id?: string;
+  questionId?: string;
   type: QuestionType;
   topic: string;
   difficulty: QuestionDifficulty;
@@ -83,6 +84,9 @@ export interface QuizSessionResultBreakdown {
   mode: SessionMode;
   status: SessionStatus;
   score: number;
+  maxPossibleScore?: number;
+  correctCount?: number;
+  earnedGems?: number;
   totalQuestions: number;
   startedAt: string;
   expiresAt: string;
