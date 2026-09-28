@@ -18,15 +18,15 @@ export const getSocket = (): Socket => {
     });
 
     socket.on("connect", () => {
-      console.log("⚡ [Socket.IO] Connected to backend:", socket?.id);
+      console.log("[Socket.IO] Connected to backend:", socket?.id);
     });
 
     socket.on("connect_error", (error) => {
-      console.warn("⚠️ [Socket.IO] Connection error:", error.message);
+      console.warn("[Socket.IO] Connection error:", error.message);
     });
 
     socket.on("disconnect", (reason) => {
-      console.log("🔌 [Socket.IO] Disconnected:", reason);
+      console.log("[Socket.IO] Disconnected:", reason);
     });
   }
 
