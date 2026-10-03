@@ -167,6 +167,14 @@ function AdminDashboardContent() {
           </Link>
         </article>
         <article className="admin-link-card">
+          <span className="panel-kicker panel-kicker-violet"><IconGrid /> AI QUIZ</span>
+          <h2>Quiz Moderation</h2>
+          <p>Review AI-generated quiz questions, edit content, and trigger background batch pipelines.</p>
+          <Link className="text-link" href="/admin/quiz">
+            Open Quiz Moderation →
+          </Link>
+        </article>
+        <article className="admin-link-card">
           <span className="panel-kicker panel-kicker-orange"><IconGrid /> QUALITY</span>
           <h2>Judge health</h2>
           <p>

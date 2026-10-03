@@ -15,13 +15,7 @@ interface NavLink {
   label: string;
 }
 
-const PRIMARY_LINKS: NavLink[] = [
-  { href: "/problems", label: "Problems" },
-  { href: "/contest", label: "Contests" },
-  { href: "/leaderboard", label: "Leaderboard" },
-  { href: "/community", label: "Community" },
-  { href: "/kids", label: "Kids" },
-];
+
 
 export function SiteHeader() {
   const { user, isLoading, logout } = useAuth();
@@ -30,11 +24,6 @@ export function SiteHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
-  // A signed-in user unlocks a couple of extra links; admins (and approved
-  // guest contest hosts, who only get the contest manager) get one more on
-  // top of that. Computed once per render so both the desktop nav and the
-  // mobile drawer stay in sync from a single source of truth.
-  const signedInLinks: NavLink[] = !isLoading && user ? [{ href: "/analytics", label: "Analytics" }, { href: "/interview", label: "Interview" }] : [];
   const adminLink: NavLink | null =
     !isLoading && user?.role === "admin"
       ? { href: "/admin", label: "Admin" }
@@ -42,13 +31,22 @@ export function SiteHeader() {
         ? { href: "/admin/contests", label: "Host panel" }
         : null;
   const roleBadge = user?.role === "admin" ? "Admin" : user?.role === "guest" ? "Host" : null;
-  const allLinks = [...PRIMARY_LINKS, ...signedInLinks, ...(adminLink ? [adminLink] : [])];
+
+  // Order: Problems -> Contests -> Leaderboard -> Kids -> Interview -> Quiz -> Analytics -> Community -> Admin
+  const renderedNavLinks: NavLink[] = [
+    { href: "/problems", label: "Problems" },
+    { href: "/contest", label: "Contests" },
+    { href: "/leaderboard", label: "Leaderboard" },
+    { href: "/kids", label: "Kids" },
+    ...(!isLoading && user ? [{ href: "/interview", label: "Interview" }] : []),
+    { href: "/quiz", label: "Quiz" },
+    ...(!isLoading && user ? [{ href: "/analytics", label: "Analytics" }] : []),
+    { href: "/community", label: "Community" },
+    ...(adminLink ? [adminLink] : []),
+  ];
 
   const isActive = (href: string) => pathname === href || pathname?.startsWith(`${href}/`);
 
-  // Close the mobile drawer automatically on navigation, and give the header
-  // a subtle shadow once the page has scrolled — both small touches that
-  // make the sticky header feel considered rather than just pinned in place.
   useEffect(() => {
     setIsMenuOpen(false);
   }, [pathname]);
@@ -74,21 +72,17 @@ export function SiteHeader() {
     <header className={`site-header${isScrolled ? " is-scrolled" : ""}`}>
       <BrandLogo />
       <nav aria-label="Primary navigation">
-        {PRIMARY_LINKS.map((link) => (
-          <Link key={link.href} href={link.href} className={isActive(link.href) ? "is-active" : undefined}>
+        {renderedNavLinks.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className={`${link.href.startsWith("/admin") ? "admin-nav-link" : ""}${
+              isActive(link.href) ? " is-active" : ""
+            }`}
+          >
             {link.label}
           </Link>
         ))}
-        {signedInLinks.map((link) => (
-          <Link key={link.href} href={link.href} className={isActive(link.href) ? "is-active" : undefined}>
-            {link.label}
-          </Link>
-        ))}
-        {adminLink && (
-          <Link href={adminLink.href} className={`admin-nav-link${isActive(adminLink.href) ? " is-active" : ""}`}>
-            {adminLink.label}
-          </Link>
-        )}
       </nav>
       <div className="header-actions">
         {!isLoading && user ? (
@@ -136,7 +130,7 @@ export function SiteHeader() {
       </div>
       <div id="mobile-nav" className={`mobile-nav${isMenuOpen ? " is-open" : ""}`}>
         <nav aria-label="Mobile navigation">
-          {allLinks.map((link) => (
+          {renderedNavLinks.map((link) => (
             <Link key={link.href} href={link.href} className={isActive(link.href) ? "is-active" : undefined}>
               {link.label}
             </Link>
